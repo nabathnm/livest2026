@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:livest/features/auth/pages/login_page.dart';
-import 'package:provider/provider.dart';
-import '../presentation/providers/auth_provider.dart';
+import 'package:livest/features/auth/pages/otp_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -11,63 +9,52 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  bool isFilled = false;
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
+            Text("Register Page"),
             TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              controller: _emailController,
+              decoration: InputDecoration(label: Text("email")),
             ),
             TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
+              controller: _passwordController,
+              decoration: InputDecoration(label: Text("password")),
             ),
-            const SizedBox(height: 20),
-
-            if (auth.errorMessage != null)
-              Text(
-                auth.errorMessage!,
-                style: const TextStyle(color: Colors.red),
-              ),
-
+            TextField(
+              controller: _phoneController,
+              decoration: InputDecoration(label: Text("phone")),
+            ),
             ElevatedButton(
-              onPressed: auth.isLoading
-                  ? null
-                  : () async {
-                      final success = await auth.register(
-                        emailController.text.trim(),
-                        passwordController.text.trim(),
-                      );
+              onPressed: () {
+                final phone = _phoneController.text.trim();
 
-                      if (success && context.mounted) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => LoginPage()),
-                          (route) => false,
-                        );
-                      }
-                    },
-              child: auth.isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('Register'),
+                if (phone.isEmpty) return;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OtpPage()),
+                );
+              },
+              child: Text("Next"),
             ),
           ],
         ),

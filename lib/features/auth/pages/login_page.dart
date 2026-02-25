@@ -1,84 +1,53 @@
-import 'package:flutter/material.dart';
-import 'package:livest/features/auth/pages/register_page.dart';
-import 'package:livest/main_page.dart';
-import 'package:provider/provider.dart';
-import '../presentation/providers/auth_provider.dart';
+// import 'package:flutter/material.dart';
+// import 'package:livest/features/auth/pages/otp_page.dart';
+// import 'package:livest/features/auth/services/auth_service.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+// class LoginPage extends StatefulWidget {
+//   const LoginPage({super.key});
 
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
+//   @override
+//   State<LoginPage> createState() => _LoginPageState();
+// }
 
-class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+// class _LoginPageState extends State<LoginPage> {
+//   final _authService = AuthService();
+//   final _phone = TextEditingController();
 
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     _phone.dispose();
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Padding(
+//         padding: const EdgeInsets.all(20),
+//         child: Column(
+//           children: [
+//             TextField(
+//               controller: _phone,
+//               decoration: InputDecoration(label: Text("Phone")),
+//             ),
+//             Text(""),
+//             ElevatedButton(
+//               onPressed: () {
+//                 final phone = _phone.text.trim();
+//                 if (phone.isEmpty) return;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(controller: emailController),
-            TextField(controller: passwordController, obscureText: true),
+//                 _authService.register(_phone.text);
 
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => RegisterPage()),
-                );
-              },
-              child: const Text("Belum punya akun? Daftar"),
-            ),
-
-            if (auth.errorMessage != null)
-              Text(
-                auth.errorMessage!,
-                style: const TextStyle(color: Colors.red),
-              ),
-
-            ElevatedButton(
-              onPressed: auth.isLoading
-                  ? null
-                  : () async {
-                      await auth.login(
-                        emailController.text.trim(),
-                        passwordController.text.trim(),
-                      );
-
-                      if (auth.errorMessage == null && context.mounted) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => const MainPage()),
-                          (route) => false,
-                        );
-                      }
-                    },
-              child: auth.isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Login'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//                 Navigator.push(
+//                   context,
+//                   MaterialPageRoute(builder: (context) => OtpPage()),
+//                 );
+//               },
+//               child: Text("Next"),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
