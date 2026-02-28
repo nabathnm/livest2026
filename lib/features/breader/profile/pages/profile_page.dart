@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/config/supabase_config.dart';
+import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/features/breader/profile/pages/edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -90,6 +92,26 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   child: const Text("Edit Profil"),
+                ),
+              ),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await SupabaseConfig.client.auth.signOut();
+                    Navigator.pushReplacementNamed(
+                      context,
+                      RouteGenerator.login,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text("Logout"),
                 ),
               ),
             ],
