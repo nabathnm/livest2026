@@ -4,5 +4,8 @@ import 'package:livest/core/utils/constants/livest_colors.dart';
 class LivestAppTheme {
   LivestAppTheme._();
 
-  static ThemeData theme = ThemeData(primaryColor: LivestColors.primary);
+  static ThemeData theme = ThemeData(
+    primaryColor: LivestColors.primaryNormal,
+    fontFamily: 'PlusJakartaSans',
+  );
 }

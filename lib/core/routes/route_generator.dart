@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:livest/features/auth/pages/onboarding_page.dart';
-import 'package:livest/features/auth/pages/splash_page.dart';
+import 'package:livest/features/auth/pages/role_page.dart';
 import 'package:livest/features/auth/pages/login_page.dart';
 import 'package:livest/features/auth/pages/register_page.dart';
+import 'package:livest/features/auth/pages/splash_screen_page.dart';
 import 'package:livest/features/breader/breader_main_page.dart';
 import 'package:livest/features/buyer/buyer_main_page.dart';
 
@@ -18,7 +18,7 @@ class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
-        return MaterialPageRoute(builder: (_) => const SplashPage());
+        return MaterialPageRoute(builder: (_) => const SplashScreenPage());
       case login:
         return MaterialPageRoute(builder: (_) => const LoginPage());
       case register:
