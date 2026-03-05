@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 
-// Data model for each onboarding page
 class OnboardingData {
   final String imagePath;
   final String title;
@@ -15,7 +15,6 @@ class OnboardingData {
   });
 }
 
-// All onboarding pages data in one place
 final List<OnboardingData> onboardingPages = [
   const OnboardingData(
     imagePath:
@@ -29,18 +28,17 @@ final List<OnboardingData> onboardingPages = [
         'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/onboarding/onBoarding2.png',
     title: 'Asisten Cerdas berbasis AI',
     description:
-        'Dapatkan rekomendasi cerdas berbasis AI untuk membantu kebutuhan peternakan Anda.',
+        'Nikmati kemudahan dalam mendapatkan informasi cepat, dengan asisten cerdas kami!',
   ),
   const OnboardingData(
     imagePath:
         'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/onboarding/onBoarding3.png',
-    title: 'Pantau Ternak Kapan Saja',
+    title: 'Edukasi Ternak Interaktif',
     description:
-        'Monitor kondisi dan perkembangan ternak Anda secara real-time dari mana saja.',
+        'Pelajari teknik beternak, kesehatan ternak, bisnis ternak dan masih banyak lagi!',
   ),
 ];
 
-// Main onboarding controller page — handles page navigation
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -59,7 +57,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         curve: Curves.easeInOut,
       );
     } else {
-      // TODO: navigate to home/login
+      _navigateAway();
     }
   }
 
@@ -70,8 +68,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  void _skip() {
-    // TODO: navigate to home/login
+  void _navigateAway() {
+    Navigator.pushReplacementNamed(context, RouteGenerator.login);
   }
 
   @override
@@ -85,62 +83,95 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final isLast = _currentIndex == onboardingPages.length - 1;
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: _currentIndex > 0
-            ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: _goBack)
-            : null,
-        actions: [
-          if (!isLast)
-            TextButton(
-              onPressed: _skip,
-              child: Text(
-                'Skip',
-                style: TextStyle(color: LivestColors.textSecondary),
-              ),
-            ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Stack(
           children: [
-            // Progress indicator
-            _OnboardingProgressBar(
-              total: onboardingPages.length,
-              current: _currentIndex,
-            ),
-            const SizedBox(height: 56),
+            // ── Scrollable content ──
+            Column(
+              children: [
+                // Top bar (back + skip)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Back arrow
+                      if (_currentIndex > 0)
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back,
+                              color: LivestColors.textPrimary),
+                          onPressed: _goBack,
+                        )
+                      else
+                        const SizedBox(width: 48),
 
-            // Page content
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: (index) => setState(() => _currentIndex = index),
-                itemCount: onboardingPages.length,
-                itemBuilder: (context, index) {
-                  return _OnboardingDetail(data: onboardingPages[index]);
-                },
-              ),
-            ),
+                      // Skip
+                      if (!isLast)
+                        TextButton(
+                          onPressed: _navigateAway,
+                          child: const Text(
+                            'Skip',
+                            style: TextStyle(
+                              color: LivestColors.primaryNormal,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                      else
+                        const SizedBox(width: 48),
+                    ],
+                  ),
+                ),
 
-            const SizedBox(height: 56),
-            CustomButton(text: isLast ? 'Mulai' : 'Lanjut', onPressed: _goNext),
-            const SizedBox(height: 24),
+                // Progress dots
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 4),
+                  child: _OnboardingProgressBar(
+                    total: onboardingPages.length,
+                    current: _currentIndex,
+                  ),
+                ),
+
+                // Page content (scrollable)
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onPageChanged: (i) =>
+                        setState(() => _currentIndex = i),
+                    itemCount: onboardingPages.length,
+                    itemBuilder: (context, index) {
+                      return _OnboardingDetail(
+                          data: onboardingPages[index]);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ],
+        ),
+      ),
+      // Button pinned di bawah
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: CustomButton(
+          text: isLast ? 'Mulai' : 'Lanjut',
+          onPressed: _goNext,
         ),
       ),
     );
   }
 }
 
-// Progress bar widget
 class _OnboardingProgressBar extends StatelessWidget {
   final int total;
   final int current;
 
-  const _OnboardingProgressBar({required this.total, required this.current});
+  const _OnboardingProgressBar(
+      {required this.total, required this.current});
 
   @override
   Widget build(BuildContext context) {
@@ -148,16 +179,15 @@ class _OnboardingProgressBar extends StatelessWidget {
       spacing: 8,
       children: List.generate(total, (index) {
         final isActive = index == current;
-        return Expanded(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            height: 4,
-            decoration: BoxDecoration(
-              color: isActive
-                  ? LivestColors.primaryNormal
-                  : LivestColors.primaryNormal.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(999),
-            ),
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: 8,
+          width: isActive ? 24 : 8,
+          decoration: BoxDecoration(
+            color: isActive
+                ? LivestColors.primaryNormal
+                : LivestColors.primaryLightActive,
+            borderRadius: BorderRadius.circular(999),
           ),
         );
       }),
@@ -165,7 +195,6 @@ class _OnboardingProgressBar extends StatelessWidget {
   }
 }
 
-// Reusable detail widget — driven entirely by OnboardingData
 class _OnboardingDetail extends StatelessWidget {
   final OnboardingData data;
 
@@ -173,41 +202,66 @@ class _OnboardingDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      spacing: 32,
-      children: [
-        Image.network(
-          data.imagePath,
-          height: 360,
-          width: 360,
-          fit: BoxFit.contain,
-        ),
-        // Container(height: 360, width: 360, color: LivestColors.primaryDark),
-        Column(
-          spacing: 24,
-          children: [
-            Text(
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 16),
+
+          // Gambar 360x360
+          Image.network(
+            data.imagePath,
+            height: 360,
+            width: 360,
+            fit: BoxFit.contain,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return const SizedBox(
+                height: 360,
+                width: 360,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: LivestColors.primaryNormal,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 32),
+
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
               data.title,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 32,
                 color: LivestColors.textPrimary,
                 height: 1.25,
               ),
             ),
-            Text(
+          ),
+          const SizedBox(height: 16),
+
+          // Description
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
               data.description,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 16,
                 color: LivestColors.textSecondary,
+                height: 1.5,
               ),
             ),
-          ],
-        ),
-      ],
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

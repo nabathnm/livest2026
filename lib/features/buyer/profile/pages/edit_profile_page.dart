@@ -1,25 +1,19 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-import 'package:livest/core/utils/constants/livest_sizes.dart';
 import 'package:livest/core/utils/widgets/custom_text_field.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
-import 'package:livest/features/auth/widgets/postsignup/location_dropdown.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String initialName;
   final String initialEmail;
   final String initialPhone;
-  final String initialFarmName;
-  final String initialFarmLocation;
 
   const EditProfilePage({
     super.key,
     required this.initialName,
     required this.initialEmail,
     required this.initialPhone,
-    required this.initialFarmName,
-    required this.initialFarmLocation,
   });
 
   @override
@@ -32,21 +26,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
-  late TextEditingController _farmNameController;
-  String _farmLocation = '';
-
-  static const List<String> _provinces = [
-    'Jawa Timur',
-    'Jawa Barat',
-    'Jawa Tengah',
-    'Banten',
-    'DKI Jakarta',
-    'Bali',
-    'Sumatera Utara',
-    'Sumatera Barat',
-    'Kalimantan Timur',
-    'Sulawesi Selatan',
-  ];
 
   @override
   void initState() {
@@ -54,8 +33,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _nameController = TextEditingController(text: widget.initialName);
     _emailController = TextEditingController(text: widget.initialEmail);
     _phoneController = TextEditingController(text: widget.initialPhone);
-    _farmNameController = TextEditingController(text: widget.initialFarmName);
-    _farmLocation = widget.initialFarmLocation == '-' ? _provinces.first : widget.initialFarmLocation;
   }
 
   @override
@@ -63,7 +40,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _farmNameController.dispose();
     super.dispose();
   }
 
@@ -73,10 +49,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final provider = context.read<ProfileProvider>();
     final success = await provider.updateProfile(
       name: _nameController.text,
-      email: _emailController.text, 
+      email: _emailController.text,
       phoneNumber: _phoneController.text,
-      farmName: _farmNameController.text,
-      farmLocation: _farmLocation,
     );
 
     if (success && mounted) {
@@ -173,19 +147,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     }
                     return null;
                   },
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  label: "Nama Peternakan",
-                  controller: _farmNameController,
-                  prefixIcon: const SizedBox.shrink(),
-                  validator: (value) => value == null || value.isEmpty ? "Nama Peternakan tidak boleh kosong" : null,
-                ),
-                const SizedBox(height: 16),
-                LocationDropdown(
-                  value: _provinces.contains(_farmLocation) ? _farmLocation : null,
-                  items: _provinces,
-                  onChanged: (v) => setState(() => _farmLocation = v ?? ''),
                 ),
                 const SizedBox(height: 40),
                 SizedBox(

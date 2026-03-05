@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:livest/features/breader/home/models/education_model.dart';
+import 'package:provider/provider.dart';
+import 'package:livest/data/models/education_model.dart';
 import 'package:livest/features/breader/home/pages/education_detail_page.dart';
-import 'package:livest/features/breader/home/services/education_service.dart';
+import 'package:livest/features/breader/home/providers/education_provider.dart';
 
 class EducationPage extends StatefulWidget {
   const EducationPage({super.key});
@@ -11,35 +12,31 @@ class EducationPage extends StatefulWidget {
 }
 
 class _EducationPageState extends State<EducationPage> {
-  final educationService = EducationService();
-  List<EducationModel> educations = [];
-
-  Future<void> fetchData() async {
-    final data = await educationService.fetchData();
-    setState(() {
-      educations = data;
-    });
-  }
-
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      fetchData();
-    });
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EducationProvider>().fetchEducations();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Edukasi"), leading: Icon(Icons.back_hand)),
+      appBar: AppBar(
+        title: const Text("Edukasi"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
               decoration: InputDecoration(
                 hintText: "Masukkan pencarian...",
                 filled: true,
@@ -54,22 +51,53 @@ class _EducationPageState extends State<EducationPage> {
                 ),
               ),
             ),
+            const SizedBox(height: 12),
             Row(
-              spacing: 12,
-              children: [
+              children: const [
                 EducationCategoryBadge(label: "makan"),
+                SizedBox(width: 12),
                 EducationCategoryBadge(label: "makan"),
+                SizedBox(width: 12),
                 EducationCategoryBadge(label: "makan"),
+                SizedBox(width: 12),
                 EducationCategoryBadge(label: "makan"),
               ],
             ),
-            Text("Rekomendasi"),
+            const SizedBox(height: 16),
+            const Text(
+              "Rekomendasi",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
             Expanded(
-              child: ListView.builder(
-                itemCount: educations.length,
-                itemBuilder: (context, index) {
-                  final currentEducations = educations[index];
-                  return EducationCard(education: currentEducations);
+              child: Consumer<EducationProvider>(
+                builder: (context, educationProvider, child) {
+                  if (educationProvider.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (educationProvider.errorMessage != null) {
+                    return Center(
+                      child: Text(
+                        educationProvider.errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
+                  if (educationProvider.educations.isEmpty) {
+                    return const Center(
+                      child: Text("Belum ada konten edukasi."),
+                    );
+                  }
+
+                  return ListView.builder(
+                    itemCount: educationProvider.educations.length,
+                    itemBuilder: (context, index) {
+                      final education = educationProvider.educations[index];
+                      return EducationCard(education: education);
+                    },
+                  );
                 },
               ),
             ),

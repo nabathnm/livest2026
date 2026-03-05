@@ -36,6 +36,7 @@ dependencies:
   google_generative_ai: ^0.4.0
   flutter_dotenv: ^5.1.0
   flutter_animate: ^4.5.0
+  google_sign_in: ^6.2.1
 
   
 
@@ -52,7 +53,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  google_sign_in: ^6.2.1
+
 
 
 # For information on the generic Dart part of this file, see the
@@ -64,7 +65,11 @@ flutter:
 
   assets:
     - .env
-    - assets/
+    - assets/images/
+    - assets/images/onboarding/
+    - assets/images/login/
+    - assets/images/login/register/
+    - assets/fonts/
 
   fonts:
     - family: PlusJakartaSans

@@ -1,57 +1,72 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-// import 'package:livest/core/config/supabase_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:livest/core/config/supabase_config.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/theme/theme.dart';
-import 'package:livest/features/auth/pages/onboarding_page.dart';
-import 'package:livest/features/auth/pages/splash_screen_page.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Livest extends StatefulWidget {
   const Livest({super.key});
+
+  static final Completer<void> supabaseReady = Completer<void>();
 
   @override
   State<Livest> createState() => _LivestState();
 }
 
 class _LivestState extends State<Livest> {
-  // final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  StreamSubscription<AuthState>? _authSubscription;
 
-  // StreamSubscription<AuthState>? _authSubscription;
+  @override
+  void initState() {
+    super.initState();
+    _initSupabase();
+  }
 
-  // @override
-  // void initState() {
-  //   super.initState();
+  Future<void> _initSupabase() async {
+    await Supabase.initialize(
+      url: dotenv.env['SUPABASE_URL']!,
+      anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    );
 
-  //   _authSubscription = SupabaseConfig.client.auth.onAuthStateChange.listen((
-  //     data,
-  //   ) {
-  //     final event = data.event;
+    if (!Livest.supabaseReady.isCompleted) {
+      Livest.supabaseReady.complete();
+    }
 
-  //     if (event == AuthChangeEvent.signedIn ||
-  //         event == AuthChangeEvent.signedOut) {
-  //       _navigatorKey.currentState?.pushNamedAndRemoveUntil(
-  //         RouteGenerator.splash,
-  //         (route) => false,
-  //       );
-  //     }
-  //   });
-  // }
+    if (!mounted) return;
 
-  // @override
-  // void dispose() {
-  //   _authSubscription?.cancel();
-  //   super.dispose();
-  // }
+    _authSubscription = SupabaseConfig.client.auth.onAuthStateChange.listen((
+      data,
+    ) {
+      final event = data.event;
+
+      if (event == AuthChangeEvent.initialSession) return;
+
+      if (event == AuthChangeEvent.signedOut) {
+        _navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          RouteGenerator.splash,
+          (route) => false,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // navigatorKey: _navigatorKey,
+      navigatorKey: _navigatorKey,
       theme: LivestAppTheme.theme,
       debugShowCheckedModeBanner: false,
-      home: SplashScreenPage(),
-      // initialRoute: RouteGenerator.splash,
-      // onGenerateRoute: RouteGenerator.generateRoute,
+      initialRoute: RouteGenerator.splash,
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }

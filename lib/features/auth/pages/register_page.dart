@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/widgets/auth_header.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 import 'package:livest/core/utils/widgets/custom_text_field.dart';
-import 'package:livest/features/auth/services/auth_service.dart';
+import 'package:livest/core/utils/widgets/divider_with_text.dart';
+import 'package:livest/features/auth/providers/auth_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -12,16 +17,10 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
-
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirmPassword = TextEditingController();
-
-  bool _isLoading = false;
-  bool _hasMinLength = false;
-  bool _hasNumber = false;
 
   @override
   void dispose() {
@@ -31,150 +30,143 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void _executeRegister() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-    try {
-      await _authService.signUpWithEmail(
-        _email.text.trim(),
-        _password.text.trim(),
-      );
-      if (mounted)
-        Navigator.pushReplacementNamed(context, RouteGenerator.login);
-    } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  // Logika Signup Google
-  void _executeGoogleSignup() async {
-    setState(() => _isLoading = true);
-    try {
-      await _authService.signInWithGoogle();
-    } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        if (authProvider.errorMessage != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(authProvider.errorMessage!),
+                backgroundColor: const Color(0xFFE53935),
+              ),
+            );
+            authProvider.clearError();
+          });
+        }
+
+        return Scaffold(
+          backgroundColor: LivestColors.baseWhite,
+          body: Column(
             children: [
-              const Text(
-                "Sign Up",
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+              SafeArea(
+                bottom: false,
+                child: AuthHeader(
+                  subtitle: "Daftar untuk mengakses Livest",
+                  activeTab: 1,
+                  onTabChanged: (tab) {
+                    if (tab == 0) {
+                      Navigator.pushReplacementNamed(
+                        context,
+                        RouteGenerator.login,
+                      );
+                    }
+                  },
+                ),
               ),
-              const SizedBox(height: 40),
 
-              CustomTextField(
-                label: "Email",
-                controller: _email,
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty)
-                    return "Email tidak boleh kosong";
-                  if (!RegExp(
-                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-                  ).hasMatch(value))
-                    return "Email invalid!";
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+              // ── Form Body ──
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(LivestSizes.lg),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // Email
+                        CustomTextField(
+                          label: "Email",
+                          hintText: "Masukkan email",
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Email tidak boleh kosong";
+                            }
+                            if (!RegExp(r"^[^@]+@[^@]+\.[^@]+").hasMatch(value)) {
+                              return "Email tidak valid!";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: LivestSizes.spaceBtwInputFields),
 
-              CustomTextField(
-                label: "Buat password baru",
-                controller: _password,
-                isPassword: true,
-                onChanged: (val) {
-                  setState(() {
-                    _hasMinLength = val.length >= 8;
-                    _hasNumber = val.contains(RegExp(r'[0-9]'));
-                  });
-                },
-                validator: (value) => (!_hasMinLength || !_hasNumber)
-                    ? "Password tidak memenuhi syarat"
-                    : null,
-              ),
-              const SizedBox(height: 16),
+                        // Password
+                        CustomTextField(
+                          label: "Password",
+                          hintText: "Masukkan password",
+                          controller: _password,
+                          isPassword: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Password tidak boleh kosong";
+                            }
+                            if (value.length < 8) {
+                              return "Minimal 8 karakter";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: LivestSizes.spaceBtwInputFields),
 
-              CustomTextField(
-                label: "Konfirmasi password",
-                controller: _confirmPassword,
-                isPassword: true,
-                validator: (value) => (value != _password.text)
-                    ? "Konfirmasi password tidak sesuai!"
-                    : null,
-              ),
-              const SizedBox(height: 24),
+                        // Ulangi Password
+                        CustomTextField(
+                          label: "Ulangi Password",
+                          hintText: "Ulangi Password",
+                          controller: _confirmPassword,
+                          isPassword: true,
+                          validator: (value) {
+                            if (value != _password.text) {
+                              return "Konfirmasi password tidak sesuai!";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: LivestSizes.lg),
 
-              const Text(
-                "Password harus memenuhi:",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              _buildIndicatorRow("Panjang minimal 8 karakter", _hasMinLength),
-              const SizedBox(height: 4),
-              _buildIndicatorRow("Terdapat minimal 1 angka", _hasNumber),
-              const SizedBox(height: 32),
-              CustomButton(
-                text: "Sign Up",
-                isLoading: _isLoading,
-                onPressed: _executeRegister,
-              ),
-              const SizedBox(height: 8),
-              CustomButton(
-                text: "Signup with Google",
-                variant: ButtonVariant.text,
-                icon: Icons.g_mobiledata,
-                isLoading: _isLoading,
-                onPressed: _executeGoogleSignup,
+                        CustomButton(
+                          text: "Masuk",
+                          isLoading: authProvider.isLoading,
+                          onPressed: () async {
+                            FocusScope.of(context).unfocus();
+                            if (!_formKey.currentState!.validate()) return;
+                            final success = await authProvider.signUpWithEmail(
+                              _email.text.trim(),
+                              _password.text.trim(),
+                            );
+                            if (success && mounted) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                RouteGenerator.rolePage,
+                                (route) => false,
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: LivestSizes.lg),
+
+                        // Divider
+                        const DividerWithText(),
+                        const SizedBox(height: LivestSizes.lg),
+
+                        // Google
+                        CustomButton(
+                          text: "Masuk dengan Google",
+                          variant: ButtonVariant.outlined,
+                          icon: Icons.g_mobiledata,
+                          isLoading: authProvider.isLoading,
+                          onPressed: () => authProvider.signInWithGoogle(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildIndicatorRow(String text, bool isValid) {
-    return Row(
-      children: [
-        Icon(
-          isValid ? Icons.check_circle : Icons.radio_button_unchecked,
-          color: isValid ? Colors.green : Colors.grey,
-          size: 16,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(color: isValid ? Colors.black : Colors.grey),
-        ),
-      ],
+        );
+      },
     );
   }
 }

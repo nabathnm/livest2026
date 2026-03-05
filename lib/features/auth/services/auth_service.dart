@@ -4,16 +4,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // 1. Login Email Biasa
   Future<void> signInWithEmail(String email, String password) async {
     try {
       await _supabase.auth.signInWithPassword(email: email, password: password);
     } on AuthException catch (e) {
-      throw Exception(e.message); // Lempar error bersih ke UI
+      throw Exception(e.message);
     }
   }
 
-  // 2. Register Email Biasa
   Future<void> signUpWithEmail(String email, String password) async {
     try {
       await _supabase.auth.signUp(email: email, password: password);
@@ -22,10 +20,8 @@ class AuthService {
     }
   }
 
-  // 3. Login Menggunakan Google
   Future<void> signInWithGoogle() async {
     try {
-      // WAJIB DIGANTI: Web Client ID dari Google Cloud Console
       const webClientId =
           '644958779222-1sm913p9bdno71a4bhma7n8mt9p1jkor.apps.googleusercontent.com';
 
@@ -44,7 +40,6 @@ class AuthService {
         throw Exception('Gagal mendapatkan token kredensial dari Google.');
       }
 
-      // Kirim token ke Supabase untuk verifikasi dan pembuatan sesi
       await _supabase.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
@@ -55,7 +50,62 @@ class AuthService {
     }
   }
 
-  // 4. Logout
+  Future<void> verifyOTP(String email, String otpCode) async {
+    try {
+      await _supabase.auth.verifyOTP(
+        email: email,
+        token: otpCode,
+        type: OtpType.signup,
+      );
+    } on AuthException catch (e) {
+      throw Exception(e.message);
+    }
+  }
+
+  Future<void> resendOTP(String email) async {
+    try {
+      await _supabase.auth.resend(
+        type: OtpType.signup,
+        email: email,
+      );
+    } on AuthException catch (e) {
+      throw Exception(e.message);
+    }
+  }
+
+  Future<void> sendPasswordResetOTP(String email) async {
+    try {
+      await _supabase.auth.resetPasswordForEmail(email);
+    } on AuthException catch (e) {
+      throw Exception(e.message);
+    }
+  }
+
+  Future<void> verifyPasswordResetOTP({
+    required String email,
+    required String otpCode,
+  }) async {
+    try {
+      await _supabase.auth.verifyOTP(
+        email: email,
+        token: otpCode,
+        type: OtpType.recovery,
+      );
+    } on AuthException catch (e) {
+      throw Exception(e.message);
+    }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      await _supabase.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+    } on AuthException catch (e) {
+      throw Exception(e.message);
+    }
+  }
+
   Future<void> signOut() async {
     await _supabase.auth.signOut();
   }
