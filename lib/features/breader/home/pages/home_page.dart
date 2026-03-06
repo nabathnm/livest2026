@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/features/breader/home/provider/education_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,38 +12,65 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EducationProvider>().getEducation();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: LivestColors.baseBackground,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: ListView(
+          child: Column(
             children: [
-              /// 🔹 Welcome Section
-              const Text(
-                "Welcome, Nabath 👋",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              Image.asset(
+                "https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/educationImage/event.png",
               ),
-              const SizedBox(height: 8),
-              const Text(
-                "Mau belajar apa hari ini?",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-
-              const SizedBox(height: 30),
-
-              /// 🔹 Category Menu
               Row(
-                children: const [
-                  Expanded(child: _CategoryCard(title: "Kesehatan")),
-                  SizedBox(width: 12),
-                  Expanded(child: _CategoryCard(title: "Pakan")),
-                  SizedBox(width: 12),
-                  Expanded(child: _CategoryCard(title: "Perawatan")),
+                children: [
+                  SizedBox(),
+                  Column(
+                    children: [
+                      Text("Selamat datang, Aziz"),
+                      Text("Peternakan ABC"),
+                    ],
+                  ),
                 ],
               ),
+              const SizedBox(height: 30),
+              Consumer<EducationProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.green),
+                    );
+                  }
 
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: GridView.builder(
+                        itemCount: provider.educations.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                            ),
+                        itemBuilder: (context, index) {
+                          final education = provider.educations[index];
+                          return const Text("tes");
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              /// 🔹 Category Menu
               const SizedBox(height: 40),
 
               /// 🔹 Recommendation Header
@@ -64,23 +94,6 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 20),
 
               /// 🔹 Recommendation Cards
-              Row(
-                children: const [
-                  Expanded(
-                    child: _RecommendationCard(
-                      title: "Judul 1",
-                      description: "Deskripsi singkat edukasi 1",
-                    ),
-                  ),
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: _RecommendationCard(
-                      title: "Judul 2",
-                      description: "Deskripsi singkat edukasi 2",
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
@@ -92,69 +105,53 @@ class _HomePageState extends State<HomePage> {
 /// ==============================
 /// CATEGORY CARD
 /// ==============================
-class _CategoryCard extends StatelessWidget {
-  final String title;
+// class _CategoryCard extends StatelessWidget {
+//   final String title;
 
-  const _CategoryCard({required this.title});
+//   const _CategoryCard({required this.title});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.amber.shade100,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Center(
-        child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       height: 70,
+//       decoration: BoxDecoration(
+//         color: Colors.amber.shade100,
+//         borderRadius: BorderRadius.circular(14),
+//       ),
+//       child: Center(
+//         child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+//       ),
+//     );
+//   }
+// }
 
-/// ==============================
-/// RECOMMENDATION CARD
-/// ==============================
-class _RecommendationCard extends StatelessWidget {
-  final String title;
-  final String description;
+// /// ==============================
+// /// RECOMMENDATION CARD
+// /// ==============================
+// class _RecommendationCard extends StatelessWidget {
+//   final String title;
+//   final String description;
 
-  const _RecommendationCard({required this.title, required this.description});
+//   const _RecommendationCard({required this.title, required this.description});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 90,
-            decoration: BoxDecoration(
-              color: Colors.amber.shade100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          Text(
-            description,
-            style: const TextStyle(color: Colors.grey, fontSize: 13),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Image.network(
+//             "https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/educationImage/thumbnail1.png",
+//           ),
+//           const SizedBox(height: 12),
+//           Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+//           const SizedBox(height: 6),
+//           Text(
+//             description,
+//             style: const TextStyle(color: Colors.grey, fontSize: 13),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

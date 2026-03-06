@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
 
 // Enum untuk menentukan varian desain tombol sesuai gambar UI/UX
 enum ButtonVariant { primary, secondary, outlined, text }
@@ -23,7 +24,6 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryColor = Color(0xFF6D4C41);
     const Color secondaryColor = Color(0xFFEFEBE9);
 
     Color backgroundColor;
@@ -32,23 +32,26 @@ class CustomButton extends StatelessWidget {
 
     switch (variant) {
       case ButtonVariant.primary:
-        backgroundColor = primaryColor;
+        backgroundColor = LivestColors.primaryNormal;
         textColor = Colors.white;
         borderSide = BorderSide.none;
         break;
       case ButtonVariant.secondary:
         backgroundColor = secondaryColor;
-        textColor = primaryColor;
+        textColor = LivestColors.primaryNormal;
         borderSide = BorderSide.none;
         break;
       case ButtonVariant.outlined:
         backgroundColor = Colors.transparent;
-        textColor = primaryColor;
-        borderSide = const BorderSide(color: primaryColor, width: 2);
+        textColor = LivestColors.primaryNormal;
+        borderSide = const BorderSide(
+          color: LivestColors.primaryNormal,
+          width: 2,
+        );
         break;
       case ButtonVariant.text:
         backgroundColor = Colors.transparent;
-        textColor = primaryColor;
+        textColor = LivestColors.primaryNormal;
         borderSide = BorderSide.none;
         break;
     }
@@ -108,7 +111,7 @@ class CustomButton extends StatelessWidget {
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(32),
             side: borderSide,
           ),
         ),

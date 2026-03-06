@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class LivestColors {
   // Primary Colors
-  static const Color primaryLight = Color(0xfff2eeea);
+  static const Color primaryLight = Color(0xffF2EEEA);
   static const Color primaryLightHover = Color(0xffebe5e0);
   static const Color primaryLightActive = Color(0xffd6cabf);
   static const Color primaryNormal = Color(0xff7b542f);

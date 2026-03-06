@@ -5,9 +5,9 @@ class EducationService {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
   final table = "educations";
 
-  // Fetch
-  Future<List<EducationModel>> fetchData() async {
-    final data = await _supabaseClient.from(table).select();
-    return data.map((e) => EducationModel.fromJson(e)).toList();
+  getEducation() async {
+    final response = await _supabaseClient.from('educations').select();
+
+    return (response as List).map((e) => EducationModel.fromJson(e)).toList();
   }
 }

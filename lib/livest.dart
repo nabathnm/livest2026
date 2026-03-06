@@ -4,6 +4,11 @@ import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/theme/theme.dart';
 import 'package:livest/features/auth/pages/onboarding_page.dart';
 import 'package:livest/features/auth/pages/splash_screen_page.dart';
+import 'package:livest/features/breader/breader_main_page.dart';
+import 'package:livest/features/breader/home/provider/education_provider.dart';
+import 'package:livest/features/breader/marketplace/providers/test_provider.dart';
+import 'package:livest/features/buyer/buyer_main_page.dart';
+import 'package:provider/provider.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Livest extends StatefulWidget {
@@ -45,13 +50,20 @@ class _LivestState extends State<Livest> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      // navigatorKey: _navigatorKey,
-      theme: LivestAppTheme.theme,
-      debugShowCheckedModeBanner: false,
-      home: SplashScreenPage(),
-      // initialRoute: RouteGenerator.splash,
-      // onGenerateRoute: RouteGenerator.generateRoute,
+    return MultiProvider(
+      providers: [
+        // ChangeNotifierProvider(create: (_) => MarketplaceProvider()),
+        ChangeNotifierProvider(create: (_) => TestProvider()),
+        ChangeNotifierProvider(create: (_) => EducationProvider()),
+      ],
+      child: MaterialApp(
+        // navigatorKey: _navigatorKey,
+        theme: LivestAppTheme.theme,
+        debugShowCheckedModeBanner: false,
+        home: BreaderMainPage(),
+        // initialRoute: RouteGenerator.splash,
+        // onGenerateRoute: RouteGenerator.generateRoute,
+      ),
     );
   }
 }

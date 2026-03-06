@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;
@@ -29,7 +30,7 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         filled: true,
-        fillColor: Colors.grey[200],
+        fillColor: LivestColors.baseWhite,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
