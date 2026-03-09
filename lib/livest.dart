@@ -1,68 +1,100 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:livest/core/config/supabase_config.dart';
 // import 'package:livest/core/config/supabase_config.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/theme/theme.dart';
 import 'package:livest/features/auth/pages/onboarding_page.dart';
 import 'package:livest/features/auth/pages/splash_screen_page.dart';
+import 'package:livest/features/auth/providers/auth_provider.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
+import 'package:livest/features/breader/ai/providers/chat_provider.dart';
 import 'package:livest/features/breader/breader_main_page.dart';
 import 'package:livest/features/breader/home/provider/education_provider.dart';
-import 'package:livest/features/breader/marketplace/providers/test_provider.dart';
+import 'package:livest/features/breader/marketplace/providers/marketplace_provider.dart';
 import 'package:livest/features/buyer/buyer_main_page.dart';
+import 'package:livest/features/buyer/cart/providers/cart_provider.dart';
+import 'package:livest/features/buyer/home/provider/buyer_marketplace_provider.dart';
+import 'package:livest/features/buyer/home/provider/search_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Livest extends StatefulWidget {
   const Livest({super.key});
+
+  static final Completer<void> supabaseReady = Completer<void>();
 
   @override
   State<Livest> createState() => _LivestState();
 }
 
 class _LivestState extends State<Livest> {
-  // final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  StreamSubscription<AuthState>? _authSubscription;
 
-  // StreamSubscription<AuthState>? _authSubscription;
+  @override
+  void initState() {
+    super.initState();
+    _initSupabase();
+  }
 
-  // @override
-  // void initState() {
-  //   super.initState();
+  Future<void> _initSupabase() async {
+    await Supabase.initialize(
+      url: dotenv.env['SUPABASE_URL']!,
+      anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    );
 
-  //   _authSubscription = SupabaseConfig.client.auth.onAuthStateChange.listen((
-  //     data,
-  //   ) {
-  //     final event = data.event;
+    if (!Livest.supabaseReady.isCompleted) {
+      Livest.supabaseReady.complete();
+    }
 
-  //     if (event == AuthChangeEvent.signedIn ||
-  //         event == AuthChangeEvent.signedOut) {
-  //       _navigatorKey.currentState?.pushNamedAndRemoveUntil(
-  //         RouteGenerator.splash,
-  //         (route) => false,
-  //       );
-  //     }
-  //   });
-  // }
+    if (!mounted) return;
 
-  // @override
-  // void dispose() {
-  //   _authSubscription?.cancel();
-  //   super.dispose();
-  // }
+    _authSubscription = SupabaseConfig.client.auth.onAuthStateChange.listen((
+      data,
+    ) {
+      final event = data.event;
+
+      if (event == AuthChangeEvent.initialSession) return;
+
+      if (event == AuthChangeEvent.signedOut) {
+        _navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          RouteGenerator.splash,
+          (route) => false,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         // ChangeNotifierProvider(create: (_) => MarketplaceProvider()),
-        ChangeNotifierProvider(create: (_) => TestProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => MarketplaceProvider()),
         ChangeNotifierProvider(create: (_) => EducationProvider()),
+        ChangeNotifierProvider(create: (_) => BuyerMarketplaceProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: MaterialApp(
-        // navigatorKey: _navigatorKey,
+        navigatorKey: _navigatorKey,
         theme: LivestAppTheme.theme,
         debugShowCheckedModeBanner: false,
-        home: BreaderMainPage(),
-        // initialRoute: RouteGenerator.splash,
-        // onGenerateRoute: RouteGenerator.generateRoute,
+        initialRoute: RouteGenerator.splash,
+        onGenerateRoute: RouteGenerator.generateRoute,
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
 class LivestAppTheme {
   LivestAppTheme._();
@@ -7,6 +8,7 @@ class LivestAppTheme {
   static ThemeData theme = ThemeData(
     primaryColor: LivestColors.primaryNormal,
     fontFamily: 'PlusJakartaSans',
+    textTheme: LivestTypography.textTheme,
 
     scaffoldBackgroundColor: LivestColors.baseWhite,
 

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/features/breader/marketplace/models/product_model.dart';
+import 'package:livest/features/breader/marketplace/pages/marketplace_page.dart.dart';
+import 'package:livest/features/breader/marketplace/pages/product_detail_page.dart';
+import 'package:livest/features/breader/marketplace/providers/marketplace_provider.dart';
+import 'package:provider/provider.dart';
 import 'image_placeholder.dart';
-import '../helpers/price_formatter.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
@@ -16,144 +21,144 @@ class ProductCard extends StatelessWidget {
     required this.onDelete,
   });
 
+  Future<void> _goToDetail(BuildContext context, ProductModel product) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            ProductDetailPage(product: product, userId: product.userId),
+      ),
+    ).then((_) => context.read<MarketplaceProvider>());
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.transparent,
-      elevation: 0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            spacing: 2,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImage(),
-              // _buildCategoryBadge(),
-              // const SizedBox(height: 6),
-              _buildName(),
-              const SizedBox(height: 2),
-              // _buildDescription(),
-              _buildPrice(),
-              // const SizedBox(height: 6),
-              // _buildLocationAndActions(),
-              ElevatedButton(onPressed: () {}, child: Text("Tandai Terjual")),
-            ],
+    return GestureDetector(
+      onTap: () => _goToDetail(context, product),
+      child: Container(
+        decoration: BoxDecoration(
+          color: LivestColors.neutralLightActive,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+            bottomLeft: Radius.circular(24),
+            bottomRight: Radius.circular(24),
           ),
-        ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              spacing: 8,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    _buildImage(),
+                    SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Column(
+                        crossAxisAlignment: .start,
+                        children: [
+                          _buildName(),
+                          SizedBox(height: 4),
+                          Text(
+                            style: LivestTypography.caption.copyWith(
+                              color: LivestColors.textSecondary,
+                            ),
+                            product.createdAt != null
+                                ? DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).format(product.createdAt!)
+                                : "Tanggal tidak tersedia",
+                          ),
+                          SizedBox(height: 4),
+                          _buildPrice(),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(32),
+                        color: product.isSold == true
+                            ? LivestColors.greenLightHover
+                            : LivestColors.primaryLightHover,
+                      ),
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Row(
+                        spacing: 8,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            product.isSold == true
+                                ? 'assets/images/icon/checkgreen.png'
+                                : 'assets/images/icon/checkyellow.png',
+                          ),
+                          Text(
+                            style: LivestTypography.bodySm.copyWith(
+                              color: LivestColors.primaryNormal,
+                            ),
+                            product.isSold == true
+                                ? "Terjual"
+                                : "Tandai Terjual",
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildImage() {
     return ClipRRect(
-      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+      ),
       child: product.imageUrl != null
           ? Image.network(
               product.imageUrl!,
               height: 128,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const ImagePlaceholder(),
+              errorBuilder: (context, error, stackTrace) {
+                print("IMAGE ERROR: $error");
+                return const ImagePlaceholder();
+              },
             )
           : const ImagePlaceholder(),
     );
   }
 
-  // Widget _buildCategoryBadge() {
-  //   if (product.type == null || product.type!.isEmpty) {
-  //     return const SizedBox.shrink();
-  //   }
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-  //     decoration: BoxDecoration(
-  //       color: Colors.green[50],
-  //       borderRadius: BorderRadius.circular(6),
-  //     ),
-  //     child: Text(
-  //       product.type!,
-  //       style: TextStyle(
-  //         fontSize: 10,
-  //         color: Colors.green[700],
-  //         fontWeight: FontWeight.w600,
-  //       ),
-  //       maxLines: 1,
-  //       overflow: TextOverflow.ellipsis,
-  //     ),
-  //   );
-  // }
-
   Widget _buildName() {
     return Text(
       product.name ?? "Produk",
-      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+      style: LivestTypography.bodyMd,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
   }
 
-  Widget _buildDescription() {
-    return Text(
-      product.description ?? "",
-      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
   Widget _buildPrice() {
+    final price = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    ).format(product.price ?? 0);
     return Text(
-      formatPrice(product.price),
-      style: TextStyle(
-        fontWeight: FontWeight.w700,
-        fontSize: 14,
+      ('$price,-'),
+      style: LivestTypography.bodySmBold.copyWith(
         color: LivestColors.primaryNormal,
-      ),
-    );
-  }
-
-  Widget _buildLocationAndActions() {
-    return Row(
-      children: [
-        Icon(Icons.location_on, size: 11, color: Colors.grey[400]),
-        const SizedBox(width: 2),
-        Expanded(
-          child: Text(
-            product.location ?? "",
-            style: TextStyle(fontSize: 10, color: Colors.grey[400]),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        _buildActionButton(
-          onTap: onEdit,
-          icon: Icons.edit_outlined,
-          color: Colors.blue,
-        ),
-        const SizedBox(width: 6),
-        _buildActionButton(
-          onTap: onDelete,
-          icon: Icons.delete_outline,
-          color: Colors.red,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton({
-    required VoidCallback onTap,
-    required IconData icon,
-    required MaterialColor color,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: color[50],
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Icon(icon, size: 14, color: color[600]),
       ),
     );
   }

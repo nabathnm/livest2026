@@ -4,8 +4,7 @@ import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/models/nav_item_data_model.dart';
 import 'package:livest/features/breader/ai/pages/ai.dart';
 import 'package:livest/features/breader/home/pages/home_page.dart';
-import 'package:livest/features/breader/marketplace/pages/test_api_page.dart';
-import 'package:livest/features/breader/profile/pages/belajar_upload_image_page.dart';
+import 'package:livest/features/breader/marketplace/pages/marketplace_page.dart.dart';
 import 'package:livest/features/breader/profile/pages/profile_page.dart';
 
 class BreaderMainPage extends StatefulWidget {
@@ -18,11 +17,11 @@ class BreaderMainPage extends StatefulWidget {
 class _BreaderMainPageState extends State<BreaderMainPage> {
   int _selectedIndex = 0;
 
+  // Hanya halaman index 0 (Beranda) dan 3 (Profil) yang ada di sini
+  // Index 1 dan 2 akan di-push sebagai full screen
   final List<Widget> _pages = const [
     HomePage(),
-    GeminiChatApp(),
-    TestApiPage(),
-    BelajarUploadImagePage(),
+    ProfilePage(), // index 3 dipindah ke index 1 di sini
   ];
 
   final List<NavItemDataModel> _navItems = const [
@@ -48,6 +47,26 @@ class _BreaderMainPageState extends State<BreaderMainPage> {
     ),
   ];
 
+  void _onNavTap(int index) {
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const GeminiChatApp()),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MarketplacePage()),
+      );
+    } else {
+      setState(() {
+        _selectedIndex = index == 0 ? 0 : 1;
+      });
+    }
+  }
+
+  int get _activeNavIndex => _selectedIndex == 0 ? 0 : 3;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +82,7 @@ class _BreaderMainPageState extends State<BreaderMainPage> {
           ],
         ),
         child: SizedBox(
-          width: 412,
+          width: double.infinity,
           height: 112,
           child: Theme(
             data: Theme.of(context).copyWith(
@@ -73,7 +92,7 @@ class _BreaderMainPageState extends State<BreaderMainPage> {
             child: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
               backgroundColor: LivestColors.baseWhite,
-              currentIndex: _selectedIndex,
+              currentIndex: _activeNavIndex,
               selectedLabelStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -83,21 +102,16 @@ class _BreaderMainPageState extends State<BreaderMainPage> {
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),
-              onTap: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
+              onTap: _onNavTap,
               items: List.generate(_navItems.length, (index) {
                 final item = _navItems[index];
-                final isActive = _selectedIndex == index;
+                final isActive = _activeNavIndex == index;
 
                 return BottomNavigationBarItem(
                   label: "",
                   icon: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Background container
                       AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
@@ -120,8 +134,6 @@ class _BreaderMainPageState extends State<BreaderMainPage> {
                             duration: 300.ms,
                             curve: Curves.easeOutBack,
                           ),
-
-                      // Icon + Label
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -156,5 +168,3 @@ class _BreaderMainPageState extends State<BreaderMainPage> {
     );
   }
 }
-
-/// Data model for nav items

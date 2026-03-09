@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
 class EmptyProductView extends StatelessWidget {
   const EmptyProductView({super.key});
@@ -6,25 +8,22 @@ class EmptyProductView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inventory_2_outlined, size: 72, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            "Belum ada produk",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[500],
-              fontWeight: FontWeight.w500,
+      child: SizedBox(
+        width: 192,
+        child: Column(
+          spacing: 16,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset("assets/images/mascot/empty.png"),
+            Text(
+              textAlign: TextAlign.center,
+              "Belum ada penjualan. Yuk tambah penjualan di tombol bawah ini!",
+              style: LivestTypography.bodyMd.copyWith(
+                color: LivestColors.textSecondary,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Tambahkan produk pertamamu!",
-            style: TextStyle(fontSize: 13, color: Colors.grey[400]),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

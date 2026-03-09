@@ -4,7 +4,7 @@ import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/models/nav_item_data_model.dart';
 import 'package:livest/features/buyer/home/pages/home_page.dart';
 import 'package:livest/features/buyer/profile/pages/profile_page.dart';
-import 'package:livest/features/buyer/history/pages/history_page.dart';
+import 'package:livest/features/buyer/cart/pages/chart_page.dart';
 
 class BuyerMainPage extends StatefulWidget {
   const BuyerMainPage({super.key});
@@ -15,7 +15,7 @@ class BuyerMainPage extends StatefulWidget {
 
 class _BuyerMainPageState extends State<BuyerMainPage> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = const [HomePage(), HistoryPage(), ProfilePage()];
+  final List<Widget> _pages = const [HomePage(), ChartPage(), ProfilePage()];
 
   final List<NavItemDataModel> _navItems = const [
     NavItemDataModel(

@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-import 'package:livest/core/utils/widgets/custom_button.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
+import 'package:livest/core/utils/widgets/livest_appbar.dart';
+import 'package:livest/core/utils/widgets/livest_button.dart';
+import 'package:livest/core/utils/widgets/livest_confirm_dialog.dart';
 import 'package:livest/features/breader/marketplace/models/product_model.dart';
-import 'package:livest/features/breader/marketplace/providers/test_provider.dart';
+import 'package:livest/features/breader/marketplace/providers/marketplace_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -46,9 +49,35 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
   File? _imageFile;
   bool _isSubmitting = false;
+  bool _hasTriedSubmit = false;
   final ImagePicker _picker = ImagePicker();
 
   bool get isEdit => widget.mode == ProductFormMode.edit;
+
+  // ─── Validation ───────────────────────────────────────────────────────────
+
+  bool get _nameValid => nameController.text.trim().isNotEmpty;
+  bool get _typeValid => _selectedType != null && _selectedType!.isNotEmpty;
+  bool get _priceValid {
+    final val = int.tryParse(priceController.text.trim());
+    return val != null && val > 0;
+  }
+
+  bool get _locationValid => locationController.text.trim().isNotEmpty;
+  bool get _descriptionValid => descriptionController.text.trim().isNotEmpty;
+  bool get _imageValid {
+    final hasNew = _imageFile != null;
+    final hasOld = (widget.existingProduct?.imageUrl ?? '').isNotEmpty;
+    return hasNew || hasOld;
+  }
+
+  bool get _formValid =>
+      _nameValid &&
+      _typeValid &&
+      _priceValid &&
+      _locationValid &&
+      _descriptionValid &&
+      _imageValid;
 
   // ─── Init & Dispose ───────────────────────────────────────────────────────
 
@@ -56,7 +85,14 @@ class _ProductFormPageState extends State<ProductFormPage> {
   void initState() {
     super.initState();
     if (isEdit) _fillControllers(widget.existingProduct!);
+    // Rebuild saat controller berubah agar border error langsung update
+    nameController.addListener(_rebuild);
+    priceController.addListener(_rebuild);
+    locationController.addListener(_rebuild);
+    descriptionController.addListener(_rebuild);
   }
+
+  void _rebuild() => setState(() {});
 
   @override
   void dispose() {
@@ -68,16 +104,15 @@ class _ProductFormPageState extends State<ProductFormPage> {
   }
 
   void _fillControllers(ProductModel product) {
-    nameController.text = product.name ?? "";
-    descriptionController.text = product.description ?? "";
-    priceController.text = product.price?.toString() ?? "";
-    locationController.text = product.location ?? "";
+    nameController.text = product.name ?? '';
+    descriptionController.text = product.description ?? '';
+    priceController.text = product.price?.toString() ?? '';
+    locationController.text = product.location ?? '';
 
-    // Cocokkan nilai type dari produk ke pilihan yang tersedia (case-insensitive)
-    final existingType = product.type ?? "";
+    final existingType = product.type ?? '';
     _selectedType = _livestockTypes.firstWhere(
       (t) => t.toLowerCase() == existingType.toLowerCase(),
-      orElse: () => "",
+      orElse: () => '',
     );
     if (_selectedType!.isEmpty) _selectedType = null;
   }
@@ -94,16 +129,12 @@ class _ProductFormPageState extends State<ProductFormPage> {
     }
   }
 
-  /// Upload gambar ke Supabase Storage, kembalikan public URL.
-  /// Lempar exception jika gagal agar bisa di-catch oleh caller.
   Future<String> _uploadImage(File imageFile) async {
     final supabase = Supabase.instance.client;
     final fileName =
         '${widget.userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final storagePath = 'products/$fileName';
-
     await supabase.storage.from('productImages').upload(storagePath, imageFile);
-
     return supabase.storage.from('productImages').getPublicUrl(storagePath);
   }
 
@@ -118,8 +149,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
       description: descriptionController.text.trim(),
       price: int.tryParse(priceController.text) ?? 0,
       isSold: old?.isSold ?? false,
-      type: _selectedType ?? "",
-      // Prioritas: gambar baru → gambar lama → null
+      type: _selectedType ?? '',
       imageUrl: imageUrl ?? old?.imageUrl,
       location: locationController.text.trim(),
     );
@@ -128,25 +158,43 @@ class _ProductFormPageState extends State<ProductFormPage> {
   // ─── Submit ───────────────────────────────────────────────────────────────
 
   void _onSubmit() {
+    setState(() => _hasTriedSubmit = true);
+    if (!_formValid) return;
+
     if (isEdit) {
       _confirmUpdate();
     } else {
-      _submitAdd();
+      _confirmAdd();
     }
+  }
+
+  void _confirmAdd() {
+    showDialog(
+      context: context,
+      builder: (_) => LivestConfirmDialog(
+        title: "Yakin ingin menambah penjualan?",
+        subtitle: "Penjualan dapat diubah kembali setelah ditambah.",
+        confirmText: "Tambah",
+        variant: LivestDialogVariant.primary,
+        onConfirm: () async {
+          Navigator.pop(context);
+          await _submitAdd();
+        },
+      ),
+    );
   }
 
   Future<void> _submitAdd() async {
     setState(() => _isSubmitting = true);
     try {
-      // Upload gambar dulu jika ada, lalu sisipkan URL ke produk
       final imageUrl = _imageFile != null
           ? await _uploadImage(_imageFile!)
           : null;
       final product = _buildProduct(imageUrl: imageUrl);
-      await context.read<TestProvider>().createProduct(product);
+      await context.read<MarketplaceProvider>().createProduct(product);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) _showErrorSnackbar('Gagal menyimpan produk: $e');
+      // if (mounted) _showErrorSnackbar('Gagal menyimpan produk: $e');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -155,30 +203,15 @@ class _ProductFormPageState extends State<ProductFormPage> {
   void _confirmUpdate() {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Konfirmasi Update"),
-        content: const Text("Apakah kamu yakin ingin menyimpan perubahan ini?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Batal"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context); // tutup dialog dulu
-              await _submitUpdate();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[700],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text("Ya, Update"),
-          ),
-        ],
+      builder: (_) => LivestConfirmDialog(
+        title: "Yakin ingin menyimpan perubahan?",
+        subtitle: "Segala perubahan akan disimpan.",
+        confirmText: "Simpan",
+        variant: LivestDialogVariant.primary,
+        onConfirm: () async {
+          Navigator.pop(context);
+          await _submitUpdate();
+        },
       ),
     );
   }
@@ -186,28 +219,17 @@ class _ProductFormPageState extends State<ProductFormPage> {
   Future<void> _submitUpdate() async {
     setState(() => _isSubmitting = true);
     try {
-      // Jika user memilih gambar baru → upload; jika tidak → pakai URL lama
       final imageUrl = _imageFile != null
           ? await _uploadImage(_imageFile!)
           : null;
       final updated = _buildProduct(imageUrl: imageUrl);
-      await context.read<TestProvider>().updateProduct(updated);
+      await context.read<MarketplaceProvider>().updateProduct(updated);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) _showErrorSnackbar('Gagal memperbarui produk: $e');
+      // if (mounted) _showErrorSnackbar('Gagal memperbarui produk: $e');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
-  }
-
-  void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red[600],
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 
   // ─── Build ────────────────────────────────────────────────────────────────
@@ -216,93 +238,105 @@ class _ProductFormPageState extends State<ProductFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: LivestColors.baseWhite,
-      appBar: AppBar(
-        toolbarHeight: 56,
-        backgroundColor: LivestColors.baseWhite,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-        titleSpacing: 16,
-        leadingWidth: 72,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              height: 56,
-              width: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: LivestColors.primaryLight,
-              ),
-              alignment: Alignment.center,
-              child: Image.asset('assets/images/icon/back.png', width: 24),
-            ),
-          ),
-        ),
-        title: Text(
-          isEdit ? "Edit Produk" : "Tambah Penjualan",
-          style: const TextStyle(
-            color: LivestColors.baseBlack,
-            fontWeight: FontWeight.w600,
-            fontSize: 24,
-          ),
-        ),
-      ),
+      appBar: isEdit
+          ? LivestAppbar(name: 'Edit Penjualan')
+          : LivestAppbar(name: 'Tambah Penjualan'),
       body: Stack(
         children: [
           SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 16,
               children: [
-                _buildSectionLabel("Judul"),
-                _buildTextField(nameController, "Masukkan judul"),
-                _buildSectionLabel("Jenis Ternak"),
-                _buildTypeSelector(),
-                _buildSectionLabel("Harga"),
-                _buildTextField(
-                  priceController,
-                  "Harga (Rp)",
-                  keyboardType: TextInputType.number,
+                // ── Fields ──
+                _buildField(
+                  label: 'Judul',
+                  isValid: _nameValid,
+                  child: _buildTextField(nameController, 'Masukkan judul'),
                 ),
-                _buildSectionLabel("Nomor yang dapat dihubungi"),
-                _buildTextField(locationController, "Masukkan kontak"),
-                _buildSectionLabel("Deskripsi"),
-                _buildTextField(
-                  descriptionController,
-                  "Deskripsi",
-                  maxLines: 4,
+                const SizedBox(height: 24),
+                _buildField(
+                  label: 'Jenis Ternak',
+                  isValid: _typeValid,
+                  child: _buildTypeSelector(),
                 ),
-                _buildSectionLabel("Tambah Foto"),
-                _buildImagePicker(),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: CustomButton(
-                    text: isEdit ? "Simpan Perubahan" : "Tambah Penjualan",
-                    onPressed: _isSubmitting ? null : _onSubmit,
+                const SizedBox(height: 24),
+                _buildField(
+                  label: 'Harga',
+                  isValid: _priceValid,
+                  child: _buildTextField(
+                    priceController,
+                    'Masukkan harga',
+                    keyboardType: TextInputType.number,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 24),
+                _buildField(
+                  label: 'Nomor yang dapat dihubungi',
+                  isValid: _locationValid,
+                  child: _buildTextField(locationController, 'Masukkan kontak'),
+                ),
+                const SizedBox(height: 24),
+                _buildField(
+                  label: 'Deskripsi',
+                  isValid: _descriptionValid,
+                  child: _buildTextField(
+                    descriptionController,
+                    'Jelaskan ternakmu (usia, berat, jenis kelamin, dan lainnya)',
+                    maxLines: 4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildField(
+                  label: 'Tambah Foto',
+                  isValid: _imageValid,
+                  child: _buildImagePicker(),
+                ),
+                const SizedBox(height: 24),
+                if (_hasTriedSubmit && !_formValid) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      // horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      'Silahkan lengkapi semua data!',
+                      style: LivestTypography.bodyMd.copyWith(
+                        color: LivestColors.redNormalHover,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 64),
+                LivestButton(
+                  text: isEdit ? 'Simpan Perubahan' : 'Tambah Penjualan',
+                  onPressed: _isSubmitting ? null : _onSubmit,
+                ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
 
-          // Overlay loading saat upload + submit berlangsung
+          // Overlay loading
           if (_isSubmitting)
             Container(
-              color: Colors.black.withOpacity(0.35),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  spacing: 14,
                   children: [
-                    CircularProgressIndicator(color: Colors.white),
+                    CircularProgressIndicator(
+                      color: LivestColors.primaryNormal,
+                    ),
+                    SizedBox(height: 14),
                     Text(
-                      "Menyimpan produk...",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      'Menyimpan produk...',
+                      style: TextStyle(color: LivestColors.primaryNormal),
                     ),
                   ],
                 ),
@@ -313,25 +347,43 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
+  // ─── Field wrapper dengan label + error ──────────────────────────────────
+
+  Widget _buildField({
+    required String label,
+    required bool isValid,
+    required Widget child,
+  }) {
+    final showError = _hasTriedSubmit && !isValid;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: LivestTypography.bodyMd),
+        const SizedBox(height: 8),
+        child,
+        // Teks error di bawah field
+      ],
+    );
+  }
+
+  // ─── Widgets ──────────────────────────────────────────────────────────────
+
   Widget _buildImagePicker() {
-    // Tentukan gambar yang ditampilkan sebagai preview:
-    // gambar baru (File) → gambar lama dari URL → kosong
     final existingUrl = widget.existingProduct?.imageUrl;
     final hasNewImage = _imageFile != null;
     final hasOldImage = existingUrl != null && existingUrl.isNotEmpty;
+    final showError = _hasTriedSubmit && !_imageValid;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 8,
       children: [
-        // Preview gambar
         if (hasNewImage)
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(24),
             child: Image.file(
               _imageFile!,
-              height: 160,
-              width: double.infinity,
+              height: 100,
+              width: 172,
               fit: BoxFit.cover,
             ),
           )
@@ -346,8 +398,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               errorBuilder: (_, __, ___) => _imagePlaceholder(),
             ),
           ),
-
-        // Tombol pilih / ganti gambar
+        if (hasNewImage || hasOldImage) const SizedBox(height: 8),
         GestureDetector(
           onTap: _pickImage,
           child: Container(
@@ -355,13 +406,18 @@ class _ProductFormPageState extends State<ProductFormPage> {
               borderRadius: BorderRadius.circular(32),
               color: LivestColors.primaryLightHover,
             ),
-            padding: const EdgeInsets.fromLTRB(16, 8, 20, 8),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              spacing: 6,
               children: [
-                const Icon(Icons.add_photo_alternate_outlined, size: 20),
-                Text(hasNewImage || hasOldImage ? "Ganti Foto" : "Tambah Foto"),
+                Image.asset('assets/images/icon/add.png'),
+                const SizedBox(width: 6),
+                Text(
+                  hasNewImage || hasOldImage ? 'Ganti Foto' : 'Tambah Foto',
+                  style: LivestTypography.bodySm.copyWith(
+                    color: LivestColors.primaryNormal,
+                  ),
+                ),
               ],
             ),
           ),
@@ -381,7 +437,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
           Icon(Icons.broken_image_outlined, size: 36, color: Colors.grey[400]),
           const SizedBox(height: 4),
           Text(
-            "Gagal memuat gambar",
+            'Gagal memuat gambar',
             style: TextStyle(fontSize: 12, color: Colors.grey[400]),
           ),
         ],
@@ -390,16 +446,17 @@ class _ProductFormPageState extends State<ProductFormPage> {
   }
 
   Widget _buildTypeSelector() {
+    final showError = _hasTriedSubmit && !_typeValid;
     return DropdownButtonFormField<String>(
       value: _selectedType,
-      icon: const Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: LivestColors.primaryNormal,
+      icon: Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: Image.asset('assets/images/icon/dropdown.png'),
       ),
       dropdownColor: LivestColors.baseWhite,
       style: const TextStyle(color: LivestColors.textPrimary, fontSize: 16),
       hint: Text(
-        "Pilih jenis ternak",
+        'Pilih jenis ternak yang ingin dijual',
         style: TextStyle(
           color: LivestColors.baseBlack.withOpacity(0.4),
           fontSize: 16,
@@ -413,39 +470,25 @@ class _ProductFormPageState extends State<ProductFormPage> {
         contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
         filled: true,
         fillColor: LivestColors.baseWhite,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(32),
-          borderSide: const BorderSide(
-            color: LivestColors.primaryLightActive,
-            width: 2,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(32),
-          borderSide: const BorderSide(
-            color: LivestColors.primaryLightActive,
-            width: 2,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(32),
-          borderSide: const BorderSide(
-            color: LivestColors.primaryNormal,
-            width: 2,
-          ),
-        ),
+        border: _dropdownBorder(showError: showError, focused: false),
+        enabledBorder: _dropdownBorder(showError: showError, focused: false),
+        focusedBorder: _dropdownBorder(showError: showError, focused: true),
       ),
     );
   }
 
-  Widget _buildSectionLabel(String label) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: LivestColors.baseBlack,
-      ),
+  OutlineInputBorder _dropdownBorder({
+    required bool showError,
+    required bool focused,
+  }) {
+    final color = showError
+        ? Colors.red
+        : focused
+        ? LivestColors.primaryNormal
+        : LivestColors.primaryLightActive;
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(32),
+      borderSide: BorderSide(color: color, width: 2),
     );
   }
 
@@ -455,6 +498,18 @@ class _ProductFormPageState extends State<ProductFormPage> {
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
   }) {
+    // Tentukan apakah field ini valid untuk keperluan border
+    bool isFieldValid() {
+      if (controller == nameController) return _nameValid;
+      if (controller == priceController) return _priceValid;
+      if (controller == locationController) return _locationValid;
+      if (controller == descriptionController) return _descriptionValid;
+      return true;
+    }
+
+    final showError = _hasTriedSubmit && !isFieldValid();
+    final radius = BorderRadius.circular(maxLines == 1 ? 32 : 24);
+
     return TextField(
       controller: controller,
       maxLines: maxLines,
@@ -467,23 +522,23 @@ class _ProductFormPageState extends State<ProductFormPage> {
           fontSize: 16,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(maxLines == 1 ? 32 : 24),
-          borderSide: const BorderSide(
-            color: LivestColors.primaryLightActive,
+          borderRadius: radius,
+          borderSide: BorderSide(
+            color: showError ? Colors.red : LivestColors.primaryLightActive,
             width: 2,
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(maxLines == 1 ? 32 : 24),
-          borderSide: const BorderSide(
-            color: LivestColors.primaryLightActive,
+          borderRadius: radius,
+          borderSide: BorderSide(
+            color: showError ? Colors.red : LivestColors.primaryLightActive,
             width: 2,
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(maxLines == 1 ? 32 : 24),
-          borderSide: const BorderSide(
-            color: LivestColors.primaryNormal,
+          borderRadius: radius,
+          borderSide: BorderSide(
+            color: showError ? Colors.red : LivestColors.primaryNormal,
             width: 2,
           ),
         ),

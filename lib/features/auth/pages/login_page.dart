@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
-import 'package:livest/features/auth/services/auth_service.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/widgets/auth_header.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 import 'package:livest/core/utils/widgets/custom_text_field.dart';
+import 'package:livest/core/utils/widgets/divider_with_text.dart';
+import 'package:livest/features/auth/providers/auth_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,10 +17,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _authService = AuthService();
+  final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -24,82 +28,149 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _execute(Future<void> Function() action) async {
-    FocusScope.of(context).unfocus();
-    if (_email.text.isEmpty && action != _authService.signInWithGoogle) return;
-
-    setState(() => _isLoading = true);
-    try {
-      await action();
-    } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        if (authProvider.errorMessage != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(authProvider.errorMessage!),
+                backgroundColor: const Color(0xFFE53935),
+              ),
+            );
+            authProvider.clearError();
+          });
+        }
+
+        return Scaffold(
+          backgroundColor: LivestColors.baseWhite,
+          body: Column(
             children: [
-              const Text(
-                "Livest",
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+              // ── Brown Header + Tabs ──
+              SafeArea(
+                bottom: false,
+                child: AuthHeader(
+                  subtitle: "Masuk dengan akun Livest.",
+                  activeTab: 0,
+                  onTabChanged: (tab) {
+                    if (tab == 1) {
+                      Navigator.pushReplacementNamed(
+                        context,
+                        RouteGenerator.register,
+                      );
+                    }
+                  },
+                ),
               ),
-              const SizedBox(height: 40),
 
-              CustomTextField(
-                label: "Email",
-                controller: _email,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                label: "Password",
-                controller: _password,
-                isPassword: true,
-              ),
-              const SizedBox(height: 32),
+              // ── Form Body ──
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(LivestSizes.lg),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // Email
+                        CustomTextField(
+                          label: "Email",
+                          hintText: "Masukkan email kamu",
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Email tidak boleh kosong";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: LivestSizes.spaceBtwInputFields),
 
-              CustomButton(
-                text: "Masuk",
-                isLoading: _isLoading,
-                onPressed: () => _execute(
-                  () => _authService.signInWithEmail(
-                    _email.text.trim(),
-                    _password.text.trim(),
+                        // Password
+                        CustomTextField(
+                          label: "Password",
+                          hintText: "Masukkan password kamu",
+                          controller: _password,
+                          isPassword: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Password tidak boleh kosong";
+                            }
+                            return null;
+                          },
+                        ),
+
+                        // Lupa Password
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton(
+                            onPressed: () => Navigator.pushNamed(
+                              context,
+                              RouteGenerator.forgotPassword,
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                            child: const Text(
+                              "Lupa Password?",
+                              style: TextStyle(
+                                color: LivestColors.primaryNormal,
+                                fontSize: LivestSizes.fontSizeSm,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: LivestSizes.sm),
+
+                        // Tombol Masuk
+                        CustomButton(
+                          text: "Masuk",
+                          isLoading: authProvider.isLoading,
+                          onPressed: () async {
+                            FocusScope.of(context).unfocus();
+                            if (!_formKey.currentState!.validate()) return;
+                            final success = await authProvider.signInWithEmail(
+                              _email.text.trim(),
+                              _password.text.trim(),
+                            );
+                            if (success && mounted) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                RouteGenerator.rolePage,
+                                (route) => false,
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: LivestSizes.lg),
+
+                        // Divider
+                        const DividerWithText(),
+                        const SizedBox(height: LivestSizes.lg),
+
+                        // Google
+                        CustomButton(
+                          text: "Masuk dengan Google",
+                          variant: ButtonVariant.outlined,
+                          icon: Icons.g_mobiledata,
+                          isLoading: authProvider.isLoading,
+                          onPressed: () {
+                            FocusScope.of(context).unfocus();
+                            authProvider.signInWithGoogle();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              CustomButton(
-                text: "Masuk dengan Google",
-                variant: ButtonVariant.outlined,
-                icon: Icons.g_mobiledata,
-                isLoading: _isLoading,
-                onPressed: () => _execute(_authService.signInWithGoogle),
-              ),
-              const SizedBox(height: 16),
-              CustomButton(
-                text: "Belum punya akun? Daftar sekarang.",
-                variant: ButtonVariant.text,
-                isLoading: _isLoading,
-                onPressed: () =>
-                    Navigator.pushNamed(context, RouteGenerator.register),
-              ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

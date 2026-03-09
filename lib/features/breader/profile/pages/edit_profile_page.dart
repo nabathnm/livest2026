@@ -1,13 +1,25 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/widgets/custom_text_field.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
+import 'package:livest/features/auth/widgets/postsignup/location_dropdown.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String initialName;
   final String initialEmail;
+  final String initialPhone;
+  final String initialFarmName;
+  final String initialFarmLocation;
 
   const EditProfilePage({
     super.key,
     required this.initialName,
     required this.initialEmail,
+    required this.initialPhone,
+    required this.initialFarmName,
+    required this.initialFarmLocation,
   });
 
   @override
@@ -19,109 +31,195 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   late TextEditingController _nameController;
   late TextEditingController _emailController;
+  late TextEditingController _phoneController;
+  late TextEditingController _farmNameController;
+  String _farmLocation = '';
 
-  bool _isLoading = false;
+  static const List<String> _provinces = [
+    'Jawa Timur',
+    'Jawa Barat',
+    'Jawa Tengah',
+    'Banten',
+    'DKI Jakarta',
+    'Bali',
+    'Sumatera Utara',
+    'Sumatera Barat',
+    'Kalimantan Timur',
+    'Sulawesi Selatan',
+  ];
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialName);
     _emailController = TextEditingController(text: widget.initialEmail);
+    _phoneController = TextEditingController(text: widget.initialPhone);
+    _farmNameController = TextEditingController(text: widget.initialFarmName);
+    _farmLocation = widget.initialFarmLocation == '-'
+        ? _provinces.first
+        : widget.initialFarmLocation;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
+    _farmNameController.dispose();
     super.dispose();
   }
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    final provider = context.read<ProfileProvider>();
+    final success = await provider.updateProfile(
+      name: _nameController.text,
+      email: _emailController.text,
+      phoneNumber: _phoneController.text,
+      farmName: _farmNameController.text,
+      farmLocation: _farmLocation,
+    );
 
-    await Future.delayed(const Duration(seconds: 2));
-    // Simulasi API call
-
-    setState(() => _isLoading = false);
-
-    Navigator.pop(context, {
-      "name": _nameController.text,
-      "email": _emailController.text,
-    });
+    if (success && mounted) {
+      Navigator.pop(context, true);
+    } else if (mounted && provider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.errorMessage!),
+          backgroundColor: const Color(0xFFE53935),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<ProfileProvider>().isLoading;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Profil"), centerTitle: true),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-
-              /// Nama
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: "Nama",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+      backgroundColor: LivestColors.baseWhite,
+      appBar: AppBar(
+        backgroundColor: LivestColors.baseWhite,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: LivestColors.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Edit Profile",
+          style: TextStyle(
+            color: LivestColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Color(0xFFE0E0E0),
+                  child: Icon(Icons.person, size: 60, color: Colors.grey),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Nama tidak boleh kosong";
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 20),
-
-              /// Email
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Email tidak boleh kosong";
-                  }
-                  if (!value.contains("@")) {
-                    return "Format email tidak valid";
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 30),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Implement image picker
+                  },
+                  child: const Text(
+                    "Edit Foto Profil",
+                    style: TextStyle(
+                      color: LivestColors.primaryNormal,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Simpan"),
                 ),
-              ),
-            ],
+                const SizedBox(height: 32),
+                CustomTextField(
+                  label: "Username",
+                  controller: _nameController,
+                  prefixIcon: const SizedBox.shrink(),
+                  validator: (value) => value == null || value.isEmpty
+                      ? "Nama tidak boleh kosong"
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  label: "Email",
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: const SizedBox.shrink(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return "Email tidak boleh kosong";
+                    if (!value.contains("@")) return "Format email tidak valid";
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  label: "Nomor Telepon",
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  prefixIcon: const SizedBox.shrink(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return "Nomor telepon tidak boleh kosong";
+                    if (!RegExp(r'^(08|\+62)\d{7,12}$').hasMatch(value)) {
+                      return 'Nomor Telepon tidak valid';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  label: "Nama Peternakan",
+                  controller: _farmNameController,
+                  prefixIcon: const SizedBox.shrink(),
+                  validator: (value) => value == null || value.isEmpty
+                      ? "Nama Peternakan tidak boleh kosong"
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                LocationDropdown(
+                  value: _provinces.contains(_farmLocation)
+                      ? _farmLocation
+                      : null,
+                  items: _provinces,
+                  onChanged: (v) => setState(() => _farmLocation = v ?? ''),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: LivestColors.primaryNormal,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            "Save",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),
