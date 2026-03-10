@@ -1,6 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:livest/core/config/supabase_config.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/features/auth/providers/auth_provider.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
+import 'package:livest/features/buyer/profile/pages/edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -11,88 +16,153 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileProvider>().fetchProfile();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Profil"), centerTitle: true),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
+    return Consumer2<ProfileProvider, AuthProvider>(
+      builder: (context, profileProvider, authProvider, child) {
+        if (profileProvider.isLoading) {
+          return const Scaffold(
+            backgroundColor: LivestColors.baseWhite,
+            body: Center(child: CircularProgressIndicator(color: LivestColors.primaryNormal)),
+          );
+        }
 
-              // Avatar
-              const CircleAvatar(
-                radius: 50,
-                backgroundImage: NetworkImage(
-                  "https://i.pravatar.cc/150?img=3",
-                ),
+        final name = profileProvider.fullName ?? 'User';
+        final email = profileProvider.profileData?['email'] ?? 'Memuat...';
+        final phone = profileProvider.phoneNumber ?? '-';
+
+        return Scaffold(
+          backgroundColor: LivestColors.baseWhite,
+          appBar: AppBar(
+            backgroundColor: LivestColors.baseWhite,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: LivestColors.textPrimary),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text(
+              "Profile",
+              style: TextStyle(
+                color: LivestColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-
-              const SizedBox(height: 16),
-
-              const Text(
-                "Nabath Nuur",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                "nabath@email.com",
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Card Informasi
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 3,
-                child: Column(
-                  children: const [
-                    ListTile(
-                      leading: Icon(Icons.person_outline),
-                      title: Text("Nama"),
-                      subtitle: Text("Nabath Nuur"),
-                    ),
-                    Divider(height: 1),
-                    ListTile(
-                      leading: Icon(Icons.email_outlined),
-                      title: Text("Email"),
-                      subtitle: Text("nabath@email.com"),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await SupabaseConfig.client.auth.signOut();
-                    Navigator.pushReplacementNamed(
-                      context,
-                      RouteGenerator.login,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text("Logout"),
-                ),
+            ),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout, color: Colors.red),
+                onPressed: () async {
+                  await authProvider.signOut();
+                  profileProvider.clearProfile();
+                  if (mounted) {
+                    Navigator.pushReplacementNamed(context, RouteGenerator.login);
+                  }
+                },
               ),
             ],
           ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  const CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Color(0xFFE0E0E0),
+                    child: Icon(Icons.person, size: 60, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: LivestColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: 140,
+                    height: 40,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EditProfilePage(
+                              initialName: name,
+                              initialEmail: email,
+                              initialPhone: phone,
+                            ),
+                          ),
+                        );
+                        if (result == true && mounted) {
+                          profileProvider.fetchProfile();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: LivestColors.primaryNormal,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text("Edit Profile", style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  _buildReadOnlyField("Email", email),
+                  const SizedBox(height: 16),
+                  _buildReadOnlyField("Nomor Telepon", phone),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReadOnlyField(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: LivestSizes.fontSizeSm,
+            fontWeight: FontWeight.w500,
+            color: LivestColors.textPrimary,
+          ),
         ),
-      ),
+        const SizedBox(height: LivestSizes.sm),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: LivestColors.baseWhite,
+            border: Border.all(color: LivestColors.primaryLightActive, width: 1),
+            borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+          ),
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: LivestSizes.fontSizeSm,
+              color: LivestColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

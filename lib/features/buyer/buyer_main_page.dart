@@ -6,7 +6,7 @@ import 'package:livest/features/buyer/home/pages/home_page.dart';
 import 'package:livest/features/buyer/profile/pages/profile_page.dart';
 import 'package:livest/features/buyer/cart/pages/chart_page.dart';
 
-class BuyerMainPage extends StatefulWidget {
+class BuyerMainPage extends StatelessWidget {
   const BuyerMainPage({super.key});
 
   @override

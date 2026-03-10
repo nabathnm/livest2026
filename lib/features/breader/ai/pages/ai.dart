@@ -246,8 +246,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           const Text(

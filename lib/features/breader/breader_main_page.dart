@@ -7,9 +7,10 @@ import 'package:livest/features/breader/home/pages/home_page.dart';
 import 'package:livest/features/breader/marketplace/pages/marketplace_page.dart.dart';
 import 'package:livest/features/breader/profile/pages/profile_page.dart';
 
-class BreaderMainPage extends StatefulWidget {
+class BreaderMainPage extends StatelessWidget {
   const BreaderMainPage({super.key});
 
+  static const List<Widget> _pages = [
   @override
   State<BreaderMainPage> createState() => _BreaderMainPageState();
 }
@@ -69,6 +70,33 @@ class _BreaderMainPageState extends State<BreaderMainPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Consumer<NavigationProvider>(
+      builder: (context, navProvider, child) {
+        return Scaffold(
+          body: IndexedStack(
+            index: navProvider.selectedIndex,
+            children: _pages,
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.amber,
+            currentIndex: navProvider.selectedIndex,
+            onTap: (index) => navProvider.setIndex(index),
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+              BottomNavigationBarItem(icon: Icon(Icons.store), label: "Pasar"),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.chat),
+                label: "Konsultasi",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: "Profile",
+              ),
+            ],
+          ),
+        );
+      },
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: Container(

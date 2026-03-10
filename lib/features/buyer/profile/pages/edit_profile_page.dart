@@ -1,0 +1,176 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/widgets/custom_text_field.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
+
+class EditProfilePage extends StatefulWidget {
+  final String initialName;
+  final String initialEmail;
+  final String initialPhone;
+
+  const EditProfilePage({
+    super.key,
+    required this.initialName,
+    required this.initialEmail,
+    required this.initialPhone,
+  });
+
+  @override
+  State<EditProfilePage> createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  final _formKey = GlobalKey<FormState>();
+
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _phoneController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.initialName);
+    _emailController = TextEditingController(text: widget.initialEmail);
+    _phoneController = TextEditingController(text: widget.initialPhone);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  void _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final provider = context.read<ProfileProvider>();
+    final success = await provider.updateProfile(
+      name: _nameController.text,
+      email: _emailController.text,
+      phoneNumber: _phoneController.text,
+    );
+
+    if (success && mounted) {
+      Navigator.pop(context, true);
+    } else if (mounted && provider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.errorMessage!),
+          backgroundColor: const Color(0xFFE53935),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isLoading = context.watch<ProfileProvider>().isLoading;
+
+    return Scaffold(
+      backgroundColor: LivestColors.baseWhite,
+      appBar: AppBar(
+        backgroundColor: LivestColors.baseWhite,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: LivestColors.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Edit Profile",
+          style: TextStyle(
+            color: LivestColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Color(0xFFE0E0E0),
+                  child: Icon(Icons.person, size: 60, color: Colors.grey),
+                ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Implement image picker
+                  },
+                  child: const Text(
+                    "Edit Foto Profil",
+                    style: TextStyle(
+                      color: LivestColors.primaryNormal,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                CustomTextField(
+                  label: "Username",
+                  controller: _nameController,
+                  prefixIcon: const SizedBox.shrink(),
+                  validator: (value) => value == null || value.isEmpty ? "Nama tidak boleh kosong" : null,
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  label: "Email",
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: const SizedBox.shrink(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return "Email tidak boleh kosong";
+                    if (!value.contains("@")) return "Format email tidak valid";
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  label: "Nomor Telepon",
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  prefixIcon: const SizedBox.shrink(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return "Nomor telepon tidak boleh kosong";
+                    if (!RegExp(r'^(08|\+62)\d{7,12}$').hasMatch(value)) {
+                      return 'Nomor Telepon tidak valid';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: LivestColors.primaryNormal,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text("Save", style: TextStyle(color: Colors.white, fontSize: 16)),
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
