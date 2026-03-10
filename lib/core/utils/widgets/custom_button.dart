@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 
+// Enum untuk menentukan varian desain tombol sesuai gambar UI/UX
 enum ButtonVariant { primary, secondary, outlined, text }
 
 class CustomButton extends StatelessWidget {
@@ -57,8 +58,8 @@ class CustomButton extends StatelessWidget {
 
     final bool isDisabled = onPressed == null || isLoading;
     if (isDisabled && variant != ButtonVariant.text) {
-      backgroundColor = LivestColors.primaryLightActive;
-      textColor = LivestColors.textSecondary;
+      backgroundColor = Colors.grey[300]!;
+      textColor = Colors.grey[600]!;
       borderSide = BorderSide.none;
     }
 
@@ -83,8 +84,8 @@ class CustomButton extends StatelessWidget {
                 text,
                 style: TextStyle(
                   color: textColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: LivestSizes.fontSizeMd,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
             ],
@@ -108,7 +109,7 @@ class CustomButton extends StatelessWidget {
           backgroundColor: backgroundColor,
           foregroundColor: textColor,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(32),
             side: borderSide,
