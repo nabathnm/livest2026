@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/utils/widgets/auth_header.dart';
+import 'package:livest/core/utils/widgets/password_requirements.dart';
 import 'package:provider/provider.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
-import 'package:livest/core/utils/widgets/auth_header.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 import 'package:livest/core/utils/widgets/custom_text_field.dart';
-import 'package:livest/core/utils/widgets/password_requirements.dart';
 import 'package:livest/features/auth/providers/auth_provider.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -40,7 +40,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: LivestColors.textPrimary),
+              icon: const Icon(
+                Icons.arrow_back,
+                color: LivestColors.textPrimary,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -85,8 +88,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       hintText: "Ulangi password baru",
                       controller: _confirmPassword,
                       isPassword: true,
-                      validator: (v) =>
-                          (v != _newPassword.text) ? "Password tidak cocok" : null,
+                      validator: (v) => (v != _newPassword.text)
+                          ? "Password tidak cocok"
+                          : null,
                     ),
                     const SizedBox(height: LivestSizes.md),
 
@@ -103,7 +107,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       isLoading: auth.isLoading,
                       onPressed: () async {
                         if (!_formKey.currentState!.validate()) return;
-                        final ok = await auth.updatePassword(_newPassword.text.trim());
+                        final ok = await auth.updatePassword(
+                          _newPassword.text.trim(),
+                        );
                         if (ok && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -112,7 +118,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             ),
                           );
                           Navigator.pop(context);
-                        } else if (context.mounted && auth.errorMessage != null) {
+                        } else if (context.mounted &&
+                            auth.errorMessage != null) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(auth.errorMessage!),

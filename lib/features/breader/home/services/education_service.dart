@@ -5,8 +5,9 @@ class EducationService extends BaseSupabaseService<EducationModel> {
   @override
   String get tableName => 'educations';
 
-  @override
-  EducationModel fromJson(Map<String, dynamic> json) {
-    return EducationModel.fromJson(json);
+  getEducation() async {
+    final response = await _supabaseClient.from('educations').select();
+
+    return (response as List).map((e) => EducationModel.fromJson(e)).toList();
   }
 }

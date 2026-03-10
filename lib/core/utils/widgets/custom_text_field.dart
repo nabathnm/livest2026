@@ -81,7 +81,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
               fontSize: LivestSizes.fontSizeSm,
               color: LivestColors.primaryLightActive,
             ),
-            prefixIcon: widget.prefixIcon ??
+            prefixIcon:
+                widget.prefixIcon ??
                 const Icon(
                   Icons.person_outline,
                   color: LivestColors.primaryLightActive,
@@ -107,49 +108,38 @@ class _CustomTextFieldState extends State<CustomTextField> {
               vertical: 14,
             ),
             border: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
               borderSide: const BorderSide(
                 color: LivestColors.primaryLightActive,
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
               borderSide: const BorderSide(
                 color: LivestColors.primaryLightActive,
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
               borderSide: const BorderSide(
                 color: LivestColors.primaryNormal,
                 width: 1.5,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(LivestSizes.inputFieldRadius),
-              borderSide: const BorderSide(
-                color: Color(0xFFE53935),
-                width: 1,
-              ),
+              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderSide: const BorderSide(color: Color(0xFFE53935), width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
               borderSide: const BorderSide(
                 color: Color(0xFFE53935),
                 width: 1.5,
               ),
             ),
-            errorStyle: const TextStyle(
-              color: Color(0xFFE53935),
-              fontSize: 12,
-            ),
+            errorStyle: const TextStyle(color: Color(0xFFE53935), fontSize: 12),
           ),
         ),
       ],

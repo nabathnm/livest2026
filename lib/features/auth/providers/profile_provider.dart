@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/config/supabase_config.dart';
-import 'package:livest/data/models/profile_model.dart';
+import 'package:livest/core/data/models/profile_model.dart';
 import 'package:livest/features/auth/services/profile_service.dart';
 
 class ProfileProvider extends ChangeNotifier {

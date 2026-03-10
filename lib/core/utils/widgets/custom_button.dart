@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-import 'package:livest/core/utils/constants/livest_sizes.dart';
 
 enum ButtonVariant { primary, secondary, outlined, text }
 
@@ -24,6 +23,8 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color secondaryColor = Color(0xFFEFEBE9);
+
     Color backgroundColor;
     Color textColor;
     BorderSide borderSide;
@@ -31,11 +32,11 @@ class CustomButton extends StatelessWidget {
     switch (variant) {
       case ButtonVariant.primary:
         backgroundColor = LivestColors.primaryNormal;
-        textColor = LivestColors.baseWhite;
+        textColor = Colors.white;
         borderSide = BorderSide.none;
         break;
       case ButtonVariant.secondary:
-        backgroundColor = LivestColors.primaryLight;
+        backgroundColor = secondaryColor;
         textColor = LivestColors.primaryNormal;
         borderSide = BorderSide.none;
         break;
@@ -43,8 +44,8 @@ class CustomButton extends StatelessWidget {
         backgroundColor = Colors.transparent;
         textColor = LivestColors.primaryNormal;
         borderSide = const BorderSide(
-          color: LivestColors.primaryLightActive,
-          width: 1.5,
+          color: LivestColors.primaryNormal,
+          width: 2,
         );
         break;
       case ButtonVariant.text:
@@ -109,7 +110,7 @@ class CustomButton extends StatelessWidget {
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(LivestSizes.buttonRadius),
+            borderRadius: BorderRadius.circular(32),
             side: borderSide,
           ),
         ),

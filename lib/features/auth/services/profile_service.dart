@@ -1,5 +1,5 @@
+import 'package:livest/core/data/models/profile_model.dart';
 import 'package:livest/core/services/base_supabase_service.dart';
-import 'package:livest/data/models/profile_model.dart';
 
 /// Service untuk operasi CRUD profil user di Supabase.
 /// Extends BaseSupabaseService untuk memanfaatkan shared CRUD logic.
@@ -59,7 +59,7 @@ class ProfileService extends BaseSupabaseService<ProfileModel> {
       'full_name': fullName,
       'updated_at': DateTime.now().toIso8601String(),
     };
-    
+
     if (phoneNumber != null) data['phone_number'] = phoneNumber;
     if (farmName != null) data['farm_name'] = farmName;
     if (farmLocation != null) data['farm_location'] = farmLocation;

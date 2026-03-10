@@ -55,7 +55,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _emailController = TextEditingController(text: widget.initialEmail);
     _phoneController = TextEditingController(text: widget.initialPhone);
     _farmNameController = TextEditingController(text: widget.initialFarmName);
-    _farmLocation = widget.initialFarmLocation == '-' ? _provinces.first : widget.initialFarmLocation;
+    _farmLocation = widget.initialFarmLocation == '-'
+        ? _provinces.first
+        : widget.initialFarmLocation;
   }
 
   @override
@@ -73,7 +75,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final provider = context.read<ProfileProvider>();
     final success = await provider.updateProfile(
       name: _nameController.text,
-      email: _emailController.text, 
+      email: _emailController.text,
       phoneNumber: _phoneController.text,
       farmName: _farmNameController.text,
       farmLocation: _farmLocation,
@@ -146,7 +148,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   label: "Username",
                   controller: _nameController,
                   prefixIcon: const SizedBox.shrink(),
-                  validator: (value) => value == null || value.isEmpty ? "Nama tidak boleh kosong" : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? "Nama tidak boleh kosong"
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
@@ -155,7 +159,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const SizedBox.shrink(),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "Email tidak boleh kosong";
+                    if (value == null || value.isEmpty)
+                      return "Email tidak boleh kosong";
                     if (!value.contains("@")) return "Format email tidak valid";
                     return null;
                   },
@@ -167,7 +172,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   keyboardType: TextInputType.phone,
                   prefixIcon: const SizedBox.shrink(),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "Nomor telepon tidak boleh kosong";
+                    if (value == null || value.isEmpty)
+                      return "Nomor telepon tidak boleh kosong";
                     if (!RegExp(r'^(08|\+62)\d{7,12}$').hasMatch(value)) {
                       return 'Nomor Telepon tidak valid';
                     }
@@ -179,11 +185,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   label: "Nama Peternakan",
                   controller: _farmNameController,
                   prefixIcon: const SizedBox.shrink(),
-                  validator: (value) => value == null || value.isEmpty ? "Nama Peternakan tidak boleh kosong" : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? "Nama Peternakan tidak boleh kosong"
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 LocationDropdown(
-                  value: _provinces.contains(_farmLocation) ? _farmLocation : null,
+                  value: _provinces.contains(_farmLocation)
+                      ? _farmLocation
+                      : null,
                   items: _provinces,
                   onChanged: (v) => setState(() => _farmLocation = v ?? ''),
                 ),
@@ -201,7 +211,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     child: isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("Save", style: TextStyle(color: Colors.white, fontSize: 16)),
+                        : const Text(
+                            "Save",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 40),

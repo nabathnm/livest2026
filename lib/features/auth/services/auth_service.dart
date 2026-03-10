@@ -64,10 +64,7 @@ class AuthService {
 
   Future<void> resendOTP(String email) async {
     try {
-      await _supabase.auth.resend(
-        type: OtpType.signup,
-        email: email,
-      );
+      await _supabase.auth.resend(type: OtpType.signup, email: email);
     } on AuthException catch (e) {
       throw Exception(e.message);
     }
@@ -98,9 +95,7 @@ class AuthService {
 
   Future<void> updatePassword(String newPassword) async {
     try {
-      await _supabase.auth.updateUser(
-        UserAttributes(password: newPassword),
-      );
+      await _supabase.auth.updateUser(UserAttributes(password: newPassword));
     } on AuthException catch (e) {
       throw Exception(e.message);
     }

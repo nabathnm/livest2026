@@ -13,9 +13,7 @@ class DividerWithText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
-          child: Divider(color: LivestColors.primaryLightActive),
-        ),
+        const Expanded(child: Divider(color: LivestColors.primaryLightActive)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: LivestSizes.md),
           child: Text(
@@ -26,9 +24,7 @@ class DividerWithText extends StatelessWidget {
             ),
           ),
         ),
-        const Expanded(
-          child: Divider(color: LivestColors.primaryLightActive),
-        ),
+        const Expanded(child: Divider(color: LivestColors.primaryLightActive)),
       ],
     );
   }

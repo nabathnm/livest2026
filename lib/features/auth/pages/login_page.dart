@@ -111,8 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                               RouteGenerator.forgotPassword,
                             ),
                             style: TextButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                             ),
                             child: const Text(
                               "Lupa Password?",
@@ -130,13 +129,20 @@ class _LoginPageState extends State<LoginPage> {
                         CustomButton(
                           text: "Masuk",
                           isLoading: authProvider.isLoading,
-                          onPressed: () {
+                          onPressed: () async {
                             FocusScope.of(context).unfocus();
                             if (!_formKey.currentState!.validate()) return;
-                            authProvider.signInWithEmail(
+                            final success = await authProvider.signInWithEmail(
                               _email.text.trim(),
                               _password.text.trim(),
                             );
+                            if (success && mounted) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                RouteGenerator.rolePage,
+                                (route) => false,
+                              );
+                            }
                           },
                         ),
                         const SizedBox(height: LivestSizes.lg),

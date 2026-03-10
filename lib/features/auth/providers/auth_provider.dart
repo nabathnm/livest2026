@@ -115,10 +115,7 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.verifyPasswordResetOTP(
-        email: email,
-        otpCode: otpCode,
-      );
+      await _authService.verifyPasswordResetOTP(email: email, otpCode: otpCode);
       _setLoading(false);
       return true;
     } catch (e) {

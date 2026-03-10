@@ -31,7 +31,11 @@ class _ProfilePageState extends State<ProfilePage> {
         if (profileProvider.isLoading) {
           return const Scaffold(
             backgroundColor: LivestColors.baseWhite,
-            body: Center(child: CircularProgressIndicator(color: LivestColors.primaryNormal)),
+            body: Center(
+              child: CircularProgressIndicator(
+                color: LivestColors.primaryNormal,
+              ),
+            ),
           );
         }
 
@@ -47,7 +51,10 @@ class _ProfilePageState extends State<ProfilePage> {
             backgroundColor: LivestColors.baseWhite,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: LivestColors.textPrimary),
+              icon: const Icon(
+                Icons.arrow_back,
+                color: LivestColors.textPrimary,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             title: const Text(
@@ -66,7 +73,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   await authProvider.signOut();
                   profileProvider.clearProfile();
                   if (mounted) {
-                    Navigator.pushReplacementNamed(context, RouteGenerator.login);
+                    Navigator.pushReplacementNamed(
+                      context,
+                      RouteGenerator.login,
+                    );
                   }
                 },
               ),
@@ -121,7 +131,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                      child: const Text("Edit Profile", style: TextStyle(color: Colors.white)),
+                      child: const Text(
+                        "Edit Profile",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -160,7 +173,10 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: LivestColors.baseWhite,
-            border: Border.all(color: LivestColors.primaryLightActive, width: 1),
+            border: Border.all(
+              color: LivestColors.primaryLightActive,
+              width: 1,
+            ),
             borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
           ),
           child: Text(

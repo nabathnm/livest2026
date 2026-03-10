@@ -143,7 +143,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/images/logo.png')
+                Image.asset('assets/images/onboarding/logo.png')
                     .animate(delay: 1100.ms)
                     .fadeIn(duration: 500.ms, curve: Curves.easeOut)
                     .slideY(
