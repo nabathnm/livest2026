@@ -6,6 +6,7 @@ import 'package:livest/features/auth/pages/onboarding_page.dart';
 import 'package:livest/features/auth/pages/otp_verification_page.dart';
 import 'package:livest/features/auth/pages/forgot_password_page.dart';
 import 'package:livest/features/auth/pages/change_password_page.dart';
+import 'package:livest/features/auth/pages/delete_account_page.dart';
 import 'package:livest/features/auth/pages/postsignup_page.dart';
 import 'package:livest/features/breader/breader_main_page.dart';
 import 'package:livest/features/buyer/buyer_main_page.dart';
@@ -18,6 +19,7 @@ class RouteGenerator {
   static const String otpVerification = '/otp-verification';
   static const String forgotPassword = '/forgot-password';
   static const String changePassword = '/change-password';
+  static const String deleteAccount = '/delete-account';
   static const String rolePage = '/role';
 
   static const String breaderHome = '/peternak-home';
@@ -44,6 +46,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
       case changePassword:
         return MaterialPageRoute(builder: (_) => const ChangePasswordPage());
+      case deleteAccount:
+        return MaterialPageRoute(builder: (_) => const DeleteAccountPage());
       case breaderHome:
         return MaterialPageRoute(builder: (_) => const BreaderMainPage());
       case buyerHome:

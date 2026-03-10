@@ -35,7 +35,6 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     });
   }
 
-  /// Tunggu Supabase siap (Completer), baru cek auth
   Future<void> _waitForSupabaseThenCheck() async {
     await Livest.supabaseReady.future;
     if (!mounted) return;

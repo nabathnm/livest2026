@@ -69,7 +69,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       ),
                       children: [
                         const TextSpan(
-                            text: "Kami mengirimkan 4 digit kode ke\n"),
+                            text: "Kami mengirimkan 6 digit kode ke\n"),
                         TextSpan(
                           text: _maskedEmail,
                           style: const TextStyle(
@@ -89,7 +89,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   // OTP Input + Timer
                   OtpInput(
                     key: _otpKey,
-                    length: 8,
+                    length: 6,
                     onCompleted: (code) {
                       setState(() => _otpCode = code);
                     },
@@ -136,7 +136,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     child: CustomButton(
                       text: "Konfirmasi Kode",
                       isLoading: authProvider.isLoading,
-                      onPressed: _otpCode.length == 4
+                      onPressed: _otpCode.length == 6
                           ? () async {
                               final ok = await authProvider.verifyOTP(
                                 widget.email,

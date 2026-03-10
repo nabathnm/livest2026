@@ -6,6 +6,8 @@ import 'package:livest/core/utils/constants/livest_sizes.dart';
 import 'package:livest/features/auth/providers/auth_provider.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/buyer/profile/pages/edit_profile_page.dart';
+import 'package:livest/features/breader/profile/widgets/profile_info_field.dart';
+import 'package:livest/features/breader/profile/widgets/profile_setting_button.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -37,6 +39,8 @@ class _ProfilePageState extends State<ProfilePage> {
         final name = profileProvider.fullName ?? 'User';
         final email = profileProvider.profileData?['email'] ?? 'Memuat...';
         final phone = profileProvider.phoneNumber ?? '-';
+        final preferences = profileProvider.preferences ?? '-';
+        final avatarUrl = profileProvider.avatarUrl;
 
         return Scaffold(
           backgroundColor: LivestColors.baseWhite,
@@ -76,10 +80,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 20),
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 50,
-                    backgroundColor: Color(0xFFE0E0E0),
-                    child: Icon(Icons.person, size: 60, color: Colors.grey),
+                    backgroundColor: const Color(0xFFE0E0E0),
+                    backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                    child: avatarUrl == null ? const Icon(Icons.person, size: 60, color: Colors.grey) : null,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -103,6 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               initialName: name,
                               initialEmail: email,
                               initialPhone: phone,
+                              initialPreferences: preferences,
                             ),
                           ),
                         );
@@ -120,9 +126,30 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  _buildReadOnlyField("Email", email),
+                  ProfileInfoField(label: "Email", value: email),
                   const SizedBox(height: 16),
-                  _buildReadOnlyField("Nomor Telepon", phone),
+                  ProfileInfoField(label: "Nomor Telepon", value: phone),
+                  const SizedBox(height: 16),
+                  ProfileInfoField(label: "Preferensi Ternak", value: preferences),
+                  const SizedBox(height: 32),
+                  
+                  // Settings Section (Tembusan dari Breader untuk standardisasi)
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Pengaturan",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: LivestColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ProfileSettingButton(
+                    title: "Keluar (Logout)",
+                    onTap: () => _confirmLogout(context, authProvider, profileProvider),
+                  ),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -133,36 +160,30 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildReadOnlyField(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: LivestSizes.fontSizeSm,
-            fontWeight: FontWeight.w500,
-            color: LivestColors.textPrimary,
+  void _confirmLogout(BuildContext context, AuthProvider authProvider, ProfileProvider profileProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Keluar"),
+        content: const Text("Apakah Anda yakin ingin keluar dari akun ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal", style: TextStyle(color: LivestColors.textSecondary)),
           ),
-        ),
-        const SizedBox(height: LivestSizes.sm),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: LivestColors.baseWhite,
-            border: Border.all(color: LivestColors.primaryLightActive, width: 1),
-            borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await authProvider.signOut();
+              profileProvider.clearProfile();
+              if (mounted) {
+                Navigator.pushReplacementNamed(context, RouteGenerator.login);
+              }
+            },
+            child: const Text("Keluar", style: TextStyle(color: Colors.red)),
           ),
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: LivestSizes.fontSizeSm,
-              color: LivestColors.textPrimary,
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

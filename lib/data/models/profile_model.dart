@@ -6,8 +6,10 @@ class ProfileModel {
   final String? farmLocation;
   final String? animalTypes;
   final String? preferences;
+  final String? description;
   final String? email;
   final String? phoneNumber;
+  final String? avatarUrl;
   final DateTime? updatedAt;
 
   ProfileModel({
@@ -18,8 +20,10 @@ class ProfileModel {
     this.farmLocation,
     this.animalTypes,
     this.preferences,
+    this.description,
     this.email,
     this.phoneNumber,
+    this.avatarUrl,
     this.updatedAt,
   });
 
@@ -32,8 +36,10 @@ class ProfileModel {
       farmLocation: json['farm_location'],
       animalTypes: json['animal_types'],
       preferences: json['preferences'],
+      description: json['description'],
       email: json['email'],
       phoneNumber: json['phone_number'],
+      avatarUrl: json['avatar_url'],
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'])
           : null,
@@ -49,8 +55,10 @@ class ProfileModel {
       'farm_location': farmLocation,
       'animal_types': animalTypes,
       'preferences': preferences,
+      'description': description,
       'email': email,
       'phone_number': phoneNumber,
+      'avatar_url': avatarUrl,
       'updated_at': updatedAt?.toIso8601String(),
     };
   }
