@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/core/utils/widgets/auth_header.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 import 'package:livest/core/utils/widgets/otp_input.dart';
@@ -19,6 +20,7 @@ class OtpVerificationPage extends StatefulWidget {
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   String _otpCode = '';
+  String? _otpError;
   final GlobalKey<OtpInputState> _otpKey = GlobalKey<OtpInputState>();
 
   String get _maskedEmail {
@@ -27,6 +29,95 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     final name = parts[0];
     final masked = '${name.substring(0, 3)}${'*' * (name.length - 3)}';
     return '$masked@${parts[1]}';
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: const Color(0xFFF1EBE6),
+          contentPadding: const EdgeInsets.all(32),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: LivestColors.baseWhite,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: LivestColors.textHeading, width: 2),
+                ),
+                child: const Icon(Icons.check, color: LivestColors.textHeading, size: 20),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Verifikasi Berhasil!",
+                style: LivestTypography.bodyLgBold.copyWith(color: LivestColors.textHeading),
+              ),
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamedAndRemoveUntil(context, RouteGenerator.rolePage, (route) => false);
+                },
+                child: Text(
+                  "Tekan untuk lewati",
+                  style: LivestTypography.bodySm.copyWith(
+                    color: LivestColors.primaryNormal,
+                    decoration: TextDecoration.underline,
+                    decorationColor: LivestColors.primaryNormal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showResendPopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (context.mounted && Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+        });
+        return Align(
+          alignment: Alignment.topCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              margin: const EdgeInsets.only(top: 60, left: 16, right: 16),
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1EBE6),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.info_outline, color: LivestColors.textHeading),
+                  const SizedBox(height: 12),
+                  Text(
+                    "OTP telah dikirimkan ulang.\nCek kembali email anda",
+                    textAlign: TextAlign.center,
+                    style: LivestTypography.bodySmMedium.copyWith(
+                      color: LivestColors.textHeading,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -62,8 +153,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: LivestSizes.fontSizeSm,
+                      style: LivestTypography.bodySm.copyWith(
                         color: LivestColors.textSecondary,
                         fontFamily: 'PlusJakartaSans',
                       ),
@@ -72,8 +162,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             text: "Kami mengirimkan 6 digit kode ke\n"),
                         TextSpan(
                           text: _maskedEmail,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
+                          style: LivestTypography.bodySmBold.copyWith(
                             color: LivestColors.primaryNormal,
                           ),
                         ),
@@ -91,39 +180,58 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     key: _otpKey,
                     length: 6,
                     onCompleted: (code) {
-                      setState(() => _otpCode = code);
+                      setState(() {
+                         _otpCode = code;
+                         _otpError = null;
+                      });
                     },
                     onChanged: (code) {
-                      setState(() => _otpCode = code);
+                      setState(() {
+                        _otpCode = code;
+                        _otpError = null;
+                      });
                     },
                   ),
-                  const SizedBox(height: LivestSizes.md),
+                  const SizedBox(height: LivestSizes.lg),
+                  
+                  if (_otpError != null) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: LivestColors.redLight,
+                        borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+                      ),
+                      child: Text(
+                        _otpError!,
+                        textAlign: TextAlign.center,
+                        style: LivestTypography.buttonSm.copyWith(
+                          color: LivestColors.redNormal,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: LivestSizes.lg),
+                  ],
 
                   // Kirim ulang OTP
                   GestureDetector(
                     onTap: () async {
                       if (authProvider.isLoading) return;
+                      setState(() => _otpError = null);
                       final ok = await authProvider.resendOTP(widget.email);
                       _otpKey.currentState?.restartTimer();
                       if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              ok
-                                  ? "OTP telah dikirimkan ulang.\nCek kembali email anda"
-                                  : "Gagal mengirim ulang OTP",
-                            ),
-                            backgroundColor:
-                                ok ? Colors.green : const Color(0xFFE53935),
-                          ),
-                        );
+                        if (ok) {
+                          _showResendPopup();
+                        } else {
+                          setState(() => _otpError = "Gagal mengirim ulang OTP");
+                        }
                       }
                     },
-                    child: const Text(
+                    child: Text(
                       "Kirim ulang OTP",
-                      style: TextStyle(
+                      style: LivestTypography.bodySm.copyWith(
                         color: LivestColors.textSecondary,
-                        fontSize: LivestSizes.fontSizeSm,
                       ),
                     ),
                   ),
@@ -136,39 +244,30 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     child: CustomButton(
                       text: "Konfirmasi Kode",
                       isLoading: authProvider.isLoading,
-                      onPressed: _otpCode.length == 6
-                          ? () async {
-                              final ok = await authProvider.verifyOTP(
-                                widget.email,
-                                _otpCode,
-                              );
-                              if (ok && mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text("Email berhasil diverifikasi!"),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                                Navigator.pushNamedAndRemoveUntil(
-                                  context,
-                                  RouteGenerator.rolePage,
-                                  (route) => false,
-                                );
-                              } else if (mounted &&
-                                  authProvider.errorMessage != null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content:
-                                        Text(authProvider.errorMessage!),
-                                    backgroundColor:
-                                        const Color(0xFFE53935),
-                                  ),
-                                );
-                                authProvider.clearError();
-                              }
-                            }
-                          : null,
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        if (_otpCode.length < 6) {
+                          setState(() => _otpError = "Lengkapi kode OTP dahulu!");
+                          return;
+                        }
+                        
+                        setState(() => _otpError = null);
+                        final ok = await authProvider.verifyOTP(
+                          widget.email,
+                          _otpCode,
+                        );
+                        if (ok && mounted) {
+                          _showSuccessDialog();
+                        } else if (mounted) {
+                          // Try to derive meaning from authProvider.errorMessage
+                          String finalError = "Kode OTP tidak sesuai!";
+                          if (authProvider.errorMessage?.toLowerCase().contains("expired") ?? false) {
+                            finalError = "Kode OTP kadaluwarsa, kirim ulang OTP.";
+                          }
+                          setState(() => _otpError = finalError);
+                          authProvider.clearError();
+                        }
+                      },
                     ),
                   ),
                 ],

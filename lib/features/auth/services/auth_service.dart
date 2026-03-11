@@ -12,9 +12,12 @@ class AuthService {
     }
   }
 
-  Future<void> signUpWithEmail(String email, String password) async {
+  Future<bool> signUpWithEmail(String email, String password) async {
     try {
-      await _supabase.auth.signUp(email: email, password: password);
+      final response = await _supabase.auth.signUp(email: email, password: password);
+      // Jika session null, berarti butuh verifikasi OTP (Confirm Email = ON)
+      // Jika session tidak null, berarti otomatis login (Confirm Email = OFF)
+      return response.session == null;
     } on AuthException catch (e) {
       throw Exception(e.message);
     }

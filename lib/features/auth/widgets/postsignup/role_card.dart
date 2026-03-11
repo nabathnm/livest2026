@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
 /// Kartu pilihan role (Peternak / Pembeli Ternak)
 class RoleCard extends StatelessWidget {
@@ -42,9 +42,7 @@ class RoleCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: LivestSizes.fontSizeSm,
+              style: LivestTypography.bodySmMedium.copyWith(
                 color: isSelected
                     ? LivestColors.primaryNormal
                     : LivestColors.textPrimary,

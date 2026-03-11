@@ -35,6 +35,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     });
   }
 
+  /// Tunggu Supabase siap (Completer), baru cek auth
   Future<void> _waitForSupabaseThenCheck() async {
     await Livest.supabaseReady.future;
     if (!mounted) return;
@@ -46,7 +47,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
       final session = SupabaseConfig.client.auth.currentSession;
 
       if (session == null) {
-        _targetRoute = RouteGenerator.login;
+        _targetRoute = RouteGenerator.onboarding;
       } else {
         final user = SupabaseConfig.client.auth.currentUser;
         if (user != null && user.emailConfirmedAt == null) {
@@ -70,7 +71,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
         }
       }
     } catch (e) {
-      _targetRoute = RouteGenerator.login;
+      _targetRoute = RouteGenerator.onboarding;
     }
 
     if (mounted) {
@@ -142,7 +143,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/images/logo.png')
+                Image.asset('assets/images/onboarding/logo.png')
                     .animate(delay: 1100.ms)
                     .fadeIn(duration: 500.ms, curve: Curves.easeOut)
                     .slideY(

@@ -5,11 +5,17 @@ import 'package:livest/core/utils/constants/livest_sizes.dart';
 class ProfileSettingButton extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
+  final IconData icon;
+  final Color backgroundColor;
+  final Color textColor;
 
   const ProfileSettingButton({
     super.key,
     required this.title,
     required this.onTap,
+    required this.icon,
+    required this.backgroundColor,
+    required this.textColor,
   });
 
   @override
@@ -18,23 +24,24 @@ class ProfileSettingButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(LivestSizes.borderRadiusLg),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: LivestSizes.md, vertical: LivestSizes.md),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: LivestColors.primaryLight, // Light background for settings button
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(LivestSizes.borderRadiusLg),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Icon(icon, size: 20, color: textColor),
+            const SizedBox(width: 8),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: LivestColors.textPrimary,
+                color: textColor,
               ),
             ),
-            const Icon(Icons.arrow_forward_rounded, size: 18, color: LivestColors.textPrimary),
           ],
         ),
       ),

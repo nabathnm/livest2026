@@ -1,13 +1,15 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/features/auth/providers/auth_provider.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/buyer/profile/pages/edit_profile_page.dart';
-import 'package:livest/features/breader/profile/widgets/profile_info_field.dart';
-import 'package:livest/features/breader/profile/widgets/profile_setting_button.dart';
+import 'package:livest/features/buyer/profile/widgets/buyer_profile_info_field.dart';
+import 'package:livest/features/buyer/profile/widgets/buyer_profile_setting_button.dart';
+import 'package:livest/core/utils/widgets/custom_confirmation_dialog.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -25,165 +27,184 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  void _showLogoutConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => const CustomConfirmationDialog(
+        title: "Keluar Akun",
+        subtitle: "Apakah Anda yakin ingin keluar dari akun ini?",
+        confirmText: "Keluar",
+      ),
+    ).then((confirmed) async {
+      if (confirmed == true && mounted) {
+        await context.read<AuthProvider>().signOut();
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(context, RouteGenerator.login, (route) => false);
+        }
+      }
+    });
+  }
+
+  void _showDeleteAccountConfirmation(BuildContext context) {
+    Navigator.pushNamed(context, RouteGenerator.deleteAccount);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer2<ProfileProvider, AuthProvider>(
-      builder: (context, profileProvider, authProvider, child) {
-        if (profileProvider.isLoading) {
-          return const Scaffold(
-            backgroundColor: LivestColors.baseWhite,
-            body: Center(child: CircularProgressIndicator(color: LivestColors.primaryNormal)),
-          );
-        }
+    final profileProvider = context.watch<ProfileProvider>();
+    final isLoading = profileProvider.isLoading;
+    final profile = profileProvider.profileData;
 
-        final name = profileProvider.fullName ?? 'User';
-        final email = profileProvider.profileData?['email'] ?? 'Memuat...';
-        final phone = profileProvider.phoneNumber ?? '-';
-        final preferences = profileProvider.preferences ?? '-';
-        final avatarUrl = profileProvider.avatarUrl;
+    final avatarUrl = profileProvider.avatarUrl;
+    final fullName = profile?['full_name'] ?? '-';
+    final email = profile?['email'] ?? '-';
+    final phoneNumber = profile?['phone_number'] ?? '-';
+    // buyer specific field
+    final preferences = profile?['preferences'] ?? '-';
 
-        return Scaffold(
-          backgroundColor: LivestColors.baseWhite,
-          appBar: AppBar(
-            backgroundColor: LivestColors.baseWhite,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: LivestColors.textPrimary),
-              onPressed: () => Navigator.pop(context),
+    return Scaffold(
+      backgroundColor: LivestColors.baseWhite,
+      appBar: AppBar(
+        backgroundColor: LivestColors.baseWhite,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        titleSpacing: LivestSizes.lg,
+        title: Row(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                color: LivestColors.primaryLightActive,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: LivestColors.textPrimary, size: 20),
+                onPressed: () {
+                  // Depending on navigation handling, this might pop or change bottom nav
+                },
+              ),
             ),
-            title: const Text(
+            const SizedBox(width: LivestSizes.md),
+            const Text(
               "Profile",
               style: TextStyle(
                 color: LivestColors.textPrimary,
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.red),
-                onPressed: () async {
-                  await authProvider.signOut();
-                  profileProvider.clearProfile();
-                  if (mounted) {
-                    Navigator.pushReplacementNamed(context, RouteGenerator.login);
-                  }
-                },
-              ),
-            ],
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          ],
+        ),
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(LivestSizes.xl),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: const Color(0xFFE0E0E0),
-                    backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                    child: avatarUrl == null ? const Icon(Icons.person, size: 60, color: Colors.grey) : null,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: LivestColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: 140,
-                    height: 40,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => EditProfilePage(
-                              initialName: name,
-                              initialEmail: email,
-                              initialPhone: phone,
-                              initialPreferences: preferences,
+                  // --- Header Row ---
+                  Row(
+                    children: [
+                      // Avatar
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: const Color(0xFFE0E0E0),
+                        backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                        child: avatarUrl == null
+                            ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                            : null,
+                      ),
+                      const SizedBox(width: LivestSizes.lg),
+                      // Text Info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              fullName,
+                              style: LivestTypography.h5,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        );
-                        if (result == true && mounted) {
-                          profileProvider.fetchProfile();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: LivestColors.primaryNormal,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                            const SizedBox(height: 2),
+                            Text(
+                              email,
+                              style: LivestTypography.bodySm.copyWith(color: LivestColors.textSecondary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              phoneNumber,
+                              style: LivestTypography.bodySm.copyWith(color: LivestColors.textSecondary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
-                      child: const Text("Edit Profile", style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  ProfileInfoField(label: "Email", value: email),
-                  const SizedBox(height: 16),
-                  ProfileInfoField(label: "Nomor Telepon", value: phone),
-                  const SizedBox(height: 16),
-                  ProfileInfoField(label: "Preferensi Ternak", value: preferences),
-                  const SizedBox(height: 32),
-                  
-                  // Settings Section (Tembusan dari Breader untuk standardisasi)
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Pengaturan",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: LivestColors.textPrimary,
+                      // Edit Button
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, color: LivestColors.textPrimary),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditProfilePage(
+                                initialName: fullName,
+                                initialEmail: email,
+                                initialPhone: phoneNumber,
+                                initialPreferences: preferences,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  ProfileSettingButton(
-                    title: "Keluar (Logout)",
-                    onTap: () => _confirmLogout(context, authProvider, profileProvider),
+
+                  const SizedBox(height: LivestSizes.spaceBtwSections),
+
+                  // --- Data Fields ---
+                  BuyerProfileInfoField(label: "Email", value: email),
+                  const SizedBox(height: LivestSizes.md),
+                  BuyerProfileInfoField(label: "Nomor Telepon", value: phoneNumber),
+                  const SizedBox(height: LivestSizes.md),
+                  BuyerProfileInfoField(label: "Preferensi Ternak", value: preferences),
+
+                  const SizedBox(height: LivestSizes.spaceBtwSections),
+
+                  // --- Pengaturan ---
+                  const Text("Pengaturan", style: LivestTypography.h6),
+                  const SizedBox(height: LivestSizes.md),
+
+                  BuyerProfileSettingButton(
+                    icon: Icons.lock_outline,
+                    title: "Ubah Password",
+                    onTap: () => Navigator.pushNamed(context, RouteGenerator.changePassword),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: LivestSizes.sm),
+
+                  BuyerProfileSettingButton(
+                    icon: Icons.logout, // using standard logout since lock open is weird for logout
+                    title: "Keluar dari akun",
+                    backgroundColor: const Color(0xFFFFEBEE),
+                    textColor: const Color(0xFFD32F2F),
+                    onTap: () => _showLogoutConfirmation(context),
+                  ),
+                  const SizedBox(height: LivestSizes.sm),
+
+                  BuyerProfileSettingButton(
+                    icon: Icons.lock_outline, 
+                    title: "Hapus akun",
+                    backgroundColor: const Color(0xFFFFEBEE),
+                    textColor: const Color(0xFFD32F2F),
+                    onTap: () => _showDeleteAccountConfirmation(context),
+                  ),
                 ],
               ),
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _confirmLogout(BuildContext context, AuthProvider authProvider, ProfileProvider profileProvider) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Keluar"),
-        content: const Text("Apakah Anda yakin ingin keluar dari akun ini?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Batal", style: TextStyle(color: LivestColors.textSecondary)),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await authProvider.signOut();
-              profileProvider.clearProfile();
-              if (mounted) {
-                Navigator.pushReplacementNamed(context, RouteGenerator.login);
-              }
-            },
-            child: const Text("Keluar", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
   }
 }
+

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
-enum ButtonVariant { primary, secondary, outlined, text }
+enum ButtonVariant { primary, secondary, outlined, text, google }
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -24,6 +25,7 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color secondaryColor = Color(0xFFEFEBE9);
     Color backgroundColor;
     Color textColor;
     BorderSide borderSide;
@@ -35,7 +37,7 @@ class CustomButton extends StatelessWidget {
         borderSide = BorderSide.none;
         break;
       case ButtonVariant.secondary:
-        backgroundColor = LivestColors.primaryLight;
+        backgroundColor = secondaryColor;
         textColor = LivestColors.primaryNormal;
         borderSide = BorderSide.none;
         break;
@@ -50,6 +52,11 @@ class CustomButton extends StatelessWidget {
       case ButtonVariant.text:
         backgroundColor = Colors.transparent;
         textColor = LivestColors.primaryNormal;
+        borderSide = BorderSide.none;
+        break;
+      case ButtonVariant.google:
+        backgroundColor = LivestColors.primaryLight;
+        textColor = LivestColors.textHeading;
         borderSide = BorderSide.none;
         break;
     }
@@ -80,11 +87,7 @@ class CustomButton extends StatelessWidget {
               ],
               Text(
                 text,
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: LivestSizes.fontSizeMd,
-                ),
+                style: LivestTypography.buttonMd.copyWith(color: textColor),
               ),
             ],
           );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/config/supabase_config.dart';
-import 'package:livest/data/models/profile_model.dart';
+import 'package:livest/core/data/models/profile_model.dart';
 import 'package:livest/features/auth/services/profile_service.dart';
 
 class ProfileProvider extends ChangeNotifier {
@@ -24,7 +24,15 @@ class ProfileProvider extends ChangeNotifier {
   String? get description => _profile?.description;
   String? get avatarUrl => _profile?.avatarUrl;
 
-  Map<String, dynamic>? get profileData => _profile?.toJson();
+  String? get email => SupabaseConfig.client.auth.currentUser?.email;
+
+  Map<String, dynamic>? get profileData {
+    final data = _profile?.toJson();
+    if (data != null) {
+      data['email'] = email;
+    }
+    return data;
+  }
 
   void _setLoading(bool value) {
     _isLoading = value;
@@ -79,6 +87,7 @@ class ProfileProvider extends ChangeNotifier {
         description: description,
       );
 
+      // Refresh dari server untuk data terbaru
       _profile = await _profileService.fetchByUserId(user.id);
 
       _setLoading(false);
@@ -171,7 +180,6 @@ class ProfileProvider extends ChangeNotifier {
       return false;
     }
   }
-
   /// Reset profile data (saat logout)
   void clearProfile() {
     _profile = null;

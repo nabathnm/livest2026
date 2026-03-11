@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
 /// Kartu pilihan satu jenis ternak (Sapi, Ayam, dll)
 class AnimalCard extends StatelessWidget {
@@ -42,9 +42,7 @@ class AnimalCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: LivestSizes.fontSizeSm,
+              style: LivestTypography.bodySmMedium.copyWith(
                 color: isSelected
                     ? LivestColors.primaryNormal
                     : LivestColors.textPrimary,

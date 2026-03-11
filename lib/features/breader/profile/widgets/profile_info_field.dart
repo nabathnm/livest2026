@@ -32,7 +32,7 @@ class ProfileInfoField extends StatelessWidget {
           decoration: BoxDecoration(
             color: LivestColors.baseWhite,
             border: Border.all(color: LivestColors.primaryLightActive, width: 1),
-            borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+            borderRadius: BorderRadius.circular(90),
           ),
           child: Text(
             value,

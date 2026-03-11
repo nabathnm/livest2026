@@ -5,6 +5,7 @@ import 'package:livest/features/auth/pages/splash_screen_page.dart';
 import 'package:livest/features/auth/pages/onboarding_page.dart';
 import 'package:livest/features/auth/pages/otp_verification_page.dart';
 import 'package:livest/features/auth/pages/forgot_password_page.dart';
+import 'package:livest/features/auth/pages/forgot_password_otp_page.dart';
 import 'package:livest/features/auth/pages/change_password_page.dart';
 import 'package:livest/features/auth/pages/delete_account_page.dart';
 import 'package:livest/features/auth/pages/postsignup_page.dart';
@@ -18,10 +19,10 @@ class RouteGenerator {
   static const String onboarding = '/onboarding';
   static const String otpVerification = '/otp-verification';
   static const String forgotPassword = '/forgot-password';
+  static const String forgotPasswordOtp = '/forgot-password-otp';
   static const String changePassword = '/change-password';
   static const String deleteAccount = '/delete-account';
   static const String rolePage = '/role';
-
   static const String breaderHome = '/peternak-home';
   static const String buyerHome = '/pembeli-home';
 
@@ -44,6 +45,11 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const PostSignupPage());
       case forgotPassword:
         return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
+      case forgotPasswordOtp:
+        final email = settings.arguments as String;
+        return MaterialPageRoute(
+          builder: (_) => ForgotPasswordOtpPage(email: email),
+        );
       case changePassword:
         return MaterialPageRoute(builder: (_) => const ChangePasswordPage());
       case deleteAccount:

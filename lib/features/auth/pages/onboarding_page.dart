@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 
 class OnboardingData {
@@ -93,29 +94,40 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 // Top bar (back + skip)
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
+                      horizontal: 16, vertical: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Back arrow
                       if (_currentIndex > 0)
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back,
-                              color: LivestColors.textPrimary),
-                          onPressed: _goBack,
+                        GestureDetector(
+                          onTap: _goBack,
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFF1EBE6),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new,
+                              size: 16,
+                              color: LivestColors.textHeading,
+                            ),
+                          ),
                         )
                       else
-                        const SizedBox(width: 48),
+                        const SizedBox(width: 40),
 
                       // Skip
                       if (!isLast)
                         TextButton(
                           onPressed: _navigateAway,
-                          child: const Text(
+                          child: Text(
                             'Skip',
-                            style: TextStyle(
+                            style: LivestTypography.buttonMd.copyWith(
                               color: LivestColors.primaryNormal,
-                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                              decorationColor: LivestColors.primaryNormal,
                             ),
                           ),
                         )
@@ -125,13 +137,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ),
 
-                // Progress dots
+                // Progress dots (centered without full-width padding to float correctly)
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 4),
-                  child: _OnboardingProgressBar(
-                    total: onboardingPages.length,
-                    current: _currentIndex,
+                  padding: const EdgeInsets.symmetric(vertical: 0),
+                  child: Center(
+                    child: _OnboardingProgressBar(
+                      total: onboardingPages.length,
+                      current: _currentIndex,
+                    ),
                   ),
                 ),
 
@@ -176,18 +189,19 @@ class _OnboardingProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      spacing: 8,
+      mainAxisSize: MainAxisSize.min,
       children: List.generate(total, (index) {
         final isActive = index == current;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
+          margin: EdgeInsets.only(right: index == total - 1 ? 0 : 8),
           height: 8,
-          width: isActive ? 24 : 8,
+          width: 8,
           decoration: BoxDecoration(
             color: isActive
                 ? LivestColors.primaryNormal
-                : LivestColors.primaryLightActive,
-            borderRadius: BorderRadius.circular(999),
+                : const Color(0xFFB3B3B3), // Inactive grey matching design
+            shape: BoxShape.circle,
           ),
         );
       }),
@@ -235,11 +249,8 @@ class _OnboardingDetail extends StatelessWidget {
             child: Text(
               data.title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 32,
+              style: LivestTypography.displayLg.copyWith(
                 color: LivestColors.textPrimary,
-                height: 1.25,
               ),
             ),
           ),
@@ -251,9 +262,7 @@ class _OnboardingDetail extends StatelessWidget {
             child: Text(
               data.description,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 16,
+              style: LivestTypography.bodyMd.copyWith(
                 color: LivestColors.textSecondary,
                 height: 1.5,
               ),

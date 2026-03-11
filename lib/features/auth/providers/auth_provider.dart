@@ -20,6 +20,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Login dengan email & password
   Future<bool> signInWithEmail(String email, String password) async {
     _setLoading(true);
     _errorMessage = null;
@@ -35,17 +36,19 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Register dengan email & password
-  Future<bool> signUpWithEmail(String email, String password) async {
+  /// Mengembalikan [true] jika berhasil.
+  /// Result di dalam List: [0] = success, [1] = requiresOtp
+  Future<List<bool>> signUpWithEmail(String email, String password) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.signUpWithEmail(email, password);
+      final requiresOtp = await _authService.signUpWithEmail(email, password);
       _setLoading(false);
-      return true;
+      return [true, requiresOtp];
     } catch (e) {
       _errorMessage = e.toString();
       _setLoading(false);
-      return false;
+      return [false, false];
     }
   }
 

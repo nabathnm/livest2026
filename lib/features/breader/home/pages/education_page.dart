@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:livest/data/models/education_model.dart';
+import 'package:livest/core/data/models/education_model.dart';
 import 'package:livest/features/breader/home/pages/education_detail_page.dart';
-import 'package:livest/features/breader/home/providers/education_provider.dart';
+import 'package:livest/features/breader/home/provider/education_provider.dart';
 
 class EducationPage extends StatefulWidget {
   const EducationPage({super.key});
@@ -10,7 +10,6 @@ class EducationPage extends StatefulWidget {
   @override
   State<EducationPage> createState() => _EducationPageState();
 }
-
 class _EducationPageState extends State<EducationPage> {
   @override
   void initState() {
@@ -107,6 +106,7 @@ class _EducationPageState extends State<EducationPage> {
     );
   }
 }
+
 
 class EducationCard extends StatelessWidget {
   final EducationModel education;

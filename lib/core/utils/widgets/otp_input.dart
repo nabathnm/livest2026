@@ -24,7 +24,7 @@ class OtpInputState extends State<OtpInput> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
 
-  int _secondsLeft = 3600;
+  int _secondsLeft = 300;
   Timer? _timer;
 
   @override
@@ -49,7 +49,7 @@ class OtpInputState extends State<OtpInput> {
   }
 
   void _startTimer() {
-    _secondsLeft = 3600;
+    _secondsLeft = 300;
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (_secondsLeft > 0) {
@@ -160,26 +160,17 @@ class OtpInputState extends State<OtpInput> {
                         width: boxSize,
                         height: boxSize * 1.15,
                         decoration: BoxDecoration(
-                          color: char.isNotEmpty
-                              ? LivestColors.primaryLight
-                              : const Color(0xFFF5F0EC),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isCurrent
-                                ? LivestColors.primaryNormal
-                                : char.isNotEmpty
-                                    ? LivestColors.primaryNormalActive
-                                    : LivestColors.primaryLightActive,
-                            width: isCurrent ? 2 : 1,
-                          ),
+                          color: const Color(0xFFF1EBE6), // Soft beige matching design
+                          borderRadius: BorderRadius.circular(12),
+                          // No border, just filled background
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          char,
+                          isCurrent && char.isEmpty ? '|' : char,
                           style: TextStyle(
                             fontSize: boxSize * 0.48,
-                            fontWeight: FontWeight.w700,
-                            color: LivestColors.textPrimary,
+                            fontWeight: isCurrent && char.isEmpty ? FontWeight.w300 : FontWeight.w700,
+                            color: isCurrent && char.isEmpty ? LivestColors.textPrimary.withValues(alpha: 0.5) : LivestColors.textPrimary,
                           ),
                         ),
                       );

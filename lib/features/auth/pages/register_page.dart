@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/core/utils/widgets/auth_header.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 import 'package:livest/core/utils/widgets/custom_text_field.dart';
@@ -21,6 +22,25 @@ class _RegisterPageState extends State<RegisterPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirmPassword = TextEditingController();
+
+  bool _hasMinLength = false;
+  bool _hasNumber = false;
+  String? _formError;
+
+  @override
+  void initState() {
+    super.initState();
+    _password.addListener(_validatePasswordRules);
+  }
+
+  void _validatePasswordRules() {
+    final value = _password.text;
+    setState(() {
+      _hasMinLength = value.length >= 8;
+      _hasNumber = RegExp(r'\d').hasMatch(value);
+      _formError = null; // hide error if they keep typing
+    });
+  }
 
   @override
   void dispose() {
@@ -50,20 +70,17 @@ class _RegisterPageState extends State<RegisterPage> {
           backgroundColor: LivestColors.baseWhite,
           body: Column(
             children: [
-              SafeArea(
-                bottom: false,
-                child: AuthHeader(
-                  subtitle: "Daftar untuk mengakses Livest",
-                  activeTab: 1,
-                  onTabChanged: (tab) {
-                    if (tab == 0) {
-                      Navigator.pushReplacementNamed(
-                        context,
-                        RouteGenerator.login,
-                      );
-                    }
-                  },
-                ),
+              AuthHeader(
+                subtitle: "Daftar untuk mengakses Livest",
+                activeTab: 1,
+                onTabChanged: (tab) {
+                  if (tab == 0) {
+                    Navigator.pushReplacementNamed(
+                      context,
+                      RouteGenerator.login,
+                    );
+                  }
+                },
               ),
 
               // ── Form Body ──
@@ -125,22 +142,94 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const SizedBox(height: LivestSizes.lg),
 
+                        // Password Rules Box
+                        if (_password.text.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: LivestSizes.spaceBtwInputFields),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(LivestSizes.md),
+                              decoration: BoxDecoration(
+                                color: LivestColors.primaryLight,
+                                borderRadius: BorderRadius.circular(LivestSizes.cardRadiusLg),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Password harus memenuhi",
+                                    style: LivestTypography.captionSmSemibold.copyWith(
+                                      color: LivestColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildValidationRow("Minimal 1 angka", _hasNumber),
+                                  const SizedBox(height: 4),
+                                  _buildValidationRow("Minimal 8 karakter", _hasMinLength),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                        // Form Error Banner
+                        if (_formError != null)
+                          Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: LivestSizes.spaceBtwInputFields),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: LivestColors.redLight,
+                              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+                            ),
+                            child: Text(
+                              _formError!,
+                              textAlign: TextAlign.center,
+                              style: LivestTypography.buttonSm.copyWith(
+                                color: LivestColors.redNormal,
+                              ),
+                            ),
+                          ),
+
                         CustomButton(
-                          text: "Masuk",
+                          text: "Daftar",
                           isLoading: authProvider.isLoading,
                           onPressed: () async {
                             FocusScope.of(context).unfocus();
+                            setState(() => _formError = null);
+
+                            if (_email.text.isEmpty || _password.text.isEmpty || _confirmPassword.text.isEmpty) {
+                              setState(() => _formError = "Lengkapi semua data!");
+                              return;
+                            }
+
                             if (!_formKey.currentState!.validate()) return;
-                            final success = await authProvider.signUpWithEmail(
+
+                            if (_password.text != _confirmPassword.text) {
+                              setState(() => _formError = "Konfirmasi password tidak sesuai!");
+                              return;
+                            }
+
+                            final result = await authProvider.signUpWithEmail(
                               _email.text.trim(),
                               _password.text.trim(),
                             );
-                            if (success && mounted) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                RouteGenerator.rolePage,
-                                (route) => false,
-                              );
+                            final success = result[0];
+                            final requiresOtp = result[1];
+
+                            if (success && context.mounted) {
+                              if (requiresOtp) {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteGenerator.otpVerification,
+                                  arguments: _email.text.trim(),
+                                );
+                              } else {
+                                // Confirm email DIMATIKAN di Supabase -> bypass OTP
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteGenerator.rolePage,
+                                );
+                              }
                             }
                           },
                         ),
@@ -152,8 +241,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         // Google
                         CustomButton(
-                          text: "Masuk dengan Google",
-                          variant: ButtonVariant.outlined,
+                          text: "Login dengan Google",
+                          variant: ButtonVariant.google,
                           icon: Icons.g_mobiledata,
                           isLoading: authProvider.isLoading,
                           onPressed: () => authProvider.signInWithGoogle(),
@@ -169,4 +258,24 @@ class _RegisterPageState extends State<RegisterPage> {
       },
     );
   }
+
+  Widget _buildValidationRow(String text, bool isValid) {
+    return Row(
+      children: [
+        Icon(
+          isValid ? Icons.check_circle : Icons.cancel,
+          size: 16,
+          color: isValid ? LivestColors.greenNormal : LivestColors.redNormal,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: LivestTypography.textSm.copyWith(
+            color: isValid ? LivestColors.greenNormal : LivestColors.redNormal,
+          ),
+        ),
+      ],
+    );
+  }
 }
+

@@ -4,7 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/widgets/custom_confirmation_dialog.dart';
 import 'package:livest/core/utils/widgets/custom_text_field.dart';
+import 'package:livest/core/utils/widgets/custom_text_field_pill.dart';
+import 'package:flutter/services.dart';
+import 'package:livest/core/utils/formatters/phone_number_formatter.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -64,6 +69,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  void _confirmSave() {
+    if (!_formKey.currentState!.validate()) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => const CustomConfirmationDialog(
+        title: "Yakin ingin menyimpan\\nperubahan?",
+        subtitle: "Segala perubahan akan disimpan.",
+        confirmText: "Simpan",
+      ),
+    ).then((confirmed) {
+      if (confirmed == true) {
+        _submit();
+      }
+    });
+  }
+
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -78,7 +99,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final success = await provider.updateProfile(
       name: _nameController.text,
       email: _emailController.text,
-      phoneNumber: _phoneController.text,
+      phoneNumber: _phoneController.text.replaceAll(RegExp(r'\D'), ''),
       preferences: _preferencesController.text.isNotEmpty ? _preferencesController.text : null,
     );
 
@@ -103,19 +124,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         backgroundColor: LivestColors.baseWhite,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: LivestColors.textPrimary),
-          onPressed: () => Navigator.pop(context),
+        automaticallyImplyLeading: false,
+        titleSpacing: LivestSizes.lg,
+        title: Row(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                color: LivestColors.primaryLightActive,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: LivestColors.textPrimary, size: 20),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            const SizedBox(width: LivestSizes.md),
+            const Text(
+              "Edit Profile",
+              style: TextStyle(
+                color: LivestColors.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
-        title: const Text(
-          "Edit Profile",
-          style: TextStyle(
-            color: LivestColors.textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -154,43 +187,43 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                CustomTextField(
+                CustomTextFieldPill(
                   label: "Username",
                   controller: _nameController,
-                  prefixIcon: const SizedBox.shrink(),
                   validator: (value) => value == null || value.isEmpty ? "Nama tidak boleh kosong" : null,
                 ),
                 const SizedBox(height: 16),
-                CustomTextField(
+                CustomTextFieldPill(
                   label: "Email",
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  prefixIcon: const SizedBox.shrink(),
                   validator: (value) {
                     if (value == null || value.isEmpty) return "Email tidak boleh kosong";
-                    if (!value.contains("@")) return "Format email tidak valid";
+                    if (!value.contains("@")) return "Email tidak valid";
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                CustomTextField(
+                CustomTextFieldPill(
                   label: "Nomor Telepon",
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  prefixIcon: const SizedBox.shrink(),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    PhoneNumberFormatter(),
+                  ],
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "Nomor telepon tidak boleh kosong";
-                    if (!RegExp(r'^(08|\+62)\d{7,12}$').hasMatch(value)) {
-                      return 'Nomor Telepon tidak valid';
+                    if (value == null || value.trim().isEmpty) return "Nomor telepon tidak boleh kosong";
+                    if (!RegExp(r'^(08|\+62)\d{7,12}$').hasMatch(value.replaceAll(RegExp(r'\D'), ''))) {
+                      return 'Nomor telepon tidak valid';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                CustomTextField(
+                CustomTextFieldPill(
                   label: "Preferensi Ternak",
                   controller: _preferencesController,
-                  prefixIcon: const SizedBox.shrink(),
                   hintText: "Contoh: Sapi, ayam",
                   validator: (value) => value == null || value.isEmpty ? "Preferensi tidak boleh kosong" : null,
                 ),
@@ -199,7 +232,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : _submit,
+                    onPressed: isLoading ? null : _confirmSave,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: LivestColors.primaryNormal,
                       shape: RoundedRectangleBorder(

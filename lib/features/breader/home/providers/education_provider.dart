@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:livest/data/models/education_model.dart';
+import 'package:livest/core/data/models/education_model.dart';
 import 'package:livest/features/breader/home/services/education_service.dart';
 
 /// Provider untuk mengelola state konten edukasi.

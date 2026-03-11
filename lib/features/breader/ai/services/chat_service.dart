@@ -1,8 +1,7 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:livest/core/config/app_config.dart';
-import 'package:livest/core/config/app_config.dart';
 import 'package:livest/core/services/local_search_service.dart';
-import 'package:livest/data/models/chat_model.dart';
+import 'package:livest/core/data/models/chat_model.dart';
 
 /// Service untuk komunikasi dengan Gemini AI.
 /// Mengelola model & session, provider hanya delegasi ke sini.
@@ -23,23 +22,25 @@ class ChatService {
         "Saat memberikan rekomendasi obat dari tool, sebutkan nama obat, fungsi, kisaran HARGA, dan NAMA TOKO beserta LOKASINYA.",
       ),
       tools: [
-        Tool(functionDeclarations: [
-          FunctionDeclaration(
-            'search_livest_products',
-            'Cari produk nyata (obat, pakan, ternak) yang dijual oleh peternak lain di database aplikasi Livest. Gunakan ini JIKA user mencari obat/pakan ternak beserta harganya.',
-            Schema(
-              SchemaType.object,
-              properties: {
-                'query': Schema(
-                  SchemaType.string,
-                  description:
-                      'Kata kunci pencarian obat atau pakan, contoh: "Obat Sapi Mencret", "Pakan Ayam Petelur"',
-                ),
-              },
-              requiredProperties: ['query'],
+        Tool(
+          functionDeclarations: [
+            FunctionDeclaration(
+              'search_livest_products',
+              'Cari produk nyata (obat, pakan, ternak) yang dijual oleh peternak lain di database aplikasi Livest. Gunakan ini JIKA user mencari obat/pakan ternak beserta harganya.',
+              Schema(
+                SchemaType.object,
+                properties: {
+                  'query': Schema(
+                    SchemaType.string,
+                    description:
+                        'Kata kunci pencarian obat atau pakan, contoh: "Obat Sapi Mencret", "Pakan Ayam Petelur"',
+                  ),
+                },
+                requiredProperties: ['query'],
+              ),
             ),
-          ),
-        ])
+          ],
+        ),
       ],
     );
     _chat = _model.startChat();
@@ -49,7 +50,6 @@ class ChatService {
   Future<ChatMessageModel> sendMessage(String prompt) async {
     // 1. Send the initial prompt
     var response = await _chat.sendMessage(Content.text(prompt));
-
     // 2. Loop as long as Gemini decides it needs to call a function
     while (response.functionCalls.isNotEmpty) {
       final functionCalls = response.functionCalls.toList();

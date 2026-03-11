@@ -1,5 +1,5 @@
 import 'package:livest/core/services/base_supabase_service.dart';
-import 'package:livest/data/models/profile_model.dart';
+import 'package:livest/core/data/models/profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Service untuk operasi CRUD profil user di Supabase.

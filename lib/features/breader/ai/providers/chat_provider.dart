@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:livest/data/models/chat_model.dart';
+import 'package:livest/core/data/models/chat_model.dart';
 import 'package:livest/features/breader/ai/services/chat_service.dart';
 
 /// Provider untuk mengelola state chat AI.
@@ -23,10 +23,9 @@ class ChatProvider extends ChangeNotifier {
       final botReply = await _chatService.sendMessage(userMessage);
       _messages.add(botReply);
     } catch (e) {
-      _messages.add(ChatMessageModel(
-        role: 'bot',
-        text: 'Terjadi kesalahan: $e',
-      ));
+      _messages.add(
+        ChatMessageModel(role: 'bot', text: 'Terjadi kesalahan: $e'),
+      );
     }
 
     _isLoading = false;

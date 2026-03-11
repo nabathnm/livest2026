@@ -3,8 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 import 'package:livest/core/utils/widgets/custom_text_field.dart';
+import 'package:flutter/services.dart';
+import 'package:livest/core/utils/formatters/phone_number_formatter.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/auth/widgets/postsignup/animal_card.dart';
 import 'package:livest/features/auth/widgets/postsignup/location_dropdown.dart';
@@ -24,6 +27,7 @@ class _PostSignupPageState extends State<PostSignupPage> {
 
   // ── Step data ──
   String _role = '';
+  String _nama = '';
   String _phoneNumber = '';
   String _farmName = '';
   String _farmLocation = '';
@@ -31,10 +35,12 @@ class _PostSignupPageState extends State<PostSignupPage> {
 
   // ── Error per step ──
   String? _roleError;
+  String? _nameError;
   String? _phoneError;
   String? _farmError;
   String? _animalError;
 
+  final _nameController = TextEditingController();
   final _farmNameController = TextEditingController();
   final _phoneController = TextEditingController();
 
@@ -42,19 +48,11 @@ class _PostSignupPageState extends State<PostSignupPage> {
 
   // Step indices:
   // 0 = Role selection
-  // 1 = Phone number
-  // 2 = Farm profile (peternak)
-  // 3 = Animal selection (peternak)
-  // 4 = All Set
-
-  double get _progress => const {
-        0: 0.2,
-        1: 0.4,
-        2: 0.6,
-        3: 0.8,
-        4: 1.0,
-      }[_currentStep] ??
-      0.2;
+  // 1 = Name
+  // 2 = Phone number
+  // 3 = Farm profile (peternak)
+  // 4 = Animal selection (peternak)
+  // 5 = All Set
 
   static const List<String> _provinces = [
     'Jawa Timur',
@@ -79,6 +77,7 @@ class _PostSignupPageState extends State<PostSignupPage> {
   @override
   void dispose() {
     _pageController.dispose();
+    _nameController.dispose();
     _farmNameController.dispose();
     _phoneController.dispose();
     super.dispose();
@@ -88,6 +87,7 @@ class _PostSignupPageState extends State<PostSignupPage> {
 
   void _clearErrors() => setState(() {
         _roleError = null;
+        _nameError = null;
         _phoneError = null;
         _farmError = null;
         _animalError = null;
@@ -96,7 +96,17 @@ class _PostSignupPageState extends State<PostSignupPage> {
   void _goBack() {
     _clearErrors();
     if (_currentStep > 0) {
-      _animateToStep(_currentStep - 1);
+      if (_role == 'pembeli' && _currentStep == 4) {
+        // Pembeli: Step 4 (Animal/Interests) -> Step 2 (Phone)
+        _animateToStep(2);
+      } else if (_role == 'pembeli' && _currentStep == 5) {
+         // Pembeli: Step 5 (All Set) -> Step 4 (Animal/Interests)
+         _animateToStep(4);
+      } else {
+        _animateToStep(_currentStep - 1);
+      }
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -105,11 +115,18 @@ class _PostSignupPageState extends State<PostSignupPage> {
 
     if (!_validateCurrentStep()) return;
 
-    // Pembeli skip step farm & animal, langsung ke All Set
-    if (_role == 'pembeli' && _currentStep == 1) {
-      _animateToStep(4);
-    } else if (_currentStep < 4) {
-      _animateToStep(_currentStep + 1);
+    if (_role == 'pembeli') {
+      if (_currentStep == 2) {
+        // Pembeli: Step 2 (Phone) -> Step 4 (Animal/Interests)
+        _animateToStep(4);
+      } else if (_currentStep < 5) {
+        _animateToStep(_currentStep + 1);
+      }
+    } else {
+      // Peternak: Normal flow
+      if (_currentStep < 5) {
+        _animateToStep(_currentStep + 1);
+      }
     }
   }
 
@@ -121,28 +138,58 @@ class _PostSignupPageState extends State<PostSignupPage> {
               () => _roleError = 'Pilih salah satu terlebih dahulu!');
           return false;
         }
+        break;
       case 1:
+        if (_nama.trim().isEmpty) {
+          setState(
+              () => _nameError = 'Masukkan nama terlebih dahulu!');
+          return false;
+        }
+        break;
+      case 2:
         if (_phoneNumber.trim().isEmpty) {
           setState(
               () => _phoneError = 'Masukkan nomor telepon terlebih dahulu');
           return false;
         }
-        if (!RegExp(r'^(08|\+62)\d{7,12}$').hasMatch(_phoneNumber.trim())) {
-          setState(() => _phoneError = 'Nomor Telepon tidak valid!');
+        final String rawPhone = _phoneNumber.trim().replaceAll(RegExp(r'\D'), '');
+        if (!RegExp(r'^(08|\+62)\d{7,12}$').hasMatch(rawPhone)) {
+          setState(() => _phoneError = 'Nomor telepon tidak valid');
           return false;
         }
-      case 2:
+        // Save the raw phone number back to be sent to backend
+        _phoneNumber = rawPhone;
+        break;
+      case 3:
         if (_farmName.trim().isEmpty || _farmLocation.isEmpty) {
           setState(() => _farmError = 'Lengkapi semua data!');
           return false;
         }
-      case 3:
+        break;
+      case 4:
         if (_selectedAnimals.isEmpty) {
           setState(() => _animalError = 'Minimal pilih 1 ternak!');
           return false;
         }
+        break;
     }
     return true;
+  }
+
+  // ── Helpers Pembeli / Peternak ──
+  int get _totalSegments => _role == 'pembeli' ? 4 : 5;
+
+  int _getActiveSegment(int step) {
+    if (_role == 'pembeli') {
+      if (step == 0) return 0; // Role
+      if (step == 1) return 1; // Name
+      if (step == 2) return 2; // Phone
+      if (step == 4) return 3; // Interests
+      if (step == 5) return 4; // All Set
+      return 0; // Fallback
+    } else {
+       return step;
+    }
   }
 
   void _animateToStep(int step) {
@@ -158,7 +205,7 @@ class _PostSignupPageState extends State<PostSignupPage> {
     final profileProvider = context.read<ProfileProvider>();
 
     final success = await profileProvider.submitOnboardingData(
-      nama: '',
+      nama: _nama.trim(),
       role: _role,
       phoneNumber: _phoneNumber,
       farmName: _role == 'peternak' ? _farmName : null,
@@ -204,7 +251,9 @@ class _PostSignupPageState extends State<PostSignupPage> {
               children: [
                 // Step 0: Role
                 OnboardingStepLayout(
-                  progress: _progress,
+                  totalSegments: _totalSegments,
+                  activeSegment: _getActiveSegment(0),
+                  onBack: _goBack,
                   onNext: _goNext,
                   child: _RoleStep(
                     selectedRole: _role,
@@ -213,9 +262,23 @@ class _PostSignupPageState extends State<PostSignupPage> {
                   ),
                 ),
 
-                // Step 1: Nomor Telepon
+                // Step 1: Input Nama
                 OnboardingStepLayout(
-                  progress: _progress,
+                  totalSegments: _totalSegments,
+                  activeSegment: _getActiveSegment(1),
+                  onBack: _goBack,
+                  onNext: _goNext,
+                  child: _NameStep(
+                    controller: _nameController,
+                    onChanged: (v) => _nama = v,
+                    errorMessage: _nameError,
+                  ),
+                ),
+
+                // Step 2: Nomor Telepon
+                OnboardingStepLayout(
+                  totalSegments: _totalSegments,
+                  activeSegment: _getActiveSegment(2),
                   onBack: _goBack,
                   onNext: _goNext,
                   child: _PhoneStep(
@@ -225,9 +288,10 @@ class _PostSignupPageState extends State<PostSignupPage> {
                   ),
                 ),
 
-                // Step 2: Profil Peternakan
+                // Step 3: Profil Peternakan (Hanya Peternak)
                 OnboardingStepLayout(
-                  progress: _progress,
+                  totalSegments: _totalSegments,
+                  activeSegment: _getActiveSegment(3),
                   onBack: _goBack,
                   onNext: _goNext,
                   child: _FarmStep(
@@ -242,9 +306,10 @@ class _PostSignupPageState extends State<PostSignupPage> {
                   ),
                 ),
 
-                // Step 3: Pilih Ternak
+                // Step 4: Pilih Ternak / Preferensi
                 OnboardingStepLayout(
-                  progress: _progress,
+                  totalSegments: _totalSegments,
+                  activeSegment: _getActiveSegment(4),
                   onBack: _goBack,
                   onNext: _goNext,
                   child: _AnimalStep(
@@ -261,9 +326,10 @@ class _PostSignupPageState extends State<PostSignupPage> {
                   ),
                 ),
 
-                // Step 4: All Set
+                // Step 5: All Set!
                 _AllSetStep(
-                  progress: _progress,
+                  totalSegments: _totalSegments,
+                  activeSegment: _getActiveSegment(5),
                   onBack: _goBack,
                   isLoading: profileProvider.isLoading,
                   onSubmit: _submit,
@@ -297,7 +363,7 @@ class _RoleStep extends StatelessWidget {
     return Column(
       children: [
         const OnboardingStepHeader(
-          title: 'Siapakah dirimu?',
+          title: 'Siapakah kamu?',
           subtitle: 'Lagi beternak, atau mau beli ternak?',
           textAlign: TextAlign.center,
         ),
@@ -356,20 +422,73 @@ class _PhoneStep extends StatelessWidget {
           hintText: 'Masukkan nomor telepon kamu',
           controller: controller,
           keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            PhoneNumberFormatter(),
+          ],
           prefixIcon: const Icon(
             Icons.phone_outlined,
-            color: LivestColors.primaryLightActive,
+            color: LivestColors.textSecondary,
             size: 20,
           ),
           onChanged: onChanged,
         ),
         if (errorMessage != null) ...[
           const SizedBox(height: 8),
-          Text(
-            errorMessage!,
-            style: const TextStyle(
-              color: Color(0xFFE53935),
-              fontSize: 12,
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              errorMessage!,
+              style: const TextStyle(
+                color: Color(0xFFE53935),
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _NameStep extends StatelessWidget {
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final String? errorMessage;
+
+  const _NameStep({
+    required this.controller,
+    required this.onChanged,
+    this.errorMessage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const OnboardingStepHeader(
+          title: 'Kenalan, yuk!',
+          subtitle: 'Nama kamu siapa?',
+        ),
+        CustomTextField(
+          label: 'Nama',
+          hintText: 'Masukkan nama kamu',
+          controller: controller,
+          keyboardType: TextInputType.name,
+          prefixIcon: const SizedBox.shrink(),
+          onChanged: onChanged,
+        ),
+        if (errorMessage != null) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              errorMessage!,
+              style: const TextStyle(
+                color: Color(0xFFE53935),
+                fontSize: 12,
+              ),
             ),
           ),
         ],
@@ -415,6 +534,7 @@ class _FarmStep extends StatelessWidget {
         LocationDropdown(
           value: farmLocation,
           items: provinces,
+          hasError: errorMessage != null,
           onChanged: onLocationChanged,
         ),
         if (errorMessage != null) ...[
@@ -475,13 +595,15 @@ class _AnimalStep extends StatelessWidget {
 }
 
 class _AllSetStep extends StatelessWidget {
-  final double progress;
+  final int totalSegments;
+  final int activeSegment;
   final VoidCallback onBack;
   final bool isLoading;
   final VoidCallback onSubmit;
 
   const _AllSetStep({
-    required this.progress,
+    required this.totalSegments,
+    required this.activeSegment,
     required this.onBack,
     required this.isLoading,
     required this.onSubmit,
@@ -500,7 +622,7 @@ class _AllSetStep extends StatelessWidget {
                     color: LivestColors.textPrimary),
                 onPressed: onBack,
               ),
-              Expanded(child: OnboardingProgressBar(progress: progress)),
+              Expanded(child: SegmentedProgressBar(totalSegments: totalSegments, activeSegment: activeSegment)),
             ],
           ),
         ),
@@ -514,20 +636,17 @@ class _AllSetStep extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 32),
-              const Text(
+              Text(
                 'Akunmu sudah siap!',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
+                style: LivestTypography.displayMd.copyWith(
                   color: LivestColors.textPrimary,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Siap untuk memulai perjalanan bersama Livest?',
-                style: TextStyle(
-                  fontSize: LivestSizes.fontSizeSm,
+                style: LivestTypography.bodySm.copyWith(
                   color: LivestColors.textSecondary,
                 ),
                 textAlign: TextAlign.center,

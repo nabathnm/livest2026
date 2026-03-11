@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:livest/features/breader/ai/pages/widgets/chat_message_bubble.dart';
+import 'package:livest/features/breader/ai/pages/widgets/suggested_question_button.dart';
+import 'package:livest/features/breader/ai/pages/widgets/typing_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
 import 'package:livest/features/breader/ai/providers/chat_provider.dart';
-import 'package:livest/features/breader/ai/widgets/chat_message_bubble.dart';
-import 'package:livest/features/breader/ai/widgets/suggested_question_button.dart';
-import 'package:livest/features/breader/ai/widgets/typing_indicator.dart';
 
 class GeminiChatApp extends StatelessWidget {
   const GeminiChatApp({super.key});
@@ -30,7 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<String> _suggestedQuestions = [
     "Rekomendasi pakan ternak ayam?",
     "Cara mengatasi ternak muntah?",
-    "Cara mengobati kutu pada sapi?"
+    "Cara mengobati kutu pada sapi?",
   ];
 
   @override
@@ -121,18 +121,23 @@ class _ChatScreenState extends State<ChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: LivestSizes.xl * 2),
-          // Placeholder for Cow Image. Using a generic icon container for now.
-          Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              color: LivestColors.primaryLight,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.smart_toy_rounded,
-              size: 80,
-              color: LivestColors.primaryNormal,
+          Image.asset(
+            'assets/images/icon/sapiduduk.png',
+            width: 174,
+            height: 174,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => Container(
+              width: 140,
+              height: 140,
+              decoration: const BoxDecoration(
+                color: LivestColors.primaryLight,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.smart_toy_rounded,
+                size: 80,
+                color: LivestColors.primaryNormal,
+              ),
             ),
           ),
           const SizedBox(height: 32),
@@ -249,4 +254,6 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
+
 }

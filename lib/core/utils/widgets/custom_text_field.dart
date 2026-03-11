@@ -13,6 +13,7 @@ class CustomTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final String? hintText;
   final bool enabled;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     super.key,
@@ -25,6 +26,7 @@ class CustomTextField extends StatefulWidget {
     this.prefixIcon,
     this.hintText,
     this.enabled = true,
+    this.inputFormatters,
   });
 
   @override
@@ -71,6 +73,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           validator: widget.validator,
           onChanged: widget.onChanged,
           enabled: widget.enabled,
+          inputFormatters: widget.inputFormatters,
           style: const TextStyle(
             fontSize: LivestSizes.fontSizeSm,
             color: LivestColors.textPrimary,

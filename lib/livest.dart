@@ -4,6 +4,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:livest/core/config/supabase_config.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/theme/theme.dart';
+import 'package:livest/features/auth/providers/auth_provider.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
+import 'package:livest/features/breader/ai/providers/chat_provider.dart';
+import 'package:livest/features/breader/home/provider/education_provider.dart';
+import 'package:livest/features/breader/marketplace/providers/marketplace_provider.dart';
+import 'package:livest/features/buyer/cart/providers/cart_provider.dart';
+import 'package:livest/features/buyer/home/provider/buyer_marketplace_provider.dart';
+import 'package:livest/features/buyer/home/provider/search_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Livest extends StatefulWidget {
@@ -61,12 +70,24 @@ class _LivestState extends State<Livest> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: _navigatorKey,
-      theme: LivestAppTheme.theme,
-      debugShowCheckedModeBanner: false,
-      initialRoute: RouteGenerator.splash,
-      onGenerateRoute: RouteGenerator.generateRoute,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => MarketplaceProvider()),
+        ChangeNotifierProvider(create: (_) => EducationProvider()),
+        ChangeNotifierProvider(create: (_) => BuyerMarketplaceProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
+      ],
+      child: MaterialApp(
+        navigatorKey: _navigatorKey,
+        theme: LivestAppTheme.theme,
+        debugShowCheckedModeBanner: false,
+        initialRoute: RouteGenerator.splash,
+        onGenerateRoute: RouteGenerator.generateRoute,
+      ),
     );
   }
 }

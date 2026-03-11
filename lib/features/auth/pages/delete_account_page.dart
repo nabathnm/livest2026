@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-import 'package:livest/core/utils/constants/livest_sizes.dart';
 import 'package:livest/core/utils/widgets/custom_text_field.dart';
 import 'package:livest/features/auth/providers/auth_provider.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
