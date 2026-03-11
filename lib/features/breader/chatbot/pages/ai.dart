@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:livest/features/breader/ai/pages/widgets/chat_message_bubble.dart';
-import 'package:livest/features/breader/ai/pages/widgets/suggested_question_button.dart';
-import 'package:livest/features/breader/ai/pages/widgets/typing_indicator.dart';
+import 'package:livest/features/breader/chatbot/pages/widgets/chat_message_bubble.dart';
+import 'package:livest/features/breader/chatbot/pages/widgets/suggested_question_button.dart';
+import 'package:livest/features/breader/chatbot/pages/widgets/typing_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
-import 'package:livest/features/breader/ai/providers/chat_provider.dart';
+import 'package:livest/features/breader/chatbot/providers/chat_provider.dart';
 
 class GeminiChatApp extends StatelessWidget {
   const GeminiChatApp({super.key});

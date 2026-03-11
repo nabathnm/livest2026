@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/data/models/chat_model.dart';
-import 'package:livest/features/breader/ai/services/chat_service.dart';
+import 'package:livest/features/breader/chatbot/services/chat_service.dart';
 
 /// Provider untuk mengelola state chat AI.
 /// Delegasi semua logic AI ke ChatService (SRP).

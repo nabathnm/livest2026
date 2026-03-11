@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:livest/core/config/supabase_config.dart';
+import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
+import 'package:livest/features/auth/providers/auth_provider.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
+import 'package:livest/features/buyer/profile/pages/edit_profile_page.dart';
+import 'package:livest/features/buyer/profile/widgets/buyer_profile_info_field.dart';
+import 'package:livest/features/buyer/profile/widgets/buyer_profile_setting_button.dart';
+import 'package:livest/core/utils/widgets/custom_confirmation_dialog.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -11,88 +20,221 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileProvider>().fetchProfile();
+    });
+  }
+
+  void _showLogoutConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => const CustomConfirmationDialog(
+        title: "Keluar Akun",
+        subtitle: "Apakah Anda yakin ingin keluar dari akun ini?",
+        confirmText: "Keluar",
+      ),
+    ).then((confirmed) async {
+      if (confirmed == true && mounted) {
+        await context.read<AuthProvider>().signOut();
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            RouteGenerator.login,
+            (route) => false,
+          );
+        }
+      }
+    });
+  }
+
+  void _showDeleteAccountConfirmation(BuildContext context) {
+    Navigator.pushNamed(context, RouteGenerator.deleteAccount);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final profileProvider = context.watch<ProfileProvider>();
+    final isLoading = profileProvider.isLoading;
+    final profile = profileProvider.profileData;
+
+    final avatarUrl = profileProvider.avatarUrl;
+    final fullName = profile?['full_name'] ?? '-';
+    final email = profile?['email'] ?? '-';
+    final phoneNumber = profile?['phone_number'] ?? '-';
+    // buyer specific field
+    final preferences = profile?['preferences'] ?? '-';
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Profil"), centerTitle: true),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-
-              // Avatar
-              const CircleAvatar(
-                radius: 50,
-                backgroundImage: NetworkImage(
-                  "https://i.pravatar.cc/150?img=3",
+      backgroundColor: LivestColors.baseWhite,
+      appBar: AppBar(
+        backgroundColor: LivestColors.baseWhite,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        titleSpacing: LivestSizes.lg,
+        title: Row(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                color: LivestColors.primaryLightActive,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: LivestColors.textPrimary,
+                  size: 20,
                 ),
+                onPressed: () {
+                  // Depending on navigation handling, this might pop or change bottom nav
+                },
               ),
-
-              const SizedBox(height: 16),
-
-              const Text(
-                "Nabath Nuur",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: LivestSizes.md),
+            const Text(
+              "Profile",
+              style: TextStyle(
+                color: LivestColors.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                "nabath@email.com",
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Card Informasi
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 3,
-                child: Column(
-                  children: const [
-                    ListTile(
-                      leading: Icon(Icons.person_outline),
-                      title: Text("Nama"),
-                      subtitle: Text("Nabath Nuur"),
-                    ),
-                    Divider(height: 1),
-                    ListTile(
-                      leading: Icon(Icons.email_outlined),
-                      title: Text("Email"),
-                      subtitle: Text("nabath@email.com"),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await SupabaseConfig.client.auth.signOut();
-                    Navigator.pushReplacementNamed(
-                      context,
-                      RouteGenerator.login,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text("Logout"),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(LivestSizes.xl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- Header Row ---
+                  Row(
+                    children: [
+                      // Avatar
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: const Color(0xFFE0E0E0),
+                        backgroundImage: avatarUrl != null
+                            ? NetworkImage(avatarUrl)
+                            : null,
+                        child: avatarUrl == null
+                            ? const Icon(
+                                Icons.person,
+                                size: 50,
+                                color: Colors.grey,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: LivestSizes.lg),
+                      // Text Info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              fullName,
+                              style: LivestTypography.h5,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              email,
+                              style: LivestTypography.bodySm.copyWith(
+                                color: LivestColors.textSecondary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              phoneNumber,
+                              style: LivestTypography.bodySm.copyWith(
+                                color: LivestColors.textSecondary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Edit Button
+                      IconButton(
+                        icon: const Icon(
+                          Icons.edit_outlined,
+                          color: LivestColors.textPrimary,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditProfilePage(
+                                initialName: fullName,
+                                initialEmail: email,
+                                initialPhone: phoneNumber,
+                                initialPreferences: preferences,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: LivestSizes.spaceBtwSections),
+
+                  // --- Data Fields ---
+                  BuyerProfileInfoField(label: "Email", value: email),
+                  const SizedBox(height: LivestSizes.md),
+                  BuyerProfileInfoField(
+                    label: "Nomor Telepon",
+                    value: phoneNumber,
+                  ),
+                  const SizedBox(height: LivestSizes.md),
+                  BuyerProfileInfoField(
+                    label: "Preferensi Ternak",
+                    value: preferences,
+                  ),
+
+                  const SizedBox(height: LivestSizes.spaceBtwSections),
+
+                  // --- Pengaturan ---
+                  const Text("Pengaturan", style: LivestTypography.h6),
+                  const SizedBox(height: LivestSizes.md),
+
+                  BuyerProfileSettingButton(
+                    icon: Icons.lock_outline,
+                    title: "Ubah Password",
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      RouteGenerator.changePassword,
+                    ),
+                  ),
+                  const SizedBox(height: LivestSizes.sm),
+
+                  BuyerProfileSettingButton(
+                    icon: Icons
+                        .logout, // using standard logout since lock open is weird for logout
+                    title: "Keluar dari akun",
+                    backgroundColor: const Color(0xFFFFEBEE),
+                    textColor: const Color(0xFFD32F2F),
+                    onTap: () => _showLogoutConfirmation(context),
+                  ),
+                  const SizedBox(height: LivestSizes.sm),
+
+                  BuyerProfileSettingButton(
+                    icon: Icons.lock_outline,
+                    title: "Hapus akun",
+                    backgroundColor: const Color(0xFFFFEBEE),
+                    textColor: const Color(0xFFD32F2F),
+                    onTap: () => _showDeleteAccountConfirmation(context),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

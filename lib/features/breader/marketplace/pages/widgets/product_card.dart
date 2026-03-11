@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/features/breader/marketplace/models/product_model.dart';
-import 'package:livest/features/breader/marketplace/pages/marketplace_page.dart.dart';
+import 'package:livest/features/breader/marketplace/pages/marketplace_page.dart';
 import 'package:livest/features/breader/marketplace/pages/product_detail_page.dart';
 import 'package:livest/features/breader/marketplace/providers/marketplace_provider.dart';
 import 'package:provider/provider.dart';

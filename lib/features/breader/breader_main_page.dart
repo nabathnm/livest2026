@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-import 'package:livest/core/utils/models/nav_item_data_model.dart';
-import 'package:livest/features/breader/ai/pages/ai.dart';
+import 'package:livest/core/data/models/nav_item_data_model.dart';
+import 'package:livest/features/breader/chatbot/pages/ai.dart';
 import 'package:livest/features/breader/home/pages/home_page.dart';
-import 'package:livest/features/breader/marketplace/pages/marketplace_page.dart.dart';
+import 'package:livest/features/breader/marketplace/pages/marketplace_page.dart';
 import 'package:livest/features/breader/profile/pages/profile_page.dart';
 
 class BreaderMainPage extends StatefulWidget {

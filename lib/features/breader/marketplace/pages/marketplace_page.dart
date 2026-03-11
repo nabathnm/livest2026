@@ -3,6 +3,7 @@ import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/core/utils/widgets/livest_appbar.dart';
 import 'package:livest/core/utils/widgets/livest_button.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/breader/marketplace/models/product_model.dart';
 import 'package:livest/features/breader/marketplace/pages/product_form_page.dart';
 import 'package:livest/features/breader/marketplace/pages/widgets/stats_card.dart';
@@ -19,45 +20,50 @@ class MarketplacePage extends StatefulWidget {
 }
 
 class _MarketplacePageState extends State<MarketplacePage> {
-  final String userId = "086df457-e9b9-4b17-92ea-5fdb349fa9c2";
+  String get _userId => context.read<ProfileProvider>().id ?? '';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MarketplaceProvider>().getMyProduct(userId);
+      final id = context.read<ProfileProvider>().id;
+      if (id != null && id.isNotEmpty) {
+        context.read<MarketplaceProvider>().getMyProduct(id);
+      }
     });
   }
 
-  void _getProductCount() {
-    final productProvider = context.read<MarketplaceProvider>();
-
-    int totalProduct = productProvider.products.length;
-
-    print(totalProduct);
-  }
-
   void _navigateToAddForm() {
+    if (_userId.isEmpty) return;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) =>
-            ProductFormPage(mode: ProductFormMode.add, userId: userId),
+            ProductFormPage(mode: ProductFormMode.add, userId: _userId),
       ),
-    ).then((_) => context.read<MarketplaceProvider>().getMyProduct(userId));
+    ).then((_) {
+      if (_userId.isNotEmpty) {
+        context.read<MarketplaceProvider>().getMyProduct(_userId);
+      }
+    });
   }
 
   void _navigateToEditForm(ProductModel product) {
+    if (_userId.isEmpty) return;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ProductFormPage(
           mode: ProductFormMode.edit,
-          userId: userId,
+          userId: _userId,
           existingProduct: product,
         ),
       ),
-    ).then((_) => context.read<MarketplaceProvider>().getMyProduct(userId));
+    ).then((_) {
+      if (_userId.isNotEmpty) {
+        context.read<MarketplaceProvider>().getMyProduct(_userId);
+      }
+    });
   }
 
   void _confirmDelete(int productId) {
@@ -101,7 +107,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
         child: Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -114,15 +120,21 @@ class _MarketplacePageState extends State<MarketplacePage> {
                         .toString(),
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
-                  child: StatsCard(title: "Hasil Penjualan", value: "0"),
+                  child: StatsCard(
+                    title: "Hasil Penjualan",
+                    value: context
+                        .watch<MarketplaceProvider>()
+                        .gettotalSoldPrice
+                        .toString(),
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
@@ -132,9 +144,9 @@ class _MarketplacePageState extends State<MarketplacePage> {
                 ),
               ),
               child: Column(
-                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     "Ternak yang pernah kamu jual",
                     style: TextStyle(
                       fontSize: 16,
@@ -142,30 +154,66 @@ class _MarketplacePageState extends State<MarketplacePage> {
                       color: LivestColors.textHeading,
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(32),
-                      color: LivestColors.primaryLightHover,
-                    ),
-                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: Text(
-                      "Belum ada penjualan!",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: LivestColors.primaryNormal,
-                      ),
-                    ),
+                  const SizedBox(height: 10),
+                  Builder(
+                    builder: (context) {
+                      final types = context
+                          .watch<MarketplaceProvider>()
+                          .productTypes;
+
+                      if (types.isEmpty) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(32),
+                            color: LivestColors.primaryLightHover,
+                          ),
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          child: const Text(
+                            "Belum ada penjualan!",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: LivestColors.primaryNormal,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: types.map((type) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(32),
+                              color: LivestColors.primaryLightHover,
+                            ),
+                            child: Text(
+                              type,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: LivestColors.primaryNormal,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 40),
-            Text(
+            const SizedBox(height: 40),
+            const Text(
               "Riwayat Penjualan",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Expanded(
               child: Consumer<MarketplaceProvider>(
                 builder: (context, provider, _) {
@@ -217,7 +265,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
         crossAxisCount: 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
-        mainAxisExtent: 258,
+        mainAxisExtent: 260,
       ),
       itemBuilder: (context, index) {
         final product = products[index];

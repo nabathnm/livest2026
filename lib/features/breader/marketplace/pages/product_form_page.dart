@@ -7,6 +7,7 @@ import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/core/utils/widgets/livest_appbar.dart';
 import 'package:livest/core/utils/widgets/livest_button.dart';
 import 'package:livest/core/utils/widgets/livest_confirm_dialog.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/breader/marketplace/models/product_model.dart';
 import 'package:livest/features/breader/marketplace/providers/marketplace_provider.dart';
 import 'package:provider/provider.dart';
@@ -34,10 +35,14 @@ class ProductFormPage extends StatefulWidget {
 }
 
 class _ProductFormPageState extends State<ProductFormPage> {
+  String get _location => context.read<ProfileProvider>().farmLocation ?? '';
+  String get _farm_name => context.read<ProfileProvider>().farmName ?? '';
+  // String get _userId => context.read<ProfileProvider>().id ?? '';
+
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
-  final locationController = TextEditingController();
+  final phoneController = TextEditingController();
 
   String? _selectedType;
   static const List<String> _livestockTypes = [
@@ -63,7 +68,9 @@ class _ProductFormPageState extends State<ProductFormPage> {
     return val != null && val > 0;
   }
 
-  bool get _locationValid => locationController.text.trim().isNotEmpty;
+  // FIX: was incorrectly using priceController instead of phoneController
+  bool get _phoneValid => phoneController.text.trim().isNotEmpty;
+
   bool get _descriptionValid => descriptionController.text.trim().isNotEmpty;
   bool get _imageValid {
     final hasNew = _imageFile != null;
@@ -75,7 +82,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
       _nameValid &&
       _typeValid &&
       _priceValid &&
-      _locationValid &&
+      _phoneValid &&
       _descriptionValid &&
       _imageValid;
 
@@ -84,11 +91,14 @@ class _ProductFormPageState extends State<ProductFormPage> {
   @override
   void initState() {
     super.initState();
-    if (isEdit) _fillControllers(widget.existingProduct!);
-    // Rebuild saat controller berubah agar border error langsung update
+    // FIX: fill controllers when in edit mode
+    if (isEdit && widget.existingProduct != null) {
+      _fillControllers(widget.existingProduct!);
+    }
+    // listen to controllers so validation updates reactively
     nameController.addListener(_rebuild);
     priceController.addListener(_rebuild);
-    locationController.addListener(_rebuild);
+    phoneController.addListener(_rebuild);
     descriptionController.addListener(_rebuild);
   }
 
@@ -99,7 +109,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     nameController.dispose();
     descriptionController.dispose();
     priceController.dispose();
-    locationController.dispose();
+    phoneController.dispose();
     super.dispose();
   }
 
@@ -107,7 +117,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
     nameController.text = product.name ?? '';
     descriptionController.text = product.description ?? '';
     priceController.text = product.price?.toString() ?? '';
-    locationController.text = product.location ?? '';
+    phoneController.text = product.phone ?? '';
 
     final existingType = product.type ?? '';
     _selectedType = _livestockTypes.firstWhere(
@@ -150,12 +160,13 @@ class _ProductFormPageState extends State<ProductFormPage> {
       price: int.tryParse(priceController.text) ?? 0,
       isSold: old?.isSold ?? false,
       type: _selectedType ?? '',
-      imageUrl: imageUrl ?? old?.imageUrl,
-      location: locationController.text.trim(),
+      // FIX: prefer newly uploaded imageUrl, fallback to existing
+      imageUrl: imageUrl ?? old?.imageUrl ?? '',
+      phone: phoneController.text.trim(),
+      location: _location,
+      farmName: _farm_name,
     );
   }
-
-  // ─── Submit ───────────────────────────────────────────────────────────────
 
   void _onSubmit() {
     setState(() => _hasTriedSubmit = true);
@@ -194,7 +205,11 @@ class _ProductFormPageState extends State<ProductFormPage> {
       await context.read<MarketplaceProvider>().createProduct(product);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      // if (mounted) _showErrorSnackbar('Gagal menyimpan produk: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal menyimpan: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -226,7 +241,11 @@ class _ProductFormPageState extends State<ProductFormPage> {
       await context.read<MarketplaceProvider>().updateProduct(updated);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      // if (mounted) _showErrorSnackbar('Gagal memperbarui produk: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memperbarui: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -248,7 +267,6 @@ class _ProductFormPageState extends State<ProductFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Fields ──
                 _buildField(
                   label: 'Judul',
                   isValid: _nameValid,
@@ -273,8 +291,12 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 const SizedBox(height: 24),
                 _buildField(
                   label: 'Nomor yang dapat dihubungi',
-                  isValid: _locationValid,
-                  child: _buildTextField(locationController, 'Masukkan kontak'),
+                  isValid: _phoneValid,
+                  child: _buildTextField(
+                    phoneController,
+                    'Masukkan kontak',
+                    keyboardType: TextInputType.phone,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 _buildField(
@@ -296,10 +318,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 if (_hasTriedSubmit && !_formValid) ...[
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      // horizontal: 16,
-                      vertical: 14,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
                       color: Colors.red[50],
                       borderRadius: BorderRadius.circular(16),
@@ -323,20 +342,20 @@ class _ProductFormPageState extends State<ProductFormPage> {
             ),
           ),
 
-          // Overlay loading
           if (_isSubmitting)
             Container(
+              color: Colors.black.withOpacity(0.3),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(
+                    const CircularProgressIndicator(
                       color: LivestColors.primaryNormal,
                     ),
-                    SizedBox(height: 14),
+                    const SizedBox(height: 14),
                     Text(
                       'Menyimpan produk...',
-                      style: TextStyle(color: LivestColors.primaryNormal),
+                      style: const TextStyle(color: LivestColors.primaryNormal),
                     ),
                   ],
                 ),
@@ -347,21 +366,19 @@ class _ProductFormPageState extends State<ProductFormPage> {
     );
   }
 
-  // ─── Field wrapper dengan label + error ──────────────────────────────────
+  // ─── Field wrapper ────────────────────────────────────────────────────────
 
   Widget _buildField({
     required String label,
     required bool isValid,
     required Widget child,
   }) {
-    final showError = _hasTriedSubmit && !isValid;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: LivestTypography.bodyMd),
         const SizedBox(height: 8),
         child,
-        // Teks error di bawah field
       ],
     );
   }
@@ -372,7 +389,6 @@ class _ProductFormPageState extends State<ProductFormPage> {
     final existingUrl = widget.existingProduct?.imageUrl;
     final hasNewImage = _imageFile != null;
     final hasOldImage = existingUrl != null && existingUrl.isNotEmpty;
-    final showError = _hasTriedSubmit && !_imageValid;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,11 +514,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
   }) {
-    // Tentukan apakah field ini valid untuk keperluan border
     bool isFieldValid() {
       if (controller == nameController) return _nameValid;
       if (controller == priceController) return _priceValid;
-      if (controller == locationController) return _locationValid;
+      if (controller == phoneController) return _phoneValid;
       if (controller == descriptionController) return _descriptionValid;
       return true;
     }
@@ -514,6 +529,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
+      onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
         hintText: hint,
         contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 16),

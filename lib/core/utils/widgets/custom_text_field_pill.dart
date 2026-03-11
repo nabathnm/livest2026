@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
-class CustomTextField extends StatefulWidget {
+class CustomTextFieldPill extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final bool isPassword;
@@ -13,9 +14,10 @@ class CustomTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final String? hintText;
   final bool enabled;
+  final bool hasError;
   final List<TextInputFormatter>? inputFormatters;
 
-  const CustomTextField({
+  const CustomTextFieldPill({
     super.key,
     required this.label,
     required this.controller,
@@ -26,16 +28,18 @@ class CustomTextField extends StatefulWidget {
     this.prefixIcon,
     this.hintText,
     this.enabled = true,
+    this.hasError = false,
     this.inputFormatters,
   });
 
   @override
-  State<CustomTextField> createState() => _CustomTextFieldState();
+  State<CustomTextFieldPill> createState() => _CustomTextFieldPillState();
 }
 
-class _CustomTextFieldState extends State<CustomTextField> {
+class _CustomTextFieldPillState extends State<CustomTextFieldPill> {
   bool _obscureText = true;
   final FocusNode _focusNode = FocusNode();
+  String? _errorText;
 
   @override
   void dispose() {
@@ -48,19 +52,30 @@ class _CustomTextFieldState extends State<CustomTextField> {
     SystemChannels.textInput.invokeMethod('TextInput.show');
   }
 
+  String? _handleValidator(String? value) {
+    if (widget.validator != null) {
+      final result = widget.validator!(value);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _errorText != result) {
+          setState(() => _errorText = result);
+        }
+      });
+      return result != null ? '' : null; // trigger error border internally but hide default text
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final showRedBorder = _errorText != null || widget.hasError;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Label
         Text(
           widget.label,
-          style: const TextStyle(
-            fontSize: LivestSizes.fontSizeSm,
-            fontWeight: FontWeight.w500,
-            color: LivestColors.textPrimary,
-          ),
+          style: LivestTypography.bodySmMedium.copyWith(color: LivestColors.textPrimary),
         ),
         const SizedBox(height: LivestSizes.sm),
 
@@ -70,34 +85,22 @@ class _CustomTextFieldState extends State<CustomTextField> {
           onTap: _onTap,
           obscureText: widget.isPassword ? _obscureText : false,
           keyboardType: widget.keyboardType,
-          validator: widget.validator,
+          validator: _handleValidator,
           onChanged: widget.onChanged,
           enabled: widget.enabled,
           inputFormatters: widget.inputFormatters,
-          style: const TextStyle(
-            fontSize: LivestSizes.fontSizeSm,
-            color: LivestColors.textPrimary,
-          ),
+          style: LivestTypography.bodySm.copyWith(color: LivestColors.textPrimary),
           decoration: InputDecoration(
             hintText: widget.hintText ?? widget.label,
-            hintStyle: const TextStyle(
-              fontSize: LivestSizes.fontSizeSm,
-              color: LivestColors.primaryLightActive,
-            ),
-            prefixIcon:
-                widget.prefixIcon ??
-                const Icon(
-                  Icons.person_outline,
-                  color: LivestColors.primaryLightActive,
-                  size: 20,
-                ),
+            hintStyle: LivestTypography.bodySm.copyWith(color: LivestColors.primaryLightActive),
+            prefixIcon: widget.prefixIcon, 
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
                       _obscureText
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: LivestColors.primaryLightActive,
+                      color: LivestColors.textSecondary,
                       size: 20,
                     ),
                     onPressed: () =>
@@ -111,40 +114,53 @@ class _CustomTextFieldState extends State<CustomTextField> {
               vertical: 14,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius: BorderRadius.circular(90), // Pill Shape
               borderSide: const BorderSide(
                 color: LivestColors.primaryLightActive,
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
-              borderSide: const BorderSide(
-                color: LivestColors.primaryLightActive,
+              borderRadius: BorderRadius.circular(90),
+              borderSide: BorderSide(
+                color: showRedBorder ? const Color(0xFFE53935) : LivestColors.primaryLightActive,
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
-              borderSide: const BorderSide(
-                color: LivestColors.primaryNormal,
+              borderRadius: BorderRadius.circular(90),
+              borderSide: BorderSide(
+                color: showRedBorder ? const Color(0xFFE53935) : LivestColors.primaryNormal,
                 width: 1.5,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
-              borderSide: const BorderSide(color: Color(0xFFE53935), width: 1),
+              borderRadius: BorderRadius.circular(90),
+              borderSide: const BorderSide(
+                color: Color(0xFFE53935),
+                width: 1,
+              ),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius: BorderRadius.circular(90),
               borderSide: const BorderSide(
                 color: Color(0xFFE53935),
                 width: 1.5,
               ),
             ),
-            errorStyle: const TextStyle(color: Color(0xFFE53935), fontSize: 12),
+            errorStyle: const TextStyle(height: 0, fontSize: 0, color: Colors.transparent),
           ),
         ),
+        if (_errorText != null) ...[
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              _errorText!,
+              style: LivestTypography.captionSmSemibold.copyWith(color: const Color(0xFFE53935)),
+            ),
+          ),
+        ]
       ],
     );
   }

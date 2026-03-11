@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
 /// Error message box dengan background merah muda sesuai design.
 class OnboardingErrorBox extends StatelessWidget {
@@ -19,9 +19,8 @@ class OnboardingErrorBox extends StatelessWidget {
       ),
       child: Text(
         message,
-        style: const TextStyle(
-          color: Color(0xFFE53935),
-          fontSize: LivestSizes.fontSizeSm,
+        style: LivestTypography.captionSmSemibold.copyWith(
+          color: const Color(0xFFE53935),
         ),
         textAlign: TextAlign.center,
       ),
@@ -52,9 +51,7 @@ class OnboardingStepHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
+          style: LivestTypography.displayMd.copyWith(
             color: LivestColors.textPrimary,
           ),
           textAlign: textAlign,
@@ -62,8 +59,7 @@ class OnboardingStepHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           subtitle,
-          style: const TextStyle(
-            fontSize: LivestSizes.fontSizeSm,
+          style: LivestTypography.bodySm.copyWith(
             color: LivestColors.textSecondary,
           ),
           textAlign: textAlign,

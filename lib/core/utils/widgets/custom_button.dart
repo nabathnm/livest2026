@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
+import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
-// Enum untuk menentukan varian desain tombol sesuai gambar UI/UX
-enum ButtonVariant { primary, secondary, outlined, text }
+enum ButtonVariant { primary, secondary, outlined, text, google }
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -25,7 +26,6 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const Color secondaryColor = Color(0xFFEFEBE9);
-
     Color backgroundColor;
     Color textColor;
     BorderSide borderSide;
@@ -33,7 +33,7 @@ class CustomButton extends StatelessWidget {
     switch (variant) {
       case ButtonVariant.primary:
         backgroundColor = LivestColors.primaryNormal;
-        textColor = Colors.white;
+        textColor = LivestColors.baseWhite;
         borderSide = BorderSide.none;
         break;
       case ButtonVariant.secondary:
@@ -45,8 +45,8 @@ class CustomButton extends StatelessWidget {
         backgroundColor = Colors.transparent;
         textColor = LivestColors.primaryNormal;
         borderSide = const BorderSide(
-          color: LivestColors.primaryNormal,
-          width: 2,
+          color: LivestColors.primaryLightActive,
+          width: 1.5,
         );
         break;
       case ButtonVariant.text:
@@ -54,12 +54,17 @@ class CustomButton extends StatelessWidget {
         textColor = LivestColors.primaryNormal;
         borderSide = BorderSide.none;
         break;
+      case ButtonVariant.google:
+        backgroundColor = LivestColors.primaryLight;
+        textColor = LivestColors.textHeading;
+        borderSide = BorderSide.none;
+        break;
     }
 
     final bool isDisabled = onPressed == null || isLoading;
     if (isDisabled && variant != ButtonVariant.text) {
-      backgroundColor = Colors.grey[300]!;
-      textColor = Colors.grey[600]!;
+      backgroundColor = LivestColors.primaryLightActive;
+      textColor = LivestColors.textSecondary;
       borderSide = BorderSide.none;
     }
 
@@ -82,11 +87,7 @@ class CustomButton extends StatelessWidget {
               ],
               Text(
                 text,
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: LivestTypography.buttonMd.copyWith(color: textColor),
               ),
             ],
           );
@@ -109,9 +110,9 @@ class CustomButton extends StatelessWidget {
           backgroundColor: backgroundColor,
           foregroundColor: textColor,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(LivestSizes.buttonRadius),
             side: borderSide,
           ),
         ),

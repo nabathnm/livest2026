@@ -14,6 +14,7 @@ class ProfileProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  String? get id => _profile?.id;
   String? get fullName => _profile?.fullName;
   String? get role => _profile?.role;
   String? get phoneNumber => _profile?.phoneNumber;
@@ -21,6 +22,10 @@ class ProfileProvider extends ChangeNotifier {
   String? get farmLocation => _profile?.farmLocation;
   String? get animalTypes => _profile?.animalTypes;
   String? get preferences => _profile?.preferences;
+  String? get description => _profile?.description;
+  String? get avatarUrl => _profile?.avatarUrl;
+
+  String? get email => SupabaseConfig.client.auth.currentUser?.email;
 
   Map<String, dynamic>? get profileData => _profile?.toJson();
 
@@ -58,6 +63,7 @@ class ProfileProvider extends ChangeNotifier {
     String? farmLocation,
     String? animalTypes,
     String? preferences,
+    String? description,
   }) async {
     _setLoading(true);
     try {
@@ -73,6 +79,7 @@ class ProfileProvider extends ChangeNotifier {
         farmLocation: farmLocation,
         animalTypes: animalTypes,
         preferences: preferences,
+        description: description,
       );
 
       // Refresh dari server untuk data terbaru
@@ -94,6 +101,8 @@ class ProfileProvider extends ChangeNotifier {
     String? phoneNumber,
     String? farmName,
     String? farmLocation,
+    String? description,
+    String? preferences,
   }) async {
     _setLoading(true);
     try {
@@ -106,10 +115,59 @@ class ProfileProvider extends ChangeNotifier {
         phoneNumber: phoneNumber,
         farmName: farmName,
         farmLocation: farmLocation,
+        description: description,
+        preferences: preferences,
       );
 
       // Refresh profile dari server
       _profile = await _profileService.fetchByUserId(user.id);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  /// Soft Delete Akun (update profil ke status terhapus, tanpa hapus user di Auth Supabase)
+  Future<bool> softDeleteAccount() async {
+    _setLoading(true);
+    try {
+      final user = SupabaseConfig.client.auth.currentUser;
+      if (user == null) throw Exception("Sesi hilang.");
+
+      await _profileService.softDeleteProfile(user.id);
+
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  /// Upload/Update Foto Profil
+  Future<bool> uploadProfilePicture(dynamic fileBytes, String extension) async {
+    _setLoading(true);
+    try {
+      final user = SupabaseConfig.client.auth.currentUser;
+      if (user == null) throw Exception("Sesi hilang.");
+
+      // Upload ke storage
+      final avatarUrl = await _profileService.uploadAvatar(
+        user.id,
+        fileBytes,
+        extension,
+      );
+
+      // Simpan URL ke database profiles
+      await _profileService.upsert({'id': user.id, 'avatar_url': avatarUrl});
+
+      // Refresh profile data untuk merefleksikan perubahan UI
+      await fetchProfile();
+
       _setLoading(false);
       return true;
     } catch (e) {

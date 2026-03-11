@@ -47,7 +47,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
       final session = SupabaseConfig.client.auth.currentSession;
 
       if (session == null) {
-        _targetRoute = RouteGenerator.login;
+        _targetRoute = RouteGenerator.onboarding;
       } else {
         final user = SupabaseConfig.client.auth.currentUser;
         if (user != null && user.emailConfirmedAt == null) {
@@ -71,7 +71,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
         }
       }
     } catch (e) {
-      _targetRoute = RouteGenerator.login;
+      _targetRoute = RouteGenerator.onboarding;
     }
 
     if (mounted) {

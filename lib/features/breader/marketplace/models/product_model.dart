@@ -9,6 +9,7 @@ class ProductModel {
   final String? imageUrl;
   final String? location;
   final String? phone;
+  final String? farmName;
   final DateTime? createdAt;
 
   ProductModel({
@@ -22,6 +23,7 @@ class ProductModel {
     this.imageUrl,
     this.location,
     this.phone,
+    this.farmName,
     this.createdAt,
   });
 
@@ -36,6 +38,7 @@ class ProductModel {
     String? imageUrl,
     String? location,
     String? phone,
+    String? farmName,
     DateTime? createdAt,
   }) {
     return ProductModel(
@@ -49,6 +52,7 @@ class ProductModel {
       imageUrl: imageUrl ?? this.imageUrl,
       location: location ?? this.location,
       phone: phone ?? this.phone,
+      farmName: farmName ?? this.farmName,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -65,6 +69,7 @@ class ProductModel {
       imageUrl: json['image_url'],
       location: json['location'],
       phone: json['phone'],
+      farmName: json['farm_name'],
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : null,
@@ -82,6 +87,7 @@ class ProductModel {
       'image_url': imageUrl,
       'location': location,
       'phone': phone,
+      'farm_name': farmName,
     };
 
     if (createdAt != null) {

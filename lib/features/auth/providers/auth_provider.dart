@@ -36,17 +36,17 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Register dengan email & password
-  Future<bool> signUpWithEmail(String email, String password) async {
+  Future<List<bool>> signUpWithEmail(String email, String password) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.signUpWithEmail(email, password);
+      final requiresOtp = await _authService.signUpWithEmail(email, password);
       _setLoading(false);
-      return true;
+      return [true, requiresOtp];
     } catch (e) {
       _errorMessage = e.toString();
       _setLoading(false);
-      return false;
+      return [false, false];
     }
   }
 

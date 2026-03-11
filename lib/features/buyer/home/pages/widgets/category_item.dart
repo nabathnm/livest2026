@@ -21,11 +21,19 @@ class CategoryItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 110,
+        decoration: BoxDecoration(
+          border: Border.fromBorderSide(
+            BorderSide(color: LivestColors.primaryLight, width: 1),
+          ),
+          borderRadius: BorderRadius.circular(24),
+          color: LivestColors.baseBackground,
+        ),
+        // height: 110,
         width: 102,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const SizedBox(height: 8),
             Image.asset(iconPath),
             Text(title, style: LivestTypography.bodyMdMedium),
             const SizedBox(height: 8),

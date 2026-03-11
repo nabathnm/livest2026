@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: LivestColors.baseWhite,
+      backgroundColor: LivestColors.baseBackground,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -71,8 +71,8 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Image.asset(
                           'assets/images/onboarding/avatar.png',
-                          width: 36,
-                          height: 36,
+                          width: 48,
+                          height: 48,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -216,7 +216,7 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisCount: 2,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
-                                childAspectRatio: 0.6,
+                                mainAxisExtent: 314,
                               ),
                           itemBuilder: (context, index) {
                             final product = provider.products[index];

@@ -1,6 +1,8 @@
 class ProfileModel {
   final String id;
   final String? fullName;
+  final String? description;
+  final String? avatarUrl;
   final String? role; // 'peternak' atau 'pembeli'
   final String? farmName;
   final String? farmLocation;
@@ -13,6 +15,8 @@ class ProfileModel {
   ProfileModel({
     required this.id,
     this.fullName,
+    this.description,
+    this.avatarUrl,
     this.role,
     this.farmName,
     this.farmLocation,
@@ -27,6 +31,8 @@ class ProfileModel {
     return ProfileModel(
       id: json['id'] ?? '',
       fullName: json['full_name'],
+      description: json['description'],
+      avatarUrl: json['avatar_url'],
       role: json['role'],
       farmName: json['farm_name'],
       farmLocation: json['farm_location'],
@@ -44,6 +50,8 @@ class ProfileModel {
     return {
       'id': id,
       'full_name': fullName,
+      'description': description,
+      'avatar_url': avatarUrl,
       'role': role,
       'farm_name': farmName,
       'farm_location': farmLocation,

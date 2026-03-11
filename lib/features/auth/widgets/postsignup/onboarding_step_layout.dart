@@ -7,7 +7,8 @@ import 'package:livest/core/utils/widgets/custom_button.dart';
 /// - Scrollable content
 /// - Pinned "Lanjut" button at bottom
 class OnboardingStepLayout extends StatelessWidget {
-  final double progress;
+  final int totalSegments;
+  final int activeSegment;
   final Widget child;
   final VoidCallback onNext;
   final VoidCallback? onBack;
@@ -16,7 +17,8 @@ class OnboardingStepLayout extends StatelessWidget {
 
   const OnboardingStepLayout({
     super.key,
-    required this.progress,
+    required this.totalSegments,
+    required this.activeSegment,
     required this.child,
     required this.onNext,
     this.onBack,
@@ -35,14 +37,19 @@ class OnboardingStepLayout extends StatelessWidget {
             children: [
               if (onBack != null)
                 IconButton(
-                  icon: const Icon(Icons.arrow_back,
-                      color: LivestColors.textPrimary),
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: LivestColors.textPrimary,
+                  ),
                   onPressed: onBack,
                 )
               else
                 const SizedBox(width: 48),
               Expanded(
-                child: OnboardingProgressBar(progress: progress),
+                child: SegmentedProgressBar(
+                  totalSegments: totalSegments,
+                  activeSegment: activeSegment,
+                ),
               ),
             ],
           ),
@@ -70,24 +77,48 @@ class OnboardingStepLayout extends StatelessWidget {
   }
 }
 
-/// Progress bar linear untuk onboarding steps
-class OnboardingProgressBar extends StatelessWidget {
-  final double progress;
+/// Segmented progress bar untuk onboarding steps
+class SegmentedProgressBar extends StatelessWidget {
+  final int totalSegments;
+  final int activeSegment; // 1-based, 0 if nothing active
 
-  const OnboardingProgressBar({super.key, required this.progress});
+  const SegmentedProgressBar({
+    super.key,
+    required this.totalSegments,
+    required this.activeSegment,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: LinearProgressIndicator(
-        value: progress,
-        minHeight: 8,
-        backgroundColor: LivestColors.primaryLightActive,
-        valueColor: const AlwaysStoppedAnimation<Color>(
-          LivestColors.primaryNormal,
+    if (totalSegments <= 1) {
+      return Container(
+        height: 8,
+        decoration: BoxDecoration(
+          color: activeSegment == 1
+              ? LivestColors.primaryNormal
+              : const Color(0xFFEBEBEB),
+          borderRadius: BorderRadius.circular(10),
         ),
-      ),
+      );
+    }
+
+    return Row(
+      children: List.generate(totalSegments, (index) {
+        final isCompleted = index < activeSegment;
+        return Expanded(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            margin: EdgeInsets.only(right: index == totalSegments - 1 ? 0 : 8),
+            height: 8,
+            decoration: BoxDecoration(
+              color: isCompleted
+                  ? LivestColors.primaryNormal
+                  : const Color(0xFFEBEBEB),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }),
     );
   }
 }

@@ -5,18 +5,46 @@ import 'package:livest/features/breader/marketplace/repository/marketplace_repos
 class MarketplaceProvider extends ChangeNotifier {
   final MarketplaceRepository _marketplaceRepository = MarketplaceRepository();
 
-  List<ProductModel> _products = [];
   bool _isLoading = false;
-
-  List<ProductModel> get products => _products;
   bool get isLoading => _isLoading;
+
+  List<ProductModel> _products = [];
+  List<ProductModel> get products => _products;
 
   int get productCount => _products.length;
 
-  double get totalSoldPrice {
+  List<String> productType = [];
+
+  List<ProductModel> get soldProducts {
+    return _products.where((product) => product.isSold == true).toList();
+  }
+
+  List<String> get productTypes {
     return _products
+        .where((product) => product.type != null && product.type!.isNotEmpty)
+        .map((product) => product.type!)
+        .toSet()
+        .toList();
+  }
+
+  String get gettotalSoldPrice {
+    double total = _products
         .where((product) => product.isSold == true)
         .fold(0.0, (sum, product) => sum + (product.price ?? 0));
+
+    if (total >= 1000000) {
+      double juta = total / 1000000;
+      return juta % 1 == 0
+          ? "${juta.toInt()} jt"
+          : "${juta.toStringAsFixed(1)} jt";
+    } else if (total >= 1000) {
+      double ribu = total / 1000;
+      return ribu % 1 == 0
+          ? "${ribu.toInt()} K"
+          : "${ribu.toStringAsFixed(1)} K";
+    } else {
+      return total.toStringAsFixed(0);
+    }
   }
 
   void _setLoading(bool val) {

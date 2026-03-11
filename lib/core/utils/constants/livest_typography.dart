@@ -178,20 +178,20 @@ class LivestTypography {
 
   static const TextStyle caption = TextStyle(
     fontFamily: _font,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.2,
   );
 
   static const TextStyle captionMedium = TextStyle(
     fontFamily: _font,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w500,
   );
 
   static const TextStyle captionBold = TextStyle(
     fontFamily: _font,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w600,
   );
 

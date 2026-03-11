@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_typography.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
+import 'package:livest/features/buyer/cart/pages/widgets/cart_card.dart';
 import 'package:livest/features/buyer/cart/providers/cart_provider.dart';
+import 'package:livest/features/buyer/home/pages/detail_product_page.dart';
 import 'package:provider/provider.dart';
 
 class ChartPage extends StatefulWidget {
@@ -11,25 +15,49 @@ class ChartPage extends StatefulWidget {
 }
 
 class _ChartPageState extends State<ChartPage> {
-  final String userId = "4057b852-9814-4c12-b0bc-616ff0cf8077";
+  String get _userId => context.read<ProfileProvider>().id ?? '';
 
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() {
-      context.read<CartProvider>().loadCart(userId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final id = context.read<ProfileProvider>().id;
+      if (id != null && id.isNotEmpty) {
+        context.read<CartProvider>().loadCart(id);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Keranjang")),
+      backgroundColor: LivestColors.baseBackground,
+      appBar: AppBar(
+        backgroundColor: LivestColors.baseBackground,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        title: Row(
+          children: [
+            Image.asset("assets/images/icon/cart.png"),
+            const SizedBox(width: 16),
+            Text(
+              'Keranjang',
+              style: LivestTypography.displaySm.copyWith(
+                color: LivestColors.primaryDarker,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: Consumer<CartProvider>(
         builder: (context, cart, child) {
           if (cart.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(
+                color: LivestColors.primaryNormal,
+              ),
+            );
           }
 
           if (cart.cartItems.isEmpty) {
@@ -40,11 +68,13 @@ class _ChartPageState extends State<ChartPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset("assets/images/mascot/empty.png"),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 12),
                     Text(
                       "Keranjang masih kosong, yuk belanja!",
                       textAlign: TextAlign.center,
-                      style: LivestTypography.bodyMdSemiBold,
+                      style: LivestTypography.bodyMdSemiBold.copyWith(
+                        color: const Color(0xFF5C3A1E),
+                      ),
                     ),
                   ],
                 ),
@@ -52,20 +82,28 @@ class _ChartPageState extends State<ChartPage> {
             );
           }
 
-          return ListView.builder(
+          return ListView.separated(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             itemCount: cart.cartItems.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               final product = cart.cartItems[index];
 
-              return ListTile(
-                title: Text(product.name ?? "Product"),
-                subtitle: Text("Rp ${product.price ?? 0}"),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    cart.removeFromCart(userId, product);
-                  },
-                ),
+              return CartCard(
+                product: product,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DetailProductPage(product: product),
+                    ),
+                  );
+                },
+                onDelete: () {
+                  if (_userId.isNotEmpty) {
+                    cart.removeFromCart(_userId, product);
+                  }
+                },
               );
             },
           );

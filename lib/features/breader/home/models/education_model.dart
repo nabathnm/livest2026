@@ -1,31 +1,33 @@
 class EducationModel {
-  final int id;
+  final String id;
   final String title;
-  final String description;
+  final String category;
   final String imageUrl;
+  final String shortDesc;
+  final List<ArtikelSection> sections;
 
-  EducationModel({
+  const EducationModel({
     required this.id,
     required this.title,
-    required this.description,
+    required this.category,
     required this.imageUrl,
+    required this.shortDesc,
+    required this.sections,
   });
+}
 
-  factory EducationModel.fromJson(Map<String, dynamic> json) {
-    return EducationModel(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      imageUrl: json['imageUrl'],
-    );
-  }
+class ArtikelSection {
+  final String type;
+  final String? heading;
+  final String? paragraph;
+  final List<String>? chips;
+  final List<String>? checklist;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'description': description,
-      'imageUrl': imageUrl,
-    };
-  }
+  const ArtikelSection({
+    required this.type,
+    this.heading,
+    this.paragraph,
+    this.chips,
+    this.checklist,
+  });
 }

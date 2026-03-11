@@ -4,20 +4,55 @@ import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/core/utils/widgets/livest_appbar.dart';
 import 'package:livest/core/utils/widgets/livest_button.dart';
-import 'package:livest/core/utils/widgets/livest_image_placeholder.dart';
 import 'package:livest/core/utils/widgets/livest_network_image.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/breader/marketplace/models/product_model.dart';
 import 'package:livest/features/buyer/cart/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailProductPage extends StatelessWidget {
   final ProductModel product;
 
   const DetailProductPage({super.key, required this.product});
 
+  Future<void> _openWhatsApp(BuildContext context) async {
+    final raw = product.phone?.trim() ?? '';
+
+    if (raw.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nomor penjual tidak tersedia')),
+      );
+      return;
+    }
+
+    // Bersihkan karakter non-angka (strip spasi, dash, +, dll)
+    final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
+
+    // Normalisasi ke format internasional (62xxx)
+    final normalized = digits.startsWith('0')
+        ? '62${digits.substring(1)}'
+        : digits.startsWith('62')
+        ? digits
+        : '62$digits';
+
+    final uri = Uri.parse('https://wa.me/$normalized');
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tidak dapat membuka WhatsApp')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final String userId = "4057b852-9814-4c12-b0bc-616ff0cf8077";
+    final String userId = context.read<ProfileProvider>().id ?? '';
+
     final price = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
@@ -35,15 +70,14 @@ class DetailProductPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 8),
-            // Hero Image
+            const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   LivestNetworkImage(imageUrl: product.imageUrl),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(product.name ?? 'Product', style: LivestTypography.h3),
                   Text(
                     date,
@@ -52,7 +86,6 @@ class DetailProductPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Price
                   Text(
                     '$price,-',
                     style: LivestTypography.h3.copyWith(
@@ -60,7 +93,6 @@ class DetailProductPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Animal type badge
                   if (product.type != null)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -91,7 +123,6 @@ class DetailProductPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  // Nomor kontak
                   const Text(
                     'Nomor yang dapat dihubungi',
                     style: LivestTypography.bodyLgSemiBold,
@@ -112,8 +143,9 @@ class DetailProductPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // FIX: onTap sekarang aktif dan buka WhatsApp
                   GestureDetector(
-                    // onTap: _openWhatsApp,
+                    onTap: () => _openWhatsApp(context),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -127,7 +159,7 @@ class DetailProductPage extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Image.asset("assets/images/icon/kontak.png"),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
                             'Hubungi Penjual',
                             style: LivestTypography.bodySm.copyWith(
@@ -138,7 +170,7 @@ class DetailProductPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 82), // space for bottom buttons
+                  const SizedBox(height: 82),
                 ],
               ),
             ),
@@ -166,13 +198,15 @@ class DetailProductPage extends StatelessWidget {
 
               return LivestButton(
                 text: isInCart ? "Hapus dari keranjang" : "Tambah ke keranjang",
-                onPressed: () async {
-                  if (isInCart) {
-                    await cartProvider.removeFromCart(userId, product);
-                  } else {
-                    await cartProvider.addToCart(userId, product);
-                  }
-                },
+                onPressed: userId.isEmpty
+                    ? null
+                    : () async {
+                        if (isInCart) {
+                          await cartProvider.removeFromCart(userId, product);
+                        } else {
+                          await cartProvider.addToCart(userId, product);
+                        }
+                      },
               );
             },
           ),
