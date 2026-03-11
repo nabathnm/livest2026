@@ -1,6 +1,6 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:livest/core/config/app_config.dart';
-import 'package:livest/core/config/app_config.dart';
+import 'package:livest/core/services/local_search_service.dart';
 import 'package:livest/core/data/models/chat_model.dart';
 
 /// Service untuk komunikasi dengan Gemini AI.
@@ -46,13 +46,10 @@ class ChatService {
     _chat = _model.startChat();
   }
 
-  get LocalSearchService => null;
-
   /// Kirim pesan ke Gemini dan tangani jika ada FunctionCall
   Future<ChatMessageModel> sendMessage(String prompt) async {
     // 1. Send the initial prompt
     var response = await _chat.sendMessage(Content.text(prompt));
-
     // 2. Loop as long as Gemini decides it needs to call a function
     while (response.functionCalls.isNotEmpty) {
       final functionCalls = response.functionCalls.toList();
@@ -68,11 +65,19 @@ class ChatService {
           final result = await LocalSearchService.searchProducts(query);
 
           // Package the result into a FunctionResponse
-          functionResponses.add(FunctionResponse(fCall.name, result));
+          functionResponses.add(
+            FunctionResponse(
+              fCall.name,
+              result,
+            ),
+          );
         } else {
           // Unknown function
           functionResponses.add(
-            FunctionResponse(fCall.name, {"error": "Function not implemented"}),
+            FunctionResponse(
+              fCall.name,
+              {"error": "Function not implemented"},
+            ),
           );
         }
       }

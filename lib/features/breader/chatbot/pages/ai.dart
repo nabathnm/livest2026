@@ -125,18 +125,23 @@ class _ChatScreenState extends State<ChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: LivestSizes.xl * 2),
-          // Placeholder for Cow Image. Using a generic icon container for now.
-          Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              color: LivestColors.primaryLight,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.smart_toy_rounded,
-              size: 80,
-              color: LivestColors.primaryNormal,
+          Image.asset(
+            'assets\images\mascot\sapiduduk.png',
+            width: 174,
+            height: 174,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => Container(
+              width: 140,
+              height: 140,
+              decoration: const BoxDecoration(
+                color: LivestColors.primaryLight,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.smart_toy_rounded,
+                size: 80,
+                color: LivestColors.primaryNormal,
+              ),
             ),
           ),
           const SizedBox(height: 32),

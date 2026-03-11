@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ChatMessageBubble extends StatelessWidget {
   final String text;
@@ -24,18 +23,14 @@ class ChatMessageBubble extends StatelessWidget {
         child: Align(
           alignment: Alignment.centerRight,
           child: Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.8,
-            ),
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
             decoration: const BoxDecoration(
               color: LivestColors.primaryLight, // f2eeea mapped color
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
                 bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(
-                  4,
-                ), // Slightly pointed bottom right
+                bottomRight: Radius.circular(4), // Slightly pointed bottom right
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
