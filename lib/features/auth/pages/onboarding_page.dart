@@ -18,22 +18,19 @@ class OnboardingData {
 
 final List<OnboardingData> onboardingPages = [
   const OnboardingData(
-    imagePath:
-        'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/onboarding/onBoarding1.png',
+    imagePath: 'assets/images/onboarding/onBoarding1.png',
     title: 'Marketplace Khusus Ternak',
     description:
         'Kami menyediakan marketplace untuk peternak yang ingin menjual ternaknya dengan mudah.',
   ),
   const OnboardingData(
-    imagePath:
-        'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/onboarding/onBoarding2.png',
+    imagePath: 'assets/images/onboarding/onBoarding2.png',
     title: 'Asisten Cerdas berbasis AI',
     description:
         'Nikmati kemudahan dalam mendapatkan informasi cepat, dengan asisten cerdas kami!',
   ),
   const OnboardingData(
-    imagePath:
-        'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/onboarding/onBoarding3.png',
+    imagePath: 'assets/images/onboarding/onBoarding3.png',
     title: 'Edukasi Ternak Interaktif',
     description:
         'Pelajari teknik beternak, kesehatan ternak, bisnis ternak dan masih banyak lagi!',
@@ -94,7 +91,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 // Top bar (back + skip)
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 16),
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -111,7 +110,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             child: const Icon(
                               Icons.arrow_back_ios_new,
                               size: 16,
-                              color: LivestColors.textHeading,
+                              color: Color.fromARGB(255, 43, 32, 22),
                             ),
                           ),
                         )
@@ -153,12 +152,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: PageView.builder(
                     controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
-                    onPageChanged: (i) =>
-                        setState(() => _currentIndex = i),
+                    onPageChanged: (i) => setState(() => _currentIndex = i),
                     itemCount: onboardingPages.length,
                     itemBuilder: (context, index) {
-                      return _OnboardingDetail(
-                          data: onboardingPages[index]);
+                      return _OnboardingDetail(data: onboardingPages[index]);
                     },
                   ),
                 ),
@@ -183,8 +180,7 @@ class _OnboardingProgressBar extends StatelessWidget {
   final int total;
   final int current;
 
-  const _OnboardingProgressBar(
-      {required this.total, required this.current});
+  const _OnboardingProgressBar({required this.total, required this.current});
 
   @override
   Widget build(BuildContext context) {
@@ -223,23 +219,11 @@ class _OnboardingDetail extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Gambar 360x360
-          Image.network(
+          Image.asset(
             data.imagePath,
             height: 360,
             width: 360,
             fit: BoxFit.contain,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return const SizedBox(
-                height: 360,
-                width: 360,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: LivestColors.primaryNormal,
-                  ),
-                ),
-              );
-            },
           ),
           const SizedBox(height: 32),
 

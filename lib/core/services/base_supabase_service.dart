@@ -2,7 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class BaseSupabaseService<T> {
   final SupabaseClient _client = Supabase.instance.client;
-  
+
   String get tableName;
 
   SupabaseClient get client => _client;

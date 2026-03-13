@@ -7,9 +7,10 @@ import 'package:livest/core/utils/constants/livest_typography.dart';
 import 'package:livest/features/auth/providers/auth_provider.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/buyer/profile/pages/edit_profile_page.dart';
-import 'package:livest/features/buyer/profile/widgets/buyer_profile_info_field.dart';
-import 'package:livest/features/buyer/profile/widgets/buyer_profile_setting_button.dart';
+import 'package:livest/features/buyer/profile/pages/widgets/buyer_profile_info_field.dart';
+import 'package:livest/features/buyer/profile/pages/widgets/buyer_profile_setting_button.dart';
 import 'package:livest/core/utils/widgets/custom_confirmation_dialog.dart';
+import 'package:livest/core/utils/widgets/profile_header_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -39,11 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (confirmed == true && mounted) {
         await context.read<AuthProvider>().signOut();
         if (mounted) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            RouteGenerator.login,
-            (route) => false,
-          );
+          Navigator.pushNamedAndRemoveUntil(context, RouteGenerator.login, (route) => false);
         }
       }
     });
@@ -81,11 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: LivestColors.textPrimary,
-                  size: 20,
-                ),
+                icon: const Icon(Icons.arrow_back_ios_new, color: LivestColors.textPrimary, size: 20),
                 onPressed: () {
                   // Depending on navigation handling, this might pop or change bottom nav
                 },
@@ -110,78 +103,24 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- Header Row ---
-                  Row(
-                    children: [
-                      // Avatar
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: const Color(0xFFE0E0E0),
-                        backgroundImage: avatarUrl != null
-                            ? NetworkImage(avatarUrl)
-                            : null,
-                        child: avatarUrl == null
-                            ? const Icon(
-                                Icons.person,
-                                size: 50,
-                                color: Colors.grey,
-                              )
-                            : null,
-                      ),
-                      const SizedBox(width: LivestSizes.lg),
-                      // Text Info
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              fullName,
-                              style: LivestTypography.h5,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              email,
-                              style: LivestTypography.bodySm.copyWith(
-                                color: LivestColors.textSecondary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              phoneNumber,
-                              style: LivestTypography.bodySm.copyWith(
-                                color: LivestColors.textSecondary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                  ProfileHeaderCard(
+                    name: fullName,
+                    email: email,
+                    phone: phoneNumber,
+                    avatarUrl: avatarUrl,
+                    onEdit: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditProfilePage(
+                            initialName: fullName,
+                            initialEmail: email,
+                            initialPhone: phoneNumber,
+                            initialPreferences: preferences,
+                          ),
                         ),
-                      ),
-                      // Edit Button
-                      IconButton(
-                        icon: const Icon(
-                          Icons.edit_outlined,
-                          color: LivestColors.textPrimary,
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => EditProfilePage(
-                                initialName: fullName,
-                                initialEmail: email,
-                                initialPhone: phoneNumber,
-                                initialPreferences: preferences,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                      );
+                    },
                   ),
 
                   const SizedBox(height: LivestSizes.spaceBtwSections),
@@ -189,15 +128,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   // --- Data Fields ---
                   BuyerProfileInfoField(label: "Email", value: email),
                   const SizedBox(height: LivestSizes.md),
-                  BuyerProfileInfoField(
-                    label: "Nomor Telepon",
-                    value: phoneNumber,
-                  ),
+                  BuyerProfileInfoField(label: "Nomor Telepon", value: phoneNumber),
                   const SizedBox(height: LivestSizes.md),
-                  BuyerProfileInfoField(
-                    label: "Preferensi Ternak",
-                    value: preferences,
-                  ),
+                  BuyerProfileInfoField(label: "Preferensi Ternak", value: preferences),
 
                   const SizedBox(height: LivestSizes.spaceBtwSections),
 
@@ -208,16 +141,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   BuyerProfileSettingButton(
                     icon: Icons.lock_outline,
                     title: "Ubah Password",
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      RouteGenerator.changePassword,
-                    ),
+                    onTap: () => Navigator.pushNamed(context, RouteGenerator.changePassword),
                   ),
                   const SizedBox(height: LivestSizes.sm),
 
                   BuyerProfileSettingButton(
-                    icon: Icons
-                        .logout, // using standard logout since lock open is weird for logout
+                    icon: Icons.logout, // using standard logout since lock open is weird for logout
                     title: "Keluar dari akun",
                     backgroundColor: const Color(0xFFFFEBEE),
                     textColor: const Color(0xFFD32F2F),
@@ -226,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: LivestSizes.sm),
 
                   BuyerProfileSettingButton(
-                    icon: Icons.lock_outline,
+                    icon: Icons.lock_outline, 
                     title: "Hapus akun",
                     backgroundColor: const Color(0xFFFFEBEE),
                     textColor: const Color(0xFFD32F2F),
@@ -238,3 +167,4 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+

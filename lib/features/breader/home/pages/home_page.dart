@@ -1,9 +1,7 @@
-// lib/features/buyer/home/pages/home_page.dart
-// MODIFIED: Section "Untukmu" (marketplace) diganti dengan section "Edukasi Ternak"
-
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_typography.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/breader/home/models/education_data.dart';
 import 'package:livest/features/breader/home/pages/education_detail_page.dart';
 import 'package:livest/features/breader/home/pages/education_page.dart';
@@ -11,6 +9,7 @@ import 'package:livest/features/buyer/home/pages/search_page.dart';
 import 'package:livest/features/buyer/home/pages/widgets/category_chip.dart';
 import 'package:livest/features/buyer/home/pages/widgets/category_item.dart';
 import 'package:livest/features/breader/home/models/education_model.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,17 +24,33 @@ class _HomePageState extends State<HomePage> {
       'icon': 'assets/images/icon/sapi.png',
       'title': 'Sapi',
       'price': '15,7 jt',
+      'iconharga': "assets/images/icon/harganaik.png",
+      'bgColor': LivestColors.greenLightHover,
+      'txColor': LivestColors.greenDarkHover,
     },
     {
       'icon': 'assets/images/icon/kambing.png',
       'title': 'Kambing',
       'price': '3,4 jt',
+      'iconharga': "assets/images/icon/hargaturun.png",
+      'bgColor': LivestColors.redLightHover,
+      'txColor': LivestColors.redDarkHover,
     },
-    {'icon': 'assets/images/icon/ayam.png', 'title': 'Ayam', 'price': '340 K'},
+    {
+      'icon': 'assets/images/icon/ayam.png',
+      'title': 'Ayam',
+      'price': '340 K',
+      'iconharga': "assets/images/icon/harganaik.png",
+      'bgColor': LivestColors.greenLightHover,
+      'txColor': LivestColors.greenDarkHover,
+    },
     {
       'icon': 'assets/images/icon/bebek.png',
       'title': 'Bebek',
       'price': '569 K',
+      'iconharga': "assets/images/icon/hargaturun.png",
+      'bgColor': LivestColors.redLightHover,
+      'txColor': LivestColors.redDarkHover,
     },
   ];
 
@@ -43,9 +58,9 @@ class _HomePageState extends State<HomePage> {
 
   // Edukasi category icons
   static const _edukasiCategories = [
-    {'icon': Icons.favorite_outline_rounded, 'title': 'Kesehatan'},
-    {'icon': Icons.cleaning_services_outlined, 'title': 'Perawatan'},
-    {'icon': Icons.grass_outlined, 'title': 'Pakan'},
+    {'image': 'assets/images/onboarding/kesehatan.png', 'title': 'Kesehatan'},
+    {'image': 'assets/images/onboarding/perawatan.png', 'title': 'Perawatan'},
+    {'image': 'assets/images/onboarding/pakan.png', 'title': 'Pakan'},
   ];
 
   void _openSearch({String? initialQuery}) {
@@ -82,38 +97,35 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Header ──
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                child: Column(
-                  children: [
-                    Row(
+              Consumer<ProfileProvider>(
+                builder: (context, profile, _) {
+                  final name = profile.fullName ?? 'Peternak';
+                  final farm = profile.farmName ?? '';
+                  final location = profile.farmLocation ?? '';
+                  final subtitle = [
+                    farm,
+                    location,
+                  ].where((s) => s.isNotEmpty && s != '-').join(', ');
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Image.asset(
-                          'assets/images/onboarding/avatar.png',
-                          width: 48,
-                          height: 48,
+                        Text(
+                          'Selamat datang, $name',
+                          style: LivestTypography.bodyMdBold,
                         ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Selamat datang, Aziz',
-                              style: LivestTypography.bodyMdBold,
+                        if (subtitle.isNotEmpty)
+                          Text(
+                            subtitle,
+                            style: LivestTypography.bodySm.copyWith(
+                              color: LivestColors.textSecondary,
                             ),
-                            Text(
-                              'Peternakan ABC, Jawa Timur',
-                              style: LivestTypography.bodySm.copyWith(
-                                color: LivestColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                  );
+                },
               ),
 
               // ── Banner ──
@@ -151,9 +163,12 @@ class _HomePageState extends State<HomePage> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 12),
                         child: CategoryItem(
-                          iconPath: item['icon']!,
-                          title: item['title']!,
-                          price: item['price']!,
+                          iconPath: item['icon'] as String,
+                          title: item['title'] as String,
+                          price: item['price'] as String,
+                          icon: item['iconharga'] as String,
+                          bgColor: item['bgColor'] as Color,
+                          txColor: item['txColor'] as Color,
                         ),
                       );
                     }).toList(),
@@ -168,23 +183,11 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Edukasi Ternak', style: LivestTypography.bodyLgBold),
                     GestureDetector(
                       onTap: _openEdukasi,
-                      child: Row(
-                        children: [
-                          Text(
-                            'Lihat semua',
-                            style: LivestTypography.bodySm.copyWith(
-                              color: LivestColors.primaryNormal,
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            size: 18,
-                            color: LivestColors.primaryNormal,
-                          ),
-                        ],
+                      child: Text(
+                        'Edukasi Ternak',
+                        style: LivestTypography.bodyLgBold,
                       ),
                     ),
                   ],
@@ -195,39 +198,39 @@ class _HomePageState extends State<HomePage> {
               // ── Edukasi Category Icons ──
               Padding(
                 padding: const EdgeInsets.only(left: 20),
-                child: Row(
-                  children: _edukasiCategories.map((cat) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: GestureDetector(
-                        onTap: _openEdukasi,
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 64,
-                              height: 64,
-                              decoration: BoxDecoration(
-                                color: LivestColors.baseWhite,
-                                shape: BoxShape.circle,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _edukasiCategories.map((cat) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: GestureDetector(
+                          onTap: () => _openEdukasi(
+                            initialCategory: cat['title'] as String,
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 116,
+                                height: 88,
+                                decoration: BoxDecoration(
+                                  color: LivestColors.baseWhite,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Image.asset(
+                                    cat['image'] as String,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
                               ),
-                              child: Icon(
-                                cat['icon'] as IconData,
-                                color: LivestColors.primaryNormal,
-                                size: 28,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              cat['title'] as String,
-                              style: LivestTypography.bodySm.copyWith(
-                                color: LivestColors.textPrimary,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -274,8 +277,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// ── Artikel Card (Home Preview) ──────────────────────────────────────────────
-
 class EducationCard extends StatelessWidget {
   final EducationModel artikel;
   final VoidCallback onTap;
@@ -300,15 +301,28 @@ class EducationCard extends StatelessWidget {
               height: 128,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) =>
-                  Container(height: 128, color: const Color(0xFFE8EDF0)),
             ),
             Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(artikel.category),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: LivestColors.primaryLightHover,
+                      borderRadius: BorderRadius.circular(90),
+                    ),
+                    child: Text(
+                      artikel.category,
+                      style: LivestTypography.caption.copyWith(
+                        color: LivestColors.primaryNormal,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     artikel.title,

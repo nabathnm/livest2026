@@ -23,14 +23,18 @@ class ChatMessageBubble extends StatelessWidget {
         child: Align(
           alignment: Alignment.centerRight,
           child: Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.8,
+            ),
             decoration: const BoxDecoration(
               color: LivestColors.primaryLight, // f2eeea mapped color
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
                 bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(4), // Slightly pointed bottom right
+                bottomRight: Radius.circular(
+                  4,
+                ), // Slightly pointed bottom right
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

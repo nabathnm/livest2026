@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livest/core/utils/widgets/livest_appbar.dart';
 import 'package:livest/features/breader/chatbot/pages/widgets/chat_message_bubble.dart';
 import 'package:livest/features/breader/chatbot/pages/widgets/suggested_question_button.dart';
 import 'package:livest/features/breader/chatbot/pages/widgets/typing_indicator.dart';
@@ -63,37 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: LivestColors.baseWhite,
-      appBar: AppBar(
-        backgroundColor: LivestColors.baseWhite,
-        elevation: 0,
-        leadingWidth: 64,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 20.0, top: 8, bottom: 8),
-          child: InkWell(
-            onTap: () => Navigator.pop(context),
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: LivestColors.primaryLight,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 18,
-                color: LivestColors.textHeading,
-              ),
-            ),
-          ),
-        ),
-        title: const Text(
-          'Chatbot',
-          style: TextStyle(
-            color: LivestColors.textHeading,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-      ),
+      appBar: LivestAppbar(name: "Chatbot"),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
           // If a new message arrives, scroll to bottom
@@ -126,25 +97,12 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           const SizedBox(height: LivestSizes.xl * 2),
           Image.asset(
-            'assets\images\mascot\sapiduduk.png',
+            "assets/images/mascot/chat.png",
             width: 174,
             height: 174,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => Container(
-              width: 140,
-              height: 140,
-              decoration: const BoxDecoration(
-                color: LivestColors.primaryLight,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.smart_toy_rounded,
-                size: 80,
-                color: LivestColors.primaryNormal,
-              ),
-            ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 8),
           const Text(
             "Selamat datang di Chatbot!",
             style: TextStyle(

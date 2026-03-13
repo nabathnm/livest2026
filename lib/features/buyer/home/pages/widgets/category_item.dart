@@ -6,6 +6,9 @@ class CategoryItem extends StatelessWidget {
   final String iconPath;
   final String title;
   final String price;
+  final String icon;
+  final Color bgColor;
+  final Color txColor;
   final VoidCallback? onTap;
 
   const CategoryItem({
@@ -13,6 +16,9 @@ class CategoryItem extends StatelessWidget {
     required this.iconPath,
     required this.title,
     required this.price,
+    required this.icon,
+    required this.bgColor,
+    required this.txColor,
     this.onTap,
   });
 
@@ -28,7 +34,6 @@ class CategoryItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           color: LivestColors.baseBackground,
         ),
-        // height: 110,
         width: 102,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -38,19 +43,23 @@ class CategoryItem extends StatelessWidget {
             Text(title, style: LivestTypography.bodyMdMedium),
             const SizedBox(height: 8),
             Container(
-              alignment: .center,
+              alignment: Alignment.center, // ✅ Fix: .center → Alignment.center
               width: 102,
               height: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(90),
-                color: LivestColors.greenLight,
+                color: bgColor,
               ),
               child: Row(
                 spacing: 8,
-                mainAxisAlignment: .center,
+                mainAxisAlignment: MainAxisAlignment
+                    .center, // ✅ Fix: .center → MainAxisAlignment.center
                 children: [
-                  Image.asset('assets/images/icon/harganaik.png'),
-                  Text(price, style: LivestTypography.bodySm),
+                  Image.asset(icon),
+                  Text(
+                    price,
+                    style: LivestTypography.bodySm.copyWith(color: txColor),
+                  ),
                 ],
               ),
             ),

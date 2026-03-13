@@ -12,6 +12,7 @@ class CustomButton extends StatelessWidget {
   final ButtonVariant variant;
   final double? width;
   final IconData? icon;
+  final String? imagePath;
 
   const CustomButton({
     super.key,
@@ -21,6 +22,7 @@ class CustomButton extends StatelessWidget {
     this.variant = ButtonVariant.primary,
     this.width = double.infinity,
     this.icon,
+    this.imagePath,
   });
 
   @override
@@ -84,6 +86,12 @@ class CustomButton extends StatelessWidget {
               if (icon != null) ...[
                 Icon(icon, color: textColor, size: 20),
                 const SizedBox(width: 8),
+              ] else if (imagePath != null) ...[
+                if (imagePath!.startsWith('http'))
+                  Image.network(imagePath!, height: 24, width: 24)
+                else
+                  Image.asset(imagePath!, height: 24, width: 24),
+                const SizedBox(width: 12),
               ],
               Text(
                 text,

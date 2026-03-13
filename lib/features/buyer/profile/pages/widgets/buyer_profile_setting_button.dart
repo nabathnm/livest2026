@@ -43,7 +43,7 @@ class BuyerProfileSettingButton extends StatelessWidget {
             if (title != 'Keluar dari akun') ...[
               const SizedBox(width: 4),
               Icon(Icons.arrow_forward_rounded, color: textColor, size: 16),
-            ],
+            ]
           ],
         ),
       ),

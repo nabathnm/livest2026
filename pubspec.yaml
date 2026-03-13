@@ -30,10 +30,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  flutter_launcher_icons: ^0.13.1
   flutter_lints: ^6.0.0
   google_sign_in: ^6.2.1
 
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/onboarding/app_icon.png"
 
 flutter:
   uses-material-design: true

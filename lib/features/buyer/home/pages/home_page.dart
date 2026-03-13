@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_typography.dart';
+import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/buyer/home/pages/detail_product_page.dart';
 import 'package:livest/features/buyer/home/pages/search_page.dart';
 import 'package:livest/features/buyer/home/pages/widgets/category_chip.dart';
@@ -22,20 +23,35 @@ class _HomePageState extends State<HomePage> {
       'icon': 'assets/images/icon/sapi.png',
       'title': 'Sapi',
       'price': '15,7 jt',
+      'iconharga': "assets/images/icon/harganaik.png",
+      'bgColor': LivestColors.greenLightHover,
+      'txColor': LivestColors.greenDarkHover,
     },
     {
       'icon': 'assets/images/icon/kambing.png',
       'title': 'Kambing',
       'price': '3,4 jt',
+      'iconharga': "assets/images/icon/hargaturun.png",
+      'bgColor': LivestColors.redLightHover,
+      'txColor': LivestColors.redDarkHover,
     },
-    {'icon': 'assets/images/icon/ayam.png', 'title': 'Ayam', 'price': '340 K'},
+    {
+      'icon': 'assets/images/icon/ayam.png',
+      'title': 'Ayam',
+      'price': '340 K',
+      'iconharga': "assets/images/icon/harganaik.png",
+      'bgColor': LivestColors.greenLightHover,
+      'txColor': LivestColors.greenDarkHover,
+    },
     {
       'icon': 'assets/images/icon/bebek.png',
       'title': 'Bebek',
       'price': '569 K',
+      'iconharga': "assets/images/icon/hargaturun.png",
+      'bgColor': LivestColors.redLightHover,
+      'txColor': LivestColors.redDarkHover,
     },
   ];
-
   static const _chips = ['Sapi Madura', 'Ayam Negeri', 'Bebek', 'Ayam'];
 
   @override
@@ -66,23 +82,38 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Column(
+                  crossAxisAlignment: .start,
                   children: [
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/images/onboarding/avatar.png',
-                          width: 48,
-                          height: 48,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Selamat datang, Aziz',
-                          style: LivestTypography.bodyMdBold,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
+                    Consumer<ProfileProvider>(
+                      builder: (context, profile, _) {
+                        final name = profile.fullName ?? 'Peternak';
+                        final farm = profile.farmName ?? '';
+                        final location = profile.farmLocation ?? '';
+                        final subtitle = [
+                          farm,
+                          location,
+                        ].where((s) => s.isNotEmpty && s != '-').join(', ');
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Selamat datang, $name',
+                                style: LivestTypography.bodyMdBold,
+                              ),
+                              if (subtitle.isNotEmpty)
+                                Text(
+                                  subtitle,
+                                  style: LivestTypography.bodySm.copyWith(
+                                    color: LivestColors.textSecondary,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(height: 16),
                     GestureDetector(
                       onTap: _openSearch,
                       child: Container(
@@ -166,15 +197,19 @@ class _HomePageState extends State<HomePage> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 12),
                         child: CategoryItem(
-                          iconPath: item['icon']!,
-                          title: item['title']!,
-                          price: item['price']!,
+                          iconPath: item['icon'] as String,
+                          title: item['title'] as String,
+                          price: item['price'] as String,
+                          icon: item['iconharga'] as String,
+                          bgColor: item['bgColor'] as Color,
+                          txColor: item['txColor'] as Color,
                         ),
                       );
                     }).toList(),
                   ),
                 ),
               ),
+              const SizedBox(height: 24),
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),

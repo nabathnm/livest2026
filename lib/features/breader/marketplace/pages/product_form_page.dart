@@ -36,7 +36,8 @@ class ProductFormPage extends StatefulWidget {
 
 class _ProductFormPageState extends State<ProductFormPage> {
   String get _location => context.read<ProfileProvider>().farmLocation ?? '';
-  String get _farm_name => context.read<ProfileProvider>().farmName ?? '';
+  String get _farmName => context.read<ProfileProvider>().farmName ?? '';
+  String get _breaderName => context.read<ProfileProvider>().fullName ?? '';
   // String get _userId => context.read<ProfileProvider>().id ?? '';
 
   final nameController = TextEditingController();
@@ -164,7 +165,8 @@ class _ProductFormPageState extends State<ProductFormPage> {
       imageUrl: imageUrl ?? old?.imageUrl ?? '',
       phone: phoneController.text.trim(),
       location: _location,
-      farmName: _farm_name,
+      farmName: _farmName,
+      breaderName: _breaderName,
     );
   }
 

@@ -51,17 +51,13 @@ class EducationDetailPageState extends State<EducationDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // ── Title ──
-                        Text(
-                          artikel.title,
-                          style: LivestTypography.bodyLgBold.copyWith(
-                            fontSize: 22,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 16),
+
+                        Text(artikel.title, style: LivestTypography.h1),
+                        const SizedBox(height: 16),
 
                         // ── Category Badge ──
                         _CategoryBadge(category: artikel.category),
-                        const SizedBox(height: 20),
 
                         // ── Sections ──
                         ..._buildSections(artikel.sections),
@@ -141,10 +137,20 @@ class EducationDetailPageState extends State<EducationDetailPage> {
           widgets.add(
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: chips.map((chip) => _ChipItem(label: chip)).toList(),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final itemWidth = (constraints.maxWidth - 8) / 2;
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: chips.map((chip) {
+                      return SizedBox(
+                        width: itemWidth,
+                        child: _ChipItem(label: chip),
+                      );
+                    }).toList(),
+                  );
+                },
               ),
             ),
           );
@@ -190,45 +196,18 @@ class _CategoryBadge extends StatelessWidget {
   final String category;
   const _CategoryBadge({required this.category});
 
-  Color get _color {
-    switch (category) {
-      case 'Kesehatan':
-        return const Color(0xFFE8F4F0);
-      case 'Perawatan':
-        return const Color(0xFFF0EBE3);
-      case 'Pakan':
-        return const Color(0xFFF5F0E8);
-      default:
-        return const Color(0xFFF0F0F0);
-    }
-  }
-
-  Color get _textColor {
-    switch (category) {
-      case 'Kesehatan':
-        return const Color(0xFF2D8B5E);
-      case 'Perawatan':
-        return const Color(0xFF8B5E3C);
-      case 'Pakan':
-        return const Color(0xFF7A6B3A);
-      default:
-        return Colors.grey;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: _color,
+        color: LivestColors.primaryLightHover,
         borderRadius: BorderRadius.circular(32),
       ),
       child: Text(
         category,
         style: LivestTypography.bodySm.copyWith(
-          color: _textColor,
-          fontWeight: FontWeight.w500,
+          color: LivestColors.primaryNormal,
         ),
       ),
     );
@@ -242,14 +221,16 @@ class _ChipItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: LivestColors.baseBackground,
+        color: LivestColors.primaryLightHover,
         borderRadius: BorderRadius.circular(32),
       ),
       child: Text(
         label,
-        style: LivestTypography.bodyMd.copyWith(
+        textAlign: TextAlign.center,
+        style: LivestTypography.bodyLgSemiBold.copyWith(
           color: LivestColors.textPrimary,
         ),
       ),
@@ -272,20 +253,16 @@ class _ChecklistItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: LivestColors.baseBackground,
-          borderRadius: BorderRadius.circular(12),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ✅ BULLET DI LUAR CONTAINER
             Container(
               width: 22,
               height: 22,
-              margin: const EdgeInsets.only(top: 1),
+              margin: const EdgeInsets.only(top: 14),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isChecked
@@ -302,15 +279,26 @@ class _ChecklistItem extends StatelessWidget {
                   ? const Icon(Icons.check, size: 14, color: Colors.white)
                   : null,
             ),
+
             const SizedBox(width: 12),
+
+            // ✅ CONTAINER HANYA UNTUK TEXT
             Expanded(
-              child: Text(
-                text,
-                style: LivestTypography.bodyMd.copyWith(
-                  color: LivestColors.textPrimary,
-                  height: 1.4,
-                  decoration: isChecked ? TextDecoration.lineThrough : null,
-                  decorationColor: LivestColors.textSecondary,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: LivestColors.primaryLightHover,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Text(
+                  text,
+                  style: LivestTypography.bodyMd.copyWith(
+                    color: LivestColors.textPrimary,
+                    height: 1.4,
+                  ),
                 ),
               ),
             ),

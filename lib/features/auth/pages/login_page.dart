@@ -79,7 +79,8 @@ class _LoginPageState extends State<LoginPage> {
                           hintText: "Masukkan email kamu",
                           controller: _email,
                           keyboardType: TextInputType.emailAddress,
-                          validator: (value) => null, // Hide default inline error
+                          validator: (value) =>
+                              null, // Hide default inline error
                         ),
                         const SizedBox(height: LivestSizes.spaceBtwInputFields),
 
@@ -89,7 +90,8 @@ class _LoginPageState extends State<LoginPage> {
                           hintText: "Masukkan password kamu",
                           controller: _password,
                           isPassword: true,
-                          validator: (value) => null, // Hide default inline error
+                          validator: (value) =>
+                              null, // Hide default inline error
                         ),
                         const SizedBox(height: 8),
 
@@ -101,7 +103,9 @@ class _LoginPageState extends State<LoginPage> {
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
                               color: LivestColors.redLight,
-                              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+                              borderRadius: BorderRadius.circular(
+                                LivestSizes.inputFieldRadius,
+                              ),
                             ),
                             child: Text(
                               _formError!,
@@ -146,7 +150,9 @@ class _LoginPageState extends State<LoginPage> {
                             setState(() => _formError = null);
 
                             if (_email.text.isEmpty || _password.text.isEmpty) {
-                              setState(() => _formError = "Lengkapi semua data.");
+                              setState(
+                                () => _formError = "Lengkapi semua data.",
+                              );
                               return;
                             }
 
@@ -155,21 +161,34 @@ class _LoginPageState extends State<LoginPage> {
                               _password.text.trim(),
                             );
                             if (success && context.mounted) {
-                              final profileProvider = context.read<ProfileProvider>();
+                              final profileProvider = context
+                                  .read<ProfileProvider>();
                               await profileProvider.fetchProfile();
                               final role = profileProvider.role;
-                              
+
                               if (!context.mounted) return;
                               if (role == null) {
-                                Navigator.pushReplacementNamed(context, RouteGenerator.rolePage);
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteGenerator.rolePage,
+                                );
                               } else if (role == 'peternak') {
-                                Navigator.pushReplacementNamed(context, RouteGenerator.breaderHome);
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteGenerator.breaderHome,
+                                );
                               } else if (role == 'pembeli') {
-                                Navigator.pushReplacementNamed(context, RouteGenerator.buyerHome);
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteGenerator.buyerHome,
+                                );
                               }
                             } else {
                               if (context.mounted) {
-                                setState(() => _formError = "Email / Password tidak sesuai.");
+                                setState(
+                                  () => _formError =
+                                      "Email / Password tidak sesuai.",
+                                );
                               }
                             }
                           },
@@ -184,23 +203,35 @@ class _LoginPageState extends State<LoginPage> {
                         CustomButton(
                           text: "Masuk dengan Google",
                           variant: ButtonVariant.google,
-                          icon: Icons.g_mobiledata,
+                          imagePath:
+                              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png',
                           isLoading: authProvider.isLoading,
                           onPressed: () async {
                             FocusScope.of(context).unfocus();
-                            final success = await authProvider.signInWithGoogle();
+                            final success = await authProvider
+                                .signInWithGoogle();
                             if (success && context.mounted) {
-                              final profileProvider = context.read<ProfileProvider>();
+                              final profileProvider = context
+                                  .read<ProfileProvider>();
                               await profileProvider.fetchProfile();
                               final role = profileProvider.role;
-                              
+
                               if (!context.mounted) return;
                               if (role == null) {
-                                Navigator.pushReplacementNamed(context, RouteGenerator.rolePage);
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteGenerator.rolePage,
+                                );
                               } else if (role == 'peternak') {
-                                Navigator.pushReplacementNamed(context, RouteGenerator.breaderHome);
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteGenerator.breaderHome,
+                                );
                               } else if (role == 'pembeli') {
-                                Navigator.pushReplacementNamed(context, RouteGenerator.buyerHome);
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteGenerator.buyerHome,
+                                );
                               }
                             }
                           },

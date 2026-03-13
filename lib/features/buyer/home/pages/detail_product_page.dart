@@ -8,6 +8,7 @@ import 'package:livest/core/utils/widgets/livest_network_image.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
 import 'package:livest/features/breader/marketplace/models/product_model.dart';
 import 'package:livest/features/buyer/cart/providers/cart_provider.dart';
+import 'package:livest/features/buyer/home/pages/seller_profile_page.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -26,10 +27,7 @@ class DetailProductPage extends StatelessWidget {
       return;
     }
 
-    // Bersihkan karakter non-angka (strip spasi, dash, +, dll)
     final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
-
-    // Normalisasi ke format internasional (62xxx)
     final normalized = digits.startsWith('0')
         ? '62${digits.substring(1)}'
         : digits.startsWith('62')
@@ -110,6 +108,55 @@ class DetailProductPage extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                  const SizedBox(height: 24),
+                  if (product.userId != null)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                SellerProfilePage(sellerId: product.userId!),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          // Avatar placeholder
+                          CircleAvatar(
+                            radius: 24,
+                            backgroundColor: LivestColors.primaryLightHover,
+                            child: const Icon(
+                              Icons.person,
+                              size: 32,
+                              color: LivestColors.primaryNormal,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  product.breaderName ?? 'Nama Peternak',
+                                  style: LivestTypography.bodyMdBold,
+                                ),
+                                if (product.farmName != null)
+                                  Text(
+                                    product.farmName!,
+                                    style: LivestTypography.bodySm.copyWith(
+                                      color: LivestColors.textSecondary,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // ── END SELLER PROFILE BUTTON ──
                   const SizedBox(height: 32),
                   const Text(
                     'Deskripsi',
@@ -143,7 +190,6 @@ class DetailProductPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // FIX: onTap sekarang aktif dan buka WhatsApp
                   GestureDetector(
                     onTap: () => _openWhatsApp(context),
                     child: Container(

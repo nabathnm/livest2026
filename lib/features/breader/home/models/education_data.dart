@@ -6,7 +6,7 @@ final List<EducationModel> dummyArtikel = [
     title: 'Nutrisi untuk Ayam Petelur',
     category: 'Kesehatan',
     imageUrl:
-        'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=800&auto=format&fit=crop',
+        'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/educationImage/1.png',
     shortDesc: 'Nutrisi ayam penting untuk kualitas telur.',
     sections: [
       ArtikelSection(type: 'heading', heading: 'Pentingkah bagi ayam?'),
@@ -42,7 +42,7 @@ final List<EducationModel> dummyArtikel = [
     title: 'Menjaga Kandang Bersih',
     category: 'Perawatan',
     imageUrl:
-        'https://images.unsplash.com/photo-1593196698822-c5ab87c4d2cd?w=800&auto=format&fit=crop',
+        'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/educationImage/2.png',
     shortDesc: 'Cara menjaga kandang tetap bersih!',
     sections: [
       ArtikelSection(type: 'heading', heading: 'Harus bersih banget emangnya?'),
@@ -78,7 +78,7 @@ final List<EducationModel> dummyArtikel = [
     title: 'Mengelola Usaha Ternak',
     category: 'Perawatan',
     imageUrl:
-        'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=800&auto=format&fit=crop',
+        'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/educationImage/3.png',
     shortDesc: 'Cara menjaga kandang tetap bersih!',
     sections: [
       ArtikelSection(type: 'heading', heading: 'Biar apa sih?'),
@@ -109,7 +109,7 @@ final List<EducationModel> dummyArtikel = [
     title: 'Cara Memerah Susu',
     category: 'Perawatan',
     imageUrl:
-        'https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=800&auto=format&fit=crop',
+        'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/educationImage/4.png',
     shortDesc: 'Penting agar sapi kamu nyaman pas diperah.',
     sections: [
       ArtikelSection(type: 'heading', heading: 'Kenapa harus benar caranya?'),
@@ -142,7 +142,7 @@ final List<EducationModel> dummyArtikel = [
     title: 'Cara Menyimpan Pakan Ternak',
     category: 'Pakan',
     imageUrl:
-        'https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=800&auto=format&fit=crop',
+        'https://kktruowghwbltqrwcden.supabase.co/storage/v1/object/public/educationImage/5.png',
     shortDesc: 'Biar pakan kamu lebih awet dan bersih!',
     sections: [
       ArtikelSection(

@@ -15,7 +15,17 @@ class ProfileService extends BaseSupabaseService<ProfileModel> {
 
   /// Fetch profil berdasarkan user ID
   Future<ProfileModel?> fetchByUserId(String userId) async {
-    return await fetchById(userId);
+    print('DEBUG SERVICE: querying profiles where id = $userId');
+
+    final data = await client
+        .from('profiles')
+        .select()
+        .eq('id', userId)
+        .maybeSingle();
+
+    print('DEBUG SERVICE: raw data = $data');
+
+    return data != null ? ProfileModel.fromJson(data) : null;
   }
 
   /// Simpan/update profil (upsert)

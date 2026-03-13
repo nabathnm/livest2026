@@ -183,4 +183,32 @@ class ProfileProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
   }
+
+  ProfileModel? _sellerProfile;
+  bool _isLoadingSellerProfile = false;
+
+  ProfileModel? get sellerProfile => _sellerProfile;
+  bool get isLoadingSellerProfile => _isLoadingSellerProfile;
+
+  /// Fetch profil seller berdasarkan ID (bukan current user)
+  Future<void> fetchSellerProfile(String sellerId) async {
+    _isLoadingSellerProfile = true;
+    notifyListeners();
+    try {
+      print('DEBUG: Fetching for ID: $sellerId');
+      _sellerProfile = await _profileService.fetchByUserId(sellerId);
+      print('DEBUG: sellerProfile = $_sellerProfile');
+      print('DEBUG: fullName = ${_sellerProfile?.fullName}');
+      _isLoadingSellerProfile = false;
+    } catch (e) {
+      print('DEBUG: Error = $e');
+      _isLoadingSellerProfile = false;
+    }
+    notifyListeners();
+  }
+
+  void clearSellerProfile() {
+    _sellerProfile = null;
+    notifyListeners();
+  }
 }

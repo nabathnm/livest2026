@@ -10,6 +10,7 @@ class ProductModel {
   final String? location;
   final String? phone;
   final String? farmName;
+  final String? breaderName;
   final DateTime? createdAt;
 
   ProductModel({
@@ -24,6 +25,7 @@ class ProductModel {
     this.location,
     this.phone,
     this.farmName,
+    this.breaderName,
     this.createdAt,
   });
 
@@ -39,6 +41,7 @@ class ProductModel {
     String? location,
     String? phone,
     String? farmName,
+    String? breaderName,
     DateTime? createdAt,
   }) {
     return ProductModel(
@@ -53,6 +56,7 @@ class ProductModel {
       location: location ?? this.location,
       phone: phone ?? this.phone,
       farmName: farmName ?? this.farmName,
+      breaderName: breaderName ?? this.breaderName,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -70,6 +74,7 @@ class ProductModel {
       location: json['location'],
       phone: json['phone'],
       farmName: json['farm_name'],
+      breaderName: json['breader_name'],
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : null,

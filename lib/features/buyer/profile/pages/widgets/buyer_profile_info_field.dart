@@ -20,30 +20,20 @@ class BuyerProfileInfoField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: LivestTypography.bodySmMedium.copyWith(
-            color: LivestColors.textPrimary,
-          ),
+          style: LivestTypography.bodySmMedium.copyWith(color: LivestColors.textPrimary),
         ),
         const SizedBox(height: LivestSizes.sm),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-            horizontal: LivestSizes.md,
-            vertical: 14,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: LivestSizes.md, vertical: 14),
           decoration: BoxDecoration(
             color: LivestColors.baseWhite,
             borderRadius: BorderRadius.circular(90), // Pill Shape
-            border: Border.all(
-              color: LivestColors.primaryLightActive,
-              width: 1,
-            ),
+            border: Border.all(color: LivestColors.primaryLightActive, width: 1),
           ),
           child: Text(
             value,
-            style: LivestTypography.bodySm.copyWith(
-              color: LivestColors.textPrimary,
-            ),
+            style: LivestTypography.bodySm.copyWith(color: LivestColors.textPrimary),
           ),
         ),
       ],

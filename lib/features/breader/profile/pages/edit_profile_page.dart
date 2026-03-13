@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:livest/features/auth/widgets/postsignup/location_dropdown.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
-
 import 'package:livest/core/utils/widgets/custom_text_field_pill.dart';
 import 'package:livest/core/utils/widgets/custom_confirmation_dialog.dart';
 import 'package:livest/core/utils/widgets/custom_success_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:livest/core/utils/formatters/phone_number_formatter.dart';
 import 'package:livest/features/auth/providers/profile_provider.dart';
-import 'package:livest/features/auth/widgets/postsignup/location_dropdown.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String initialName;
@@ -265,17 +264,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 CustomTextFieldPill(
                   label: "Username",
                   controller: _nameController,
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? "Nama tidak boleh kosong"
-                      : null,
+                  validator: (value) => null, // opsional
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldPill(
                   label: "Deskripsi",
                   controller: _descController,
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? "Deskripsi tidak boleh kosong"
-                      : null,
+                  validator: (value) => null, // opsional
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldPill(
@@ -283,9 +278,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
-                      return "Email tidak boleh kosong";
-                    if (!value.contains("@")) return "Format email tidak valid";
+                    // Hanya validasi format jika field diisi
+                    if (value != null &&
+                        value.trim().isNotEmpty &&
+                        !value.contains("@")) {
+                      return "Format email tidak valid";
+                    }
                     return null;
                   },
                 ),
@@ -299,12 +297,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     PhoneNumberFormatter(),
                   ],
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
-                      return "Nomor telepon tidak boleh kosong";
-                    if (!RegExp(
-                      r'^(08|\+62)\d{7,12}$',
-                    ).hasMatch(value.replaceAll(RegExp(r'\D'), ''))) {
-                      return 'Nomor telepon tidak valid';
+                    // Hanya validasi format jika field diisi
+                    if (value != null && value.trim().isNotEmpty) {
+                      if (!RegExp(
+                        r'^(08|\+62)\d{7,12}$',
+                      ).hasMatch(value.replaceAll(RegExp(r'\D'), ''))) {
+                        return 'Nomor telepon tidak valid';
+                      }
                     }
                     return null;
                   },
@@ -313,9 +312,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 CustomTextFieldPill(
                   label: "Nama Peternakan",
                   controller: _farmNameController,
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? "Nama Peternakan tidak boleh kosong"
-                      : null,
+                  validator: (value) => null, // opsional
                 ),
                 const SizedBox(height: 16),
                 LocationDropdown(
