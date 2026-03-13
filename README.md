@@ -50,8 +50,8 @@ Livest is a Flutter-based mobile application designed as a digital platform to s
 lib/
 ├── core/
 │   ├── config/	        	# App & Supabase configuration
-│   ├── data/models/	  	# Global models
-│   ├── routes/	      	  # Route generator
+│   ├── data/models/      # Global models
+│   ├── routes/            # Route generator
 │   ├── services/		      # Core services
 │   ├── utils/
 │   │   ├── constants/		# Colors, Sizes, Typography
@@ -60,7 +60,7 @@ lib/
 │   │   └── widgets/
 │
 ├── features/
-│   ├── auth/		        	# Authentication feature
+│   ├── auth/              # Authentication feature
 │   │
 │   ├── breeder/	      	# Breader feature
 │   │   ├── home/
