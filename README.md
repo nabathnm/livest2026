@@ -79,30 +79,30 @@ lib/
 ```
 
 ## ⚙️ Tech Stack
-### Framework & Language
+### 🧩 Framework & Language
 - Flutter
 - Dart
-### State Management
+### 📦 State Management
 - Provider
-### Navigation
+### 🧭 Navigation
 - go_router
-### UI & UX
+### 🎨 UI & UX
 - flutter_animate (UI animation)
 - flutter_markdown (Markdown rendering)
 - intl (Date, number & currency formatting)
-### Device Integration
+### 📱 Device Integration
 - image_picker (Camera & Gallery access)
 - url_launcher (Open WhatsApp, browser, external apps)
-### Backend as a Service
+### ☁️ Backend as a Service
 - Supabase (Database, Authentication, Storage)
-### Networking
+### 🌐 Networking
 - http (REST API integration)
-### Authentication
+### 🔐 Authentication
 - Supabase Auth (Email & Password)
 - Google Sign-In (OAuth 2.0)
-### AI Integration
+### 🤖 AI Integration
 - Google Generative AI (Chatbot & AI-powered responses)
-### Infrastructure & Configuration
+### ⚙️ Infrastructure & Configuration
 - flutter_dotenv (Environment variable management)
 - Supabase Cloud Infrastructure
 
@@ -169,6 +169,7 @@ flutter run
 
 ## 👤 Author
 Nabath Nuur Muhammad - Student of Information Technology - Faculty of Computer Science - Universitas Brawijaya
+
 Zuhdi Arif Azizi - Student of Technical Information - Faculty of Computer Science - Universitas Brawijaya
 
 
