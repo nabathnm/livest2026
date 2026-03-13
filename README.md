@@ -116,8 +116,9 @@ Before running the application, make sure your development environment meets the
 - Git
 
 ### 📱 Device Requirements
-- Android device (USB debugging enabled), or
-- Android Emulator (via Android Studio), or
+- Android device (USB debugging enabled),
+- Android Emulator (via Android Studio),
+- iOS Simulator can be used (MacOS only)
 
 ## 🚀 How to Run the Application
 ### 1️⃣ Clone the Repository
