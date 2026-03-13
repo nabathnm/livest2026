@@ -19,7 +19,7 @@ class ForgotPasswordOtpPage extends StatefulWidget {
 }
 
 class _ForgotPasswordOtpPageState extends State<ForgotPasswordOtpPage> {
-  int _step = 0; // 0 = OTP, 1 = New Password
+  int _step = 0; 
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -111,7 +111,7 @@ class _ForgotPasswordOtpPageState extends State<ForgotPasswordOtpPage> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () async {
-                          Navigator.pop(context); // Close confirm dialog
+                          Navigator.pop(context); 
                           await _executeUpdatePassword();
                         },
                         child: Container(
@@ -286,7 +286,6 @@ class _ForgotPasswordOtpPageState extends State<ForgotPasswordOtpPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Custom Back Button
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 LivestSizes.lg,
@@ -460,7 +459,7 @@ class _ForgotPasswordOtpPageState extends State<ForgotPasswordOtpPage> {
             ),
             controller: _newPasswordController,
             isPassword: true,
-            validator: (v) => null, // Handle error via custom banner
+            validator: (v) => null, 
             onChanged: (val) {
               setState(() {
                 _hasMinLength = val.length >= 8;

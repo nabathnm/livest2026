@@ -141,15 +141,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               child: Column(
                 children: [
                   const SizedBox(height: LivestSizes.md),
-
-                  // Title
                   const AuthHeader(
                     title: "Verifikasi OTP",
                     subtitle: "",
                     showTabs: false,
                   ),
-
-                  // Subtitle dengan masked email
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
@@ -174,15 +170,13 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     ),
                   ),
                   const SizedBox(height: LivestSizes.spaceBtwSections),
-
-                  // OTP Input + Timer
                   OtpInput(
                     key: _otpKey,
                     length: 6,
                     onCompleted: (code) {
                       setState(() {
-                         _otpCode = code;
-                         _otpError = null;
+                        _otpCode = code;
+                        _otpError = null;
                       });
                     },
                     onChanged: (code) {
@@ -259,7 +253,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         if (ok && mounted) {
                           _showSuccessDialog();
                         } else if (mounted) {
-                          // Try to derive meaning from authProvider.errorMessage
                           String finalError = "Kode OTP tidak sesuai!";
                           if (authProvider.errorMessage?.toLowerCase().contains("expired") ?? false) {
                             finalError = "Kode OTP kadaluwarsa, kirim ulang OTP.";

@@ -28,7 +28,7 @@ class BuyerProfileInfoField extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: LivestSizes.md, vertical: 14),
           decoration: BoxDecoration(
             color: LivestColors.baseWhite,
-            borderRadius: BorderRadius.circular(90), // Pill Shape
+            borderRadius: BorderRadius.circular(90), 
             border: Border.all(color: LivestColors.primaryLightActive, width: 1),
           ),
           child: Text(

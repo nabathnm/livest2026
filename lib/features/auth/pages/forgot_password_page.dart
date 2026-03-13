@@ -29,8 +29,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> _sendOtp() async {
     setState(() => _emailError = null);
     if (!_formKey.currentState!.validate()) return;
-
-    // Custom email validation for the "Email invalid" UI
     final email = _emailController.text.trim();
     if (!RegExp(r"^[^@]+@[^@]+\.[^@]+").hasMatch(email)) {
       setState(() => _emailError = "Email invalid");
@@ -42,7 +40,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (ok && mounted) {
       setState(() => _step = 1);
     } else if (!ok && mounted) {
-      // Mock error if failed for any reason
       setState(() => _emailError = auth.errorMessage ?? "Gagal mengirim OTP");
     }
   }
@@ -64,7 +61,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           body: SafeArea(
             child: Column(
               children: [
-                // Top Custom Back Button
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
                     LivestSizes.lg,
@@ -129,8 +125,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 48),
-
-          // Custom Input Field with explicit error state matching screenshot
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -202,8 +196,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
             ],
           ),
-
-          // Spacer pushes button to a reasonable distance, screenshot shows it lower
           const SizedBox(height: 200),
 
           CustomButton(

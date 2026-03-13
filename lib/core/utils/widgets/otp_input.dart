@@ -91,13 +91,10 @@ class OtpInputState extends State<OtpInput> {
           ),
         ),
         const SizedBox(height: LivestSizes.lg),
-
-        // Kotak visual + hidden TextField
         GestureDetector(
           onTap: _onTap,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // Hitung ukuran kotak agar pas di layar
               const gap = 6.0;
               final boxSize =
                   ((constraints.maxWidth - (gap * (widget.length - 1))) /
@@ -107,7 +104,6 @@ class OtpInputState extends State<OtpInput> {
               return Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Hidden TextField — opacity hampir nol agar keyboard tetap muncul
                   Opacity(
                     opacity: 0.01,
                     child: TextField(
@@ -141,8 +137,6 @@ class OtpInputState extends State<OtpInput> {
                       },
                     ),
                   ),
-
-                  // Visual boxes (di atas hidden field)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(widget.length, (i) {

@@ -78,7 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: 40,
                   height: 40,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF7F4F0), // Beige circular background
+                    color: Color(0xFFF7F4F0),
                     shape: BoxShape.circle,
                   ),
                   child: const Padding(
@@ -131,8 +131,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     },
                   ),
                   const SizedBox(height: 32),
-                  
-                  // 🔥 BIODATA SECTION
                   const Text(
                     "Biodata",
                     style: TextStyle(
@@ -148,8 +146,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 16),
                   ProfileInfoField(label: "Lokasi Peternakan", value: farmLocation),
                   const SizedBox(height: 32),
-
-                  // 🔥 PENGATURAN SECTION
                   const Text(
                     "Pengaturan",
                     style: TextStyle(
@@ -162,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ProfileSettingButton(
                     title: "Ubah Password",
                     icon: Icons.lock_outline_rounded,
-                    backgroundColor: const Color(0xFFF7F4F0), // Beige background
+                    backgroundColor: const Color(0xFFF7F4F0), 
                     textColor: Colors.black87,
                     onTap: () => Navigator.pushNamed(context, RouteGenerator.changePassword),
                   ),
@@ -170,16 +166,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   ProfileSettingButton(
                     title: "Keluar Akun",
                     icon: Icons.logout_rounded,
-                    backgroundColor: const Color(0xFFFDE8E8), // Light red background
-                    textColor: const Color(0xFFD32F2F), // Red text
+                    backgroundColor: const Color(0xFFFDE8E8), 
+                    textColor: const Color(0xFFD32F2F), 
                     onTap: () => _showLogoutDialog(context, authProvider, profileProvider),
                   ),
                   const SizedBox(height: 12),
                   ProfileSettingButton(
                     title: "Hapus Akun",
                     icon: Icons.delete_outline_rounded,
-                    backgroundColor: const Color(0xFFFDE8E8), // Light red background
-                    textColor: const Color(0xFFD32F2F), // Red text
+                    backgroundColor: const Color(0xFFFDE8E8), 
+                    textColor: const Color(0xFFD32F2F), 
                     onTap: () => Navigator.pushNamed(context, '/delete-account'),
                   ),
                   const SizedBox(height: 40),

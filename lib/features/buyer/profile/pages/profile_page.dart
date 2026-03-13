@@ -60,7 +60,6 @@ class _ProfilePageState extends State<ProfilePage> {
     final fullName = profile?['full_name'] ?? '-';
     final email = profile?['email'] ?? '-';
     final phoneNumber = profile?['phone_number'] ?? '-';
-    // buyer specific field
     final preferences = profile?['preferences'] ?? '-';
 
     return Scaffold(
@@ -80,7 +79,6 @@ class _ProfilePageState extends State<ProfilePage> {
               child: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: LivestColors.textPrimary, size: 20),
                 onPressed: () {
-                  // Depending on navigation handling, this might pop or change bottom nav
                 },
               ),
             ),
@@ -122,19 +120,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                   ),
-
                   const SizedBox(height: LivestSizes.spaceBtwSections),
-
-                  // --- Data Fields ---
                   BuyerProfileInfoField(label: "Email", value: email),
                   const SizedBox(height: LivestSizes.md),
                   BuyerProfileInfoField(label: "Nomor Telepon", value: phoneNumber),
                   const SizedBox(height: LivestSizes.md),
                   BuyerProfileInfoField(label: "Preferensi Ternak", value: preferences),
-
                   const SizedBox(height: LivestSizes.spaceBtwSections),
-
-                  // --- Pengaturan ---
                   const Text("Pengaturan", style: LivestTypography.h6),
                   const SizedBox(height: LivestSizes.md),
 
@@ -146,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: LivestSizes.sm),
 
                   BuyerProfileSettingButton(
-                    icon: Icons.logout, // using standard logout since lock open is weird for logout
+                    icon: Icons.logout, 
                     title: "Keluar dari akun",
                     backgroundColor: const Color(0xFFFFEBEE),
                     textColor: const Color(0xFFD32F2F),

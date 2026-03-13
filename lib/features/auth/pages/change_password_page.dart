@@ -83,7 +83,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           body: SafeArea(
             child: Column(
               children: [
-                // AppBar (Custom)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(LivestSizes.lg, LivestSizes.lg, LivestSizes.lg, 0),
                   child: Align(
@@ -116,8 +115,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const SizedBox(height: 24),
-                          
-                          // Titles
                           Text(
                             "Ubah Password",
                             textAlign: TextAlign.center,
@@ -135,8 +132,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           ),
                           
                           const SizedBox(height: 48),
-
-                          // Password Baru
                           Text(
                             "Password Baru",
                             style: LivestTypography.bodySmMedium.copyWith(
@@ -152,10 +147,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             hasError: _errorMessage != null,
                             onChanged: _onPasswordChanged,
                           ),
-
                           const SizedBox(height: 24),
-
-                          // Ulangi Password Baru
                           Text(
                             "Ulangi Password Baru",
                             style: LivestTypography.bodySmMedium.copyWith(

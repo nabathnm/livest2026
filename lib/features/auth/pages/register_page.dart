@@ -38,7 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _hasMinLength = value.length >= 8;
       _hasNumber = RegExp(r'\d').hasMatch(value);
-      _formError = null; // hide error if they keep typing
+      _formError = null;
     });
   }
 
@@ -48,6 +48,42 @@ class _RegisterPageState extends State<RegisterPage> {
     _password.dispose();
     _confirmPassword.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleRegister(AuthProvider authProvider) async {
+    FocusScope.of(context).unfocus();
+    setState(() => _formError = null);
+
+    if (_email.text.isEmpty || _password.text.isEmpty || _confirmPassword.text.isEmpty) {
+      setState(() => _formError = "Lengkapi semua data!");
+      return;
+    }
+
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_password.text != _confirmPassword.text) {
+      setState(() => _formError = "Konfirmasi password tidak sesuai!");
+      return;
+    }
+
+    final result = await authProvider.signUpWithEmail(
+      _email.text.trim(),
+      _password.text.trim(),
+    );
+    final success = result[0];
+    final requiresOtp = result[1];
+
+    if (success && mounted) {
+      if (requiresOtp) {
+        Navigator.pushReplacementNamed(
+          context,
+          RouteGenerator.otpVerification,
+          arguments: _email.text.trim(),
+        );
+      } else {
+        Navigator.pushReplacementNamed(context, RouteGenerator.rolePage);
+      }
+    }
   }
 
   @override
@@ -75,15 +111,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 activeTab: 1,
                 onTabChanged: (tab) {
                   if (tab == 0) {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      RouteGenerator.login,
-                    );
+                    Navigator.pushReplacementNamed(context, RouteGenerator.login);
                   }
                 },
               ),
-
-              // ── Form Body ──
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(LivestSizes.lg),
@@ -91,112 +122,76 @@ class _RegisterPageState extends State<RegisterPage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Email
                         CustomTextField(
                           label: "Email",
                           hintText: "Masukkan email",
                           controller: _email,
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Email tidak boleh kosong";
-                            }
-                            if (!RegExp(
-                              r"^[^@]+@[^@]+\.[^@]+",
-                            ).hasMatch(value)) {
-                              return "Email tidak valid!";
-                            }
+                            if (value == null || value.isEmpty) return "Email tidak boleh kosong";
+                            if (!RegExp(r"^[^@]+@[^@]+\.[^@]+").hasMatch(value)) return "Email tidak valid!";
                             return null;
                           },
                         ),
                         const SizedBox(height: LivestSizes.spaceBtwInputFields),
-
-                        // Password
                         CustomTextField(
                           label: "Password",
                           hintText: "Masukkan password",
                           controller: _password,
                           isPassword: true,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Password tidak boleh kosong";
-                            }
-                            if (value.length < 8) {
-                              return "Minimal 8 karakter";
-                            }
+                            if (value == null || value.isEmpty) return "Password tidak boleh kosong";
+                            if (value.length < 8) return "Minimal 8 karakter";
                             return null;
                           },
                         ),
                         const SizedBox(height: LivestSizes.spaceBtwInputFields),
-
-                        // Ulangi Password
                         CustomTextField(
                           label: "Ulangi Password",
                           hintText: "Ulangi Password",
                           controller: _confirmPassword,
                           isPassword: true,
                           validator: (value) {
-                            if (value != _password.text) {
-                              return "Konfirmasi password tidak sesuai!";
-                            }
+                            if (value != _password.text) return "Konfirmasi password tidak sesuai!";
                             return null;
                           },
                         ),
                         const SizedBox(height: LivestSizes.lg),
-
-                        // Password Rules Box
                         if (_password.text.isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: LivestSizes.spaceBtwInputFields,
-                            ),
+                            padding: const EdgeInsets.only(bottom: LivestSizes.spaceBtwInputFields),
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(LivestSizes.md),
                               decoration: BoxDecoration(
                                 color: LivestColors.primaryLight,
-                                borderRadius: BorderRadius.circular(
-                                  LivestSizes.cardRadiusLg,
-                                ),
+                                borderRadius: BorderRadius.circular(LivestSizes.cardRadiusLg),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     "Password harus memenuhi",
-                                    style: LivestTypography.captionSmSemibold
-                                        .copyWith(
-                                          color: LivestColors.textSecondary,
-                                        ),
+                                    style: LivestTypography.captionSmSemibold.copyWith(
+                                      color: LivestColors.textSecondary,
+                                    ),
                                   ),
                                   const SizedBox(height: 8),
-                                  _buildValidationRow(
-                                    "Minimal 1 angka",
-                                    _hasNumber,
-                                  ),
+                                  _buildValidationRow("Minimal 1 angka", _hasNumber),
                                   const SizedBox(height: 4),
-                                  _buildValidationRow(
-                                    "Minimal 8 karakter",
-                                    _hasMinLength,
-                                  ),
+                                  _buildValidationRow("Minimal 8 karakter", _hasMinLength),
                                 ],
                               ),
                             ),
                           ),
-
-                        // Form Error Banner
                         if (_formError != null)
                           Container(
                             width: double.infinity,
-                            margin: const EdgeInsets.only(
-                              bottom: LivestSizes.spaceBtwInputFields,
-                            ),
+                            margin: const EdgeInsets.only(bottom: LivestSizes.spaceBtwInputFields),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
                               color: LivestColors.redLight,
-                              borderRadius: BorderRadius.circular(
-                                LivestSizes.inputFieldRadius,
-                              ),
+                              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
                             ),
                             child: Text(
                               _formError!,
@@ -206,68 +201,18 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             ),
                           ),
-
                         CustomButton(
                           text: "Daftar",
                           isLoading: authProvider.isLoading,
-                          onPressed: () async {
-                            FocusScope.of(context).unfocus();
-                            setState(() => _formError = null);
-
-                            if (_email.text.isEmpty ||
-                                _password.text.isEmpty ||
-                                _confirmPassword.text.isEmpty) {
-                              setState(
-                                () => _formError = "Lengkapi semua data!",
-                              );
-                              return;
-                            }
-
-                            if (!_formKey.currentState!.validate()) return;
-
-                            if (_password.text != _confirmPassword.text) {
-                              setState(
-                                () => _formError =
-                                    "Konfirmasi password tidak sesuai!",
-                              );
-                              return;
-                            }
-
-                            final result = await authProvider.signUpWithEmail(
-                              _email.text.trim(),
-                              _password.text.trim(),
-                            );
-                            final success = result[0];
-                            final requiresOtp = result[1];
-
-                            if (success && context.mounted) {
-                              if (requiresOtp) {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  RouteGenerator.otpVerification,
-                                  arguments: _email.text.trim(),
-                                );
-                              } else {
-                                // Confirm email DIMATIKAN di Supabase -> bypass OTP
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  RouteGenerator.rolePage,
-                                );
-                              }
-                            }
-                          },
+                          onPressed: () => _handleRegister(authProvider),
                         ),
                         const SizedBox(height: LivestSizes.lg),
-
-                        // Divider
                         const DividerWithText(),
                         const SizedBox(height: LivestSizes.lg),
-
-                        // Google
                         CustomButton(
                           text: "Login dengan Google",
                           variant: ButtonVariant.google,
-                          icon: Icons.g_mobiledata,
+                          imagePath: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png',
                           isLoading: authProvider.isLoading,
                           onPressed: () => authProvider.signInWithGoogle(),
                         ),
@@ -302,3 +247,4 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 }
+

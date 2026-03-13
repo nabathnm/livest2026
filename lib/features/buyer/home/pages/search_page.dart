@@ -24,7 +24,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // Auto-focus keyboard saat halaman dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
@@ -68,7 +67,6 @@ class _SearchPageState extends State<SearchPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 16),
-          // ── Category chips ──
           SizedBox(
             height: 44,
             child: ListView.separated(
@@ -83,23 +81,14 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           const SizedBox(height: 8),
-
-          // ── Body ──
           Expanded(
             child: Consumer<SearchProvider>(
               builder: (context, provider, _) {
-                // Loading
                 if (provider.isLoading) return _buildLoading();
-
-                // Tidak ada hasil
                 if (provider.isEmpty) return _buildEmpty();
-
-                // Ada hasil
                 if (provider.hasSearched && provider.results.isNotEmpty) {
                   return _buildResults(provider);
                 }
-
-                // Default: tampilkan history
                 return _buildHistory(provider);
               },
             ),
@@ -108,8 +97,6 @@ class _SearchPageState extends State<SearchPage> {
       ),
     );
   }
-
-  // ── AppBar ──────────────────────────────────────────────────────────────
 
   AppBar _buildAppBar() {
     return AppBar(
@@ -173,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
                           )
                         : null,
                   ),
-                  onChanged: (_) => setState(() {}), // update suffix icon
+                  onChanged: (_) => setState(() {}), 
                 ),
               ),
               Image.asset("assets/images/icon/search.png"),
@@ -183,8 +170,6 @@ class _SearchPageState extends State<SearchPage> {
       },
     );
   }
-
-  // ── History ──────────────────────────────────────────────────────────────
 
   Widget _buildHistory(SearchProvider provider) {
     if (provider.history.isEmpty) {
@@ -250,8 +235,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  // ── Results ──────────────────────────────────────────────────────────────
-
   Widget _buildResults(SearchProvider provider) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
@@ -289,8 +272,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  // ── Empty ────────────────────────────────────────────────────────────────
-
   Widget _buildEmpty() {
     return Center(
       child: SizedBox(
@@ -310,8 +291,6 @@ class _SearchPageState extends State<SearchPage> {
       ),
     );
   }
-
-  // ── Loading ──────────────────────────────────────────────────────────────
 
   Widget _buildLoading() {
     return const Center(

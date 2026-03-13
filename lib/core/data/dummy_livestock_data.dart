@@ -1,7 +1,4 @@
-/// Data dummy untuk produk peternakan (Obat, Pakan, Vitamin, Layanan)
-/// Skala Nasional: Mencakup berbagai kota besar di Seluruh Indonesia
 final List<Map<String, dynamic>> dummyLivestockProducts = [
-  // --- KATEGORI OBAT SAPI ---
   {
     "id": "prod_001",
     "name": "Wormectin Injeksi (Obat Cacing & Scabies Sapi)",

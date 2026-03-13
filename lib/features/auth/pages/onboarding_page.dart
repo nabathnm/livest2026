@@ -85,10 +85,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       body: SafeArea(
         child: Stack(
           children: [
-            // ── Scrollable content ──
             Column(
               children: [
-                // Top bar (back + skip)
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -97,7 +95,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Back arrow
                       if (_currentIndex > 0)
                         GestureDetector(
                           onTap: _goBack,
@@ -116,8 +113,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         )
                       else
                         const SizedBox(width: 40),
-
-                      // Skip
                       if (!isLast)
                         TextButton(
                           onPressed: _navigateAway,
@@ -135,8 +130,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ],
                   ),
                 ),
-
-                // Progress dots (centered without full-width padding to float correctly)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 0),
                   child: Center(
@@ -146,8 +139,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ),
                 ),
-
-                // Page content (scrollable)
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
@@ -164,7 +155,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ],
         ),
       ),
-      // Button pinned di bawah
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         child: CustomButton(
@@ -196,7 +186,7 @@ class _OnboardingProgressBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: isActive
                 ? LivestColors.primaryNormal
-                : const Color(0xFFB3B3B3), // Inactive grey matching design
+                : const Color(0xFFB3B3B3), 
             shape: BoxShape.circle,
           ),
         );
@@ -217,8 +207,6 @@ class _OnboardingDetail extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 16),
-
-          // Gambar 360x360
           Image.asset(
             data.imagePath,
             height: 360,
@@ -226,8 +214,6 @@ class _OnboardingDetail extends StatelessWidget {
             fit: BoxFit.contain,
           ),
           const SizedBox(height: 32),
-
-          // Title
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
@@ -239,8 +225,6 @@ class _OnboardingDetail extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Description
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
 
-/// Widget checklist syarat password.
-/// Sesuai component set: box dengan daftar syarat + ikon status.
 class PasswordRequirements extends StatelessWidget {
   final bool hasMinLength;
   final bool hasNumber;

@@ -60,7 +60,7 @@ class _CustomTextFieldPillState extends State<CustomTextFieldPill> {
           setState(() => _errorText = result);
         }
       });
-      return result != null ? '' : null; // trigger error border internally but hide default text
+      return result != null ? '' : null; 
     }
     return null;
   }
@@ -114,7 +114,7 @@ class _CustomTextFieldPillState extends State<CustomTextFieldPill> {
               vertical: 14,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(90), // Pill Shape
+              borderRadius: BorderRadius.circular(90), 
               borderSide: const BorderSide(
                 color: LivestColors.primaryLightActive,
                 width: 1,

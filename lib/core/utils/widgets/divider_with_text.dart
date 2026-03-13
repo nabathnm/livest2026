@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
 
-/// Divider horizontal dengan teks di tengah.
-/// Sesuai component set: garis — teks — garis.
 class DividerWithText extends StatelessWidget {
   final String text;
 

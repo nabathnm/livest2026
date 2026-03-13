@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
+import 'package:livest/core/utils/constants/livest_typography.dart';
 
-/// Brown header section di atas halaman Masuk/Daftar.
-/// Sesuai design: background coklat, "Selamat datang!", subtitle, tab switcher.
 class AuthHeader extends StatelessWidget {
   final String subtitle;
-  final int activeTab; // 0 = Masuk, 1 = Daftar
+  final int activeTab; 
   final ValueChanged<int>? onTabChanged;
-
-  /// Untuk halaman non-login (OTP, Lupa Password) — tanpa tabs
   final String? title;
   final IconData? icon;
   final bool showTabs;
@@ -28,7 +25,6 @@ class AuthHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Non-login mode (OTP, Lupa Password, etc.)
     if (!showTabs) {
       return Column(
         children: [
@@ -37,60 +33,43 @@ class AuthHeader extends StatelessWidget {
           ],
           Text(
             title ?? "",
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: LivestColors.textHeading,
-            ),
+            style: LivestTypography.displaySm.copyWith(color: LivestColors.textHeading),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: LivestSizes.sm),
           Text(
             subtitle,
-            style: const TextStyle(
-              fontSize: LivestSizes.fontSizeSm,
-              color: LivestColors.textSecondary,
-            ),
+            style: LivestTypography.bodySm.copyWith(color: LivestColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
       );
     }
 
-    // Login/Register mode — brown header + tabs
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
-      decoration: const BoxDecoration(
-        color: LivestColors.primaryNormal,
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(24),
+    return Column(
+      children: [
+        Image.asset(
+          'assets/images/login/Header.png',
+          width: double.infinity,
+          fit: BoxFit.fitWidth,
         ),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            "Selamat datang!",
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: LivestColors.baseWhite,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: LivestSizes.fontSizeSm,
-              color: LivestColors.baseWhite.withValues(alpha: 0.8),
-            ),
-          ),
-          const SizedBox(height: LivestSizes.lg),
-
-          // Tab switcher
-          Container(
+        const SizedBox(height: LivestSizes.md),
+        
+        Text(
+          "Selamat datang!",
+          style: LivestTypography.displayMd.copyWith(color: LivestColors.textHeading),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          style: LivestTypography.bodySm.copyWith(color: LivestColors.textSecondary),
+        ),
+        const SizedBox(height: LivestSizes.lg),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: LivestSizes.lg),
+          child: Container(
             decoration: BoxDecoration(
-              color: LivestColors.primaryDark,
+              color: LivestColors.primaryLight,
               borderRadius: BorderRadius.circular(24),
             ),
             padding: const EdgeInsets.all(4),
@@ -101,8 +80,8 @@ class AuthHeader extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -112,20 +91,18 @@ class AuthHeader extends StatelessWidget {
       child: GestureDetector(
         onTap: () => onTabChanged?.call(index),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isActive ? LivestColors.baseWhite : Colors.transparent,
+            color: isActive ? LivestColors.primaryNormal : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: LivestSizes.fontSizeSm,
-              fontWeight: FontWeight.w600,
+            style: LivestTypography.bodySmBold.copyWith(
               color: isActive
-                  ? LivestColors.primaryNormal
-                  : LivestColors.baseWhite,
+                  ? LivestColors.baseWhite
+                  : LivestColors.textHeading,
             ),
           ),
         ),

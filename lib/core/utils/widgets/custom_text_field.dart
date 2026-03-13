@@ -14,6 +14,7 @@ class CustomTextField extends StatefulWidget {
   final String? hintText;
   final bool enabled;
   final List<TextInputFormatter>? inputFormatters;
+  final bool hasError;
 
   const CustomTextField({
     super.key,
@@ -27,6 +28,7 @@ class CustomTextField extends StatefulWidget {
     this.hintText,
     this.enabled = true,
     this.inputFormatters,
+    this.hasError = false,
   });
 
   @override
@@ -80,12 +82,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           decoration: InputDecoration(
             hintText: widget.hintText ?? widget.label,
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
               fontSize: LivestSizes.fontSizeSm,
-              color: LivestColors.primaryLightActive,
+              color: widget.hasError
+                  ? const Color(0xFFE53935)
+                  : LivestColors.primaryLightActive,
             ),
-            prefixIcon:
-                widget.prefixIcon ??
+            prefixIcon: widget.prefixIcon ??
                 const Icon(
                   Icons.person_outline,
                   color: LivestColors.primaryLightActive,
@@ -111,38 +114,51 @@ class _CustomTextFieldState extends State<CustomTextField> {
               vertical: 14,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius:
+                  BorderRadius.circular(LivestSizes.inputFieldRadius),
               borderSide: const BorderSide(
                 color: LivestColors.primaryLightActive,
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
-              borderSide: const BorderSide(
-                color: LivestColors.primaryLightActive,
+              borderRadius:
+                  BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderSide: BorderSide(
+                color: widget.hasError
+                    ? const Color(0xFFE53935)
+                    : LivestColors.primaryLightActive,
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius:
+                  BorderRadius.circular(LivestSizes.inputFieldRadius),
               borderSide: const BorderSide(
                 color: LivestColors.primaryNormal,
                 width: 1.5,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
-              borderSide: const BorderSide(color: Color(0xFFE53935), width: 1),
+              borderRadius:
+                  BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderSide: const BorderSide(
+                color: Color(0xFFE53935),
+                width: 1,
+              ),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
+              borderRadius:
+                  BorderRadius.circular(LivestSizes.inputFieldRadius),
               borderSide: const BorderSide(
                 color: Color(0xFFE53935),
                 width: 1.5,
               ),
             ),
-            errorStyle: const TextStyle(color: Color(0xFFE53935), fontSize: 12),
+            errorStyle: const TextStyle(
+              color: Color(0xFFE53935),
+              fontSize: 12,
+            ),
           ),
         ),
       ],

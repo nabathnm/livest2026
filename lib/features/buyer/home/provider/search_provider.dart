@@ -5,15 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchProvider extends ChangeNotifier {
   final SearchService _service = SearchService();
-
-  // ── State ────────────────────────────────────────────────────────────────
   String _query = '';
   List<ProductModel> _results = [];
   List<String> _history = [];
   bool _isLoading = false;
-  bool _hasSearched = false; // true setelah user submit search pertama kali
-
-  // ── Getters ──────────────────────────────────────────────────────────────
+  bool _hasSearched = false; 
   String get query => _query;
   List<ProductModel> get results => _results;
   List<String> get history => _history;
@@ -23,8 +19,6 @@ class SearchProvider extends ChangeNotifier {
 
   static const _historyKey = 'search_history';
   static const _maxHistory = 10;
-
-  // ── Init ─────────────────────────────────────────────────────────────────
   SearchProvider() {
     _loadHistory();
   }
@@ -39,9 +33,6 @@ class SearchProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_historyKey, _history);
   }
-
-  // ── Search ───────────────────────────────────────────────────────────────
-  /// Dipanggil saat user submit (tekan enter / ikon search)
   Future<void> search(String query) async {
     final q = query.trim();
     if (q.isEmpty) return;
@@ -50,8 +41,6 @@ class SearchProvider extends ChangeNotifier {
     _isLoading = true;
     _hasSearched = true;
     notifyListeners();
-
-    // Simpan ke history (duplikat di-remove, paling baru di atas)
     _history.remove(q);
     _history.insert(0, q);
     if (_history.length > _maxHistory)
@@ -68,11 +57,7 @@ class SearchProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-
-  /// Dipanggil dari history chip → langsung search
   Future<void> searchFromHistory(String query) => search(query);
-
-  /// Reset ke state awal (kembali tampil history)
   void reset() {
     _query = '';
     _results = [];
@@ -80,15 +65,11 @@ class SearchProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-
-  /// Hapus satu item history
   Future<void> removeHistory(String item) async {
     _history.remove(item);
     await _saveHistory();
     notifyListeners();
   }
-
-  /// Hapus semua history
   Future<void> clearHistory() async {
     _history.clear();
     await _saveHistory();

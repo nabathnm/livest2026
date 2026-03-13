@@ -45,7 +45,7 @@ class _TypingIndicatorState extends State<TypingIndicator> with SingleTickerProv
                   width: 10,
                   height: 10,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFD2C7BC), // Light brownish grey from screenshot
+                    color: Color(0xFFD2C7BC), 
                     shape: BoxShape.circle,
                   ),
                 ),

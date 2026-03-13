@@ -3,7 +3,7 @@ class ProfileModel {
   final String? fullName;
   final String? description;
   final String? avatarUrl;
-  final String? role; // 'peternak' atau 'pembeli'
+  final String? role; 
   final String? farmName;
   final String? farmLocation;
   final String? animalTypes;

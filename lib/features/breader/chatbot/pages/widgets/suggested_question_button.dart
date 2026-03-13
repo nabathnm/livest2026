@@ -22,7 +22,7 @@ class SuggestedQuestionButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
-            color: LivestColors.primaryLight, // f2eeea mapped color
+            color: LivestColors.primaryLight, 
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(

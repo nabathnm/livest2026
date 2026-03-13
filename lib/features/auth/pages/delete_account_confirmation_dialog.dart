@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_sizes.dart';
 
-class CustomConfirmationDialog extends StatelessWidget {
+class DeleteAccountConfirmationDialog extends StatelessWidget {
   final String title;
   final String subtitle;
   final String cancelText;
   final String confirmText;
 
-  const CustomConfirmationDialog({
+  const DeleteAccountConfirmationDialog({
     super.key,
-    required this.title,
-    required this.subtitle,
-    this.cancelText = "Kembali",
-    this.confirmText = "Simpan",
+    this.title = 'Yakin ingin menghapus akun?',
+    this.subtitle = 'Tindakan ini tidak dapat dikembalikan!',
+    this.cancelText = 'Kembali',
+    this.confirmText = 'Hapus!',
   });
 
   @override
@@ -33,14 +33,14 @@ class CustomConfirmationDialog extends StatelessWidget {
         left: LivestSizes.lg,
         right: LivestSizes.lg,
       ),
-      backgroundColor: LivestColors.primaryLight, 
+      backgroundColor: LivestColors.redLight,
       title: Text(
         title,
         textAlign: TextAlign.center,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: LivestSizes.fontSizeLg + 2,
-          color: LivestColors.textHeading, 
+          fontSize: LivestSizes.fontSizeLg,
+          color: LivestColors.redNormal,
         ),
       ),
       content: Column(
@@ -51,7 +51,7 @@ class CustomConfirmationDialog extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: LivestSizes.fontSizeSm,
-              color: LivestColors.textSecondary,
+              color: LivestColors.redDark,
             ),
           ),
           const SizedBox(height: LivestSizes.xl),
@@ -60,24 +60,17 @@ class CustomConfirmationDialog extends StatelessWidget {
               Expanded(
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
-                      color: LivestColors.primaryNormal,
-                      width: 1.5,
-                    ),
+                    side: const BorderSide(color: LivestColors.redNormal, width: 1.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        LivestSizes.buttonRadius * 2,
-                      ),
+                      borderRadius: BorderRadius.circular(LivestSizes.buttonRadius * 2),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: LivestSizes.md,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: LivestSizes.md),
                   ),
                   onPressed: () => Navigator.pop(context, false),
                   child: Text(
                     cancelText,
                     style: const TextStyle(
-                      color: LivestColors.primaryNormal,
+                      color: LivestColors.redNormal,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -87,16 +80,11 @@ class CustomConfirmationDialog extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        LivestColors.primaryNormal, 
+                    backgroundColor: LivestColors.redNormal,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        LivestSizes.buttonRadius * 2,
-                      ),
+                      borderRadius: BorderRadius.circular(LivestSizes.buttonRadius * 2),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: LivestSizes.md,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: LivestSizes.md),
                     elevation: 0,
                   ),
                   onPressed: () => Navigator.pop(context, true),
@@ -116,3 +104,4 @@ class CustomConfirmationDialog extends StatelessWidget {
     );
   }
 }
+

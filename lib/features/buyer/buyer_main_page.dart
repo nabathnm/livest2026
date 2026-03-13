@@ -83,7 +83,6 @@ class _BuyerMainPageState extends State<BuyerMainPage> {
                   icon: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Background container
                       AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
@@ -106,8 +105,6 @@ class _BuyerMainPageState extends State<BuyerMainPage> {
                             duration: 300.ms,
                             curve: Curves.easeOutBack,
                           ),
-
-                      // Icon + Label
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [

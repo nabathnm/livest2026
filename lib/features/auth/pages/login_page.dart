@@ -31,6 +31,60 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  Future<void> _handleLogin(AuthProvider authProvider) async {
+    FocusScope.of(context).unfocus();
+    setState(() => _formError = null);
+
+    if (_email.text.isEmpty || _password.text.isEmpty) {
+      setState(() => _formError = "Lengkapi semua data.");
+      return;
+    }
+
+    final success = await authProvider.signInWithEmail(
+      _email.text.trim(),
+      _password.text.trim(),
+    );
+
+    if (success && mounted) {
+      final profileProvider = context.read<ProfileProvider>();
+      await profileProvider.fetchProfile();
+      final role = profileProvider.role;
+
+      if (!mounted) return;
+
+      if (role == null) {
+        Navigator.pushReplacementNamed(context, RouteGenerator.rolePage);
+      } else if (role == 'peternak') {
+        Navigator.pushReplacementNamed(context, RouteGenerator.breaderHome);
+      } else if (role == 'pembeli') {
+        Navigator.pushReplacementNamed(context, RouteGenerator.buyerHome);
+      }
+    } else {
+      setState(() => _formError = "Email / Password tidak sesuai.");
+    }
+  }
+
+  Future<void> _handleGoogleLogin(AuthProvider authProvider) async {
+    FocusScope.of(context).unfocus();
+    final success = await authProvider.signInWithGoogle();
+
+    if (success && mounted) {
+      final profileProvider = context.read<ProfileProvider>();
+      await profileProvider.fetchProfile();
+      final role = profileProvider.role;
+
+      if (!mounted) return;
+
+      if (role == null) {
+        Navigator.pushReplacementNamed(context, RouteGenerator.rolePage);
+      } else if (role == 'peternak') {
+        Navigator.pushReplacementNamed(context, RouteGenerator.breaderHome);
+      } else if (role == 'pembeli') {
+        Navigator.pushReplacementNamed(context, RouteGenerator.buyerHome);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
@@ -51,21 +105,15 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: LivestColors.baseWhite,
           body: Column(
             children: [
-              // ── Brown Header + Tabs ──
               AuthHeader(
                 subtitle: "Masuk dengan akun Livest.",
                 activeTab: 0,
                 onTabChanged: (tab) {
                   if (tab == 1) {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      RouteGenerator.register,
-                    );
+                    Navigator.pushReplacementNamed(context, RouteGenerator.register);
                   }
                 },
               ),
-
-              // ── Form Body ──
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(LivestSizes.lg),
@@ -73,29 +121,20 @@ class _LoginPageState extends State<LoginPage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Email
                         CustomTextField(
                           label: "Email",
                           hintText: "Masukkan email kamu",
                           controller: _email,
                           keyboardType: TextInputType.emailAddress,
-                          validator: (value) =>
-                              null, // Hide default inline error
                         ),
                         const SizedBox(height: LivestSizes.spaceBtwInputFields),
-
-                        // Password
                         CustomTextField(
                           label: "Password",
                           hintText: "Masukkan password kamu",
                           controller: _password,
                           isPassword: true,
-                          validator: (value) =>
-                              null, // Hide default inline error
                         ),
                         const SizedBox(height: 8),
-
-                        // Form Error Banner
                         if (_formError != null)
                           Container(
                             width: double.infinity,
@@ -103,9 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
                               color: LivestColors.redLight,
-                              borderRadius: BorderRadius.circular(
-                                LivestSizes.inputFieldRadius,
-                              ),
+                              borderRadius: BorderRadius.circular(LivestSizes.inputFieldRadius),
                             ),
                             child: Text(
                               _formError!,
@@ -115,15 +152,10 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
-
-                        // Lupa Password
                         Align(
                           alignment: Alignment.centerLeft,
                           child: TextButton(
-                            onPressed: () => Navigator.pushNamed(
-                              context,
-                              RouteGenerator.forgotPassword,
-                            ),
+                            onPressed: () => Navigator.pushNamed(context, RouteGenerator.forgotPassword),
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 4),
                               minimumSize: Size.zero,
@@ -140,101 +172,20 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         const SizedBox(height: LivestSizes.lg),
-
-                        // Tombol Masuk
                         CustomButton(
                           text: "Masuk",
                           isLoading: authProvider.isLoading,
-                          onPressed: () async {
-                            FocusScope.of(context).unfocus();
-                            setState(() => _formError = null);
-
-                            if (_email.text.isEmpty || _password.text.isEmpty) {
-                              setState(
-                                () => _formError = "Lengkapi semua data.",
-                              );
-                              return;
-                            }
-
-                            final success = await authProvider.signInWithEmail(
-                              _email.text.trim(),
-                              _password.text.trim(),
-                            );
-                            if (success && context.mounted) {
-                              final profileProvider = context
-                                  .read<ProfileProvider>();
-                              await profileProvider.fetchProfile();
-                              final role = profileProvider.role;
-
-                              if (!context.mounted) return;
-                              if (role == null) {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  RouteGenerator.rolePage,
-                                );
-                              } else if (role == 'peternak') {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  RouteGenerator.breaderHome,
-                                );
-                              } else if (role == 'pembeli') {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  RouteGenerator.buyerHome,
-                                );
-                              }
-                            } else {
-                              if (context.mounted) {
-                                setState(
-                                  () => _formError =
-                                      "Email / Password tidak sesuai.",
-                                );
-                              }
-                            }
-                          },
+                          onPressed: () => _handleLogin(authProvider),
                         ),
                         const SizedBox(height: LivestSizes.lg),
-
-                        // Divider
                         const DividerWithText(),
                         const SizedBox(height: LivestSizes.lg),
-
-                        // Google
                         CustomButton(
                           text: "Masuk dengan Google",
                           variant: ButtonVariant.google,
-                          imagePath:
-                              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png',
+                          imagePath: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png',
                           isLoading: authProvider.isLoading,
-                          onPressed: () async {
-                            FocusScope.of(context).unfocus();
-                            final success = await authProvider
-                                .signInWithGoogle();
-                            if (success && context.mounted) {
-                              final profileProvider = context
-                                  .read<ProfileProvider>();
-                              await profileProvider.fetchProfile();
-                              final role = profileProvider.role;
-
-                              if (!context.mounted) return;
-                              if (role == null) {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  RouteGenerator.rolePage,
-                                );
-                              } else if (role == 'peternak') {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  RouteGenerator.breaderHome,
-                                );
-                              } else if (role == 'pembeli') {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  RouteGenerator.buyerHome,
-                                );
-                              }
-                            }
-                          },
+                          onPressed: () => _handleGoogleLogin(authProvider),
                         ),
                       ],
                     ),

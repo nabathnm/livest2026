@@ -67,7 +67,6 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: LivestAppbar(name: "Chatbot"),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
-          // If a new message arrives, scroll to bottom
           if (chatProvider.messages.isNotEmpty) {
             _scrollToBottom();
           }
@@ -79,8 +78,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     ? _buildEmptyState(chatProvider)
                     : _buildChatList(chatProvider),
               ),
-
-              // Bottom Input Area
               _buildInputArea(chatProvider),
             ],
           );

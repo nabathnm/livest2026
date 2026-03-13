@@ -119,7 +119,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // Tampilkan Confirmation Dialog sebelum menyimpan
     final bool? confirm = await showDialog<bool>(
       context: context,
-      barrierDismissible: true, // User bisa tap di luar untuk batal
+      barrierDismissible: true, 
       builder: (BuildContext ctx) {
         return const CustomConfirmationDialog(
           title: "Yakin ingin menyimpan\nperubahan?",
@@ -264,13 +264,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 CustomTextFieldPill(
                   label: "Username",
                   controller: _nameController,
-                  validator: (value) => null, // opsional
+                  validator: (value) => null, 
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldPill(
                   label: "Deskripsi",
                   controller: _descController,
-                  validator: (value) => null, // opsional
+                  validator: (value) => null, 
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldPill(
@@ -278,7 +278,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    // Hanya validasi format jika field diisi
                     if (value != null &&
                         value.trim().isNotEmpty &&
                         !value.contains("@")) {
@@ -297,7 +296,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     PhoneNumberFormatter(),
                   ],
                   validator: (value) {
-                    // Hanya validasi format jika field diisi
                     if (value != null && value.trim().isNotEmpty) {
                       if (!RegExp(
                         r'^(08|\+62)\d{7,12}$',
@@ -312,7 +310,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 CustomTextFieldPill(
                   label: "Nama Peternakan",
                   controller: _farmNameController,
-                  validator: (value) => null, // opsional
+                  validator: (value) => null, 
                 ),
                 const SizedBox(height: 16),
                 LocationDropdown(

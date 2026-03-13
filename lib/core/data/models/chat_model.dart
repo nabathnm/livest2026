@@ -1,5 +1,5 @@
 class ChatMessageModel {
-  final String role; // 'user' atau 'bot'
+  final String role; 
   final String text;
   final DateTime timestamp;
 

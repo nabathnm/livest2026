@@ -123,7 +123,6 @@ class DetailProductPage extends StatelessWidget {
                       },
                       child: Row(
                         children: [
-                          // Avatar placeholder
                           CircleAvatar(
                             radius: 24,
                             backgroundColor: LivestColors.primaryLightHover,
@@ -155,8 +154,6 @@ class DetailProductPage extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                  // ── END SELLER PROFILE BUTTON ──
                   const SizedBox(height: 32),
                   const Text(
                     'Deskripsi',

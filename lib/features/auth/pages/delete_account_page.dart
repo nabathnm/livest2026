@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livest/features/auth/pages/delete_account_confirmation_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:livest/core/routes/route_generator.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
@@ -32,14 +33,10 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
 
     final authProvider = context.read<AuthProvider>();
     final profileProvider = context.read<ProfileProvider>();
-    
-    // Asumsikan di sini kita melakukan re-autentikasi dan mencoba hapus user
-    // Karena Supabase secara default butuh Admin API/RPC, kita simulasikan
     final email = profileProvider.profileData?['email'];
     if (email != null) {
       final success = await authProvider.signInWithEmail(email, _passwordController.text);
       if (success) {
-        // Melakukan Soft Delete melalui Profile Provider
         final deleteSuccess = await profileProvider.softDeleteAccount();
         
         if (deleteSuccess) {
@@ -139,16 +136,33 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submitDelete,
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          final bool? confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => const DeleteAccountConfirmationDialog(),
+                          );
+                          if (confirmed == true) {
+                            _submitDelete();
+                          }
+                        },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD32F2F), // Red color
+                    backgroundColor: LivestColors.redNormal,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Hapus Akun", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      : const Text(
+                          "Hapus Akun",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ],
@@ -168,7 +182,6 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              // MOCKED IMAGE USING ICON FOR NOW
               const Icon(Icons.sentiment_dissatisfied, size: 100, color: LivestColors.primaryNormal),
               const SizedBox(height: 32),
               const Text(

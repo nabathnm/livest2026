@@ -25,7 +25,6 @@ class PostSignupPage extends StatefulWidget {
 class _PostSignupPageState extends State<PostSignupPage> {
   final PageController _pageController = PageController();
 
-  // ── Step data ──
   String _role = '';
   String _nama = '';
   String _phoneNumber = '';
@@ -33,7 +32,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
   String _farmLocation = '';
   final Set<String> _selectedAnimals = {};
 
-  // ── Error per step ──
   String? _roleError;
   String? _nameError;
   String? _phoneError;
@@ -45,14 +43,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
   final _phoneController = TextEditingController();
 
   int _currentStep = 0;
-
-  // Step indices:
-  // 0 = Role selection
-  // 1 = Name
-  // 2 = Phone number
-  // 3 = Farm profile (peternak)
-  // 4 = Animal selection (peternak)
-  // 5 = All Set
 
   static const List<String> _provinces = [
     'Jawa Timur',
@@ -83,8 +73,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
     super.dispose();
   }
 
-  // ── Navigasi ──
-
   void _clearErrors() => setState(() {
     _roleError = null;
     _nameError = null;
@@ -97,10 +85,8 @@ class _PostSignupPageState extends State<PostSignupPage> {
     _clearErrors();
     if (_currentStep > 0) {
       if (_role == 'pembeli' && _currentStep == 4) {
-        // Pembeli: Step 4 (Animal/Interests) -> Step 2 (Phone)
         _animateToStep(2);
       } else if (_role == 'pembeli' && _currentStep == 5) {
-        // Pembeli: Step 5 (All Set) -> Step 4 (Animal/Interests)
         _animateToStep(4);
       } else {
         _animateToStep(_currentStep - 1);
@@ -117,13 +103,11 @@ class _PostSignupPageState extends State<PostSignupPage> {
 
     if (_role == 'pembeli') {
       if (_currentStep == 2) {
-        // Pembeli: Step 2 (Phone) -> Step 4 (Animal/Interests)
         _animateToStep(4);
       } else if (_currentStep < 5) {
         _animateToStep(_currentStep + 1);
       }
     } else {
-      // Peternak: Normal flow
       if (_currentStep < 5) {
         _animateToStep(_currentStep + 1);
       }
@@ -159,7 +143,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
           setState(() => _phoneError = 'Nomor telepon tidak valid');
           return false;
         }
-        // Save the raw phone number back to be sent to backend
         _phoneNumber = rawPhone;
         break;
       case 3:
@@ -178,17 +161,16 @@ class _PostSignupPageState extends State<PostSignupPage> {
     return true;
   }
 
-  // ── Helpers Pembeli / Peternak ──
   int get _totalSegments => _role == 'pembeli' ? 4 : 5;
 
   int _getActiveSegment(int step) {
     if (_role == 'pembeli') {
-      if (step == 0) return 0; // Role
-      if (step == 1) return 1; // Name
-      if (step == 2) return 2; // Phone
-      if (step == 4) return 3; // Interests
-      if (step == 5) return 4; // All Set
-      return 0; // Fallback
+      if (step == 0) return 0; 
+      if (step == 1) return 1; 
+      if (step == 2) return 2; 
+      if (step == 4) return 3; 
+      if (step == 5) return 4; 
+      return 0; 
     } else {
       return step;
     }
@@ -236,8 +218,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
     }
   }
 
-  // ── Build ──
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ProfileProvider>(
@@ -249,7 +229,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
               controller: _pageController,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                // Step 0: Role
                 OnboardingStepLayout(
                   totalSegments: _totalSegments,
                   activeSegment: _getActiveSegment(0),
@@ -261,8 +240,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
                     errorMessage: _roleError,
                   ),
                 ),
-
-                // Step 1: Input Nama
                 OnboardingStepLayout(
                   totalSegments: _totalSegments,
                   activeSegment: _getActiveSegment(1),
@@ -274,8 +251,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
                     errorMessage: _nameError,
                   ),
                 ),
-
-                // Step 2: Nomor Telepon
                 OnboardingStepLayout(
                   totalSegments: _totalSegments,
                   activeSegment: _getActiveSegment(2),
@@ -287,8 +262,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
                     errorMessage: _phoneError,
                   ),
                 ),
-
-                // Step 3: Profil Peternakan (Hanya Peternak)
                 OnboardingStepLayout(
                   totalSegments: _totalSegments,
                   activeSegment: _getActiveSegment(3),
@@ -304,8 +277,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
                     errorMessage: _farmError,
                   ),
                 ),
-
-                // Step 4: Pilih Ternak / Preferensi
                 OnboardingStepLayout(
                   totalSegments: _totalSegments,
                   activeSegment: _getActiveSegment(4),
@@ -324,8 +295,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
                     errorMessage: _animalError,
                   ),
                 ),
-
-                // Step 5: All Set!
                 _AllSetStep(
                   totalSegments: _totalSegments,
                   activeSegment: _getActiveSegment(5),
@@ -341,10 +310,6 @@ class _PostSignupPageState extends State<PostSignupPage> {
     );
   }
 }
-
-// ════════════════════════════════════════
-// Step Widgets (private, scoped to this file)
-// ════════════════════════════════════════
 
 class _RoleStep extends StatelessWidget {
   final String selectedRole;

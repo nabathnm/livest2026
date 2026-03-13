@@ -16,12 +16,9 @@ class BreaderMainPage extends StatefulWidget {
 
 class _BreaderMainPageState extends State<BreaderMainPage> {
   int _selectedIndex = 0;
-
-  // Hanya halaman index 0 (Beranda) dan 3 (Profil) yang ada di sini
-  // Index 1 dan 2 akan di-push sebagai full screen
   final List<Widget> _pages = const [
     HomePage(),
-    ProfilePage(), // index 3 dipindah ke index 1 di sini
+    ProfilePage(), 
   ];
 
   final List<NavItemDataModel> _navItems = const [

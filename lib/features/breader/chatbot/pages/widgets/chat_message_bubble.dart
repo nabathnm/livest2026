@@ -17,7 +17,6 @@ class ChatMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isUser) {
-      // User style: Right aligned, beige bubble
       return Padding(
         padding: const EdgeInsets.only(bottom: 24.0),
         child: Align(
@@ -27,14 +26,14 @@ class ChatMessageBubble extends StatelessWidget {
               maxWidth: MediaQuery.of(context).size.width * 0.8,
             ),
             decoration: const BoxDecoration(
-              color: LivestColors.primaryLight, // f2eeea mapped color
+              color: LivestColors.primaryLight, 
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(
                   4,
-                ), // Slightly pointed bottom right
+                ), 
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -49,7 +48,6 @@ class ChatMessageBubble extends StatelessWidget {
         ),
       );
     } else {
-      // Bot style: Left aligned, transparent/no bubble background, markdown support
       return Padding(
         padding: const EdgeInsets.only(bottom: 24.0, right: 32.0),
         child: Align(

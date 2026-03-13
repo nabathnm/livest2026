@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:livest/features/auth/services/auth_service.dart';
+import 'package:livest/features/auth/repositories/auth_repository.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
+  final AuthRepository _authRepository = AuthRepository();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -20,12 +20,11 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Login dengan email & password
   Future<bool> signInWithEmail(String email, String password) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.signInWithEmail(email, password);
+      await _authRepository.signInWithEmail(email, password);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -35,12 +34,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Register dengan email & password
   Future<List<bool>> signUpWithEmail(String email, String password) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      final requiresOtp = await _authService.signUpWithEmail(email, password);
+      final requiresOtp = await _authRepository.signUpWithEmail(email, password);
       _setLoading(false);
       return [true, requiresOtp];
     } catch (e) {
@@ -50,12 +48,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Login dengan Google
   Future<bool> signInWithGoogle() async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.signInWithGoogle();
+      await _authRepository.signInWithGoogle();
       _setLoading(false);
       return true;
     } catch (e) {
@@ -65,12 +62,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Verifikasi kode OTP
   Future<bool> verifyOTP(String email, String otpCode) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.verifyOTP(email, otpCode);
+      await _authRepository.verifyOTP(email, otpCode);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -80,12 +76,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Kirim ulang kode OTP
   Future<bool> resendOTP(String email) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.resendOTP(email);
+      await _authRepository.resendOTP(email);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -95,12 +90,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Kirim OTP reset password
   Future<bool> sendPasswordResetOTP(String email) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.sendPasswordResetOTP(email);
+      await _authRepository.sendPasswordResetOTP(email);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -110,12 +104,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Verifikasi OTP reset password
   Future<bool> verifyPasswordResetOTP(String email, String otpCode) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.verifyPasswordResetOTP(email: email, otpCode: otpCode);
+      await _authRepository.verifyPasswordResetOTP(email: email, otpCode: otpCode);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -125,12 +118,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Update password (setelah OTP verified)
   Future<bool> updatePassword(String newPassword) async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      await _authService.updatePassword(newPassword);
+      await _authRepository.updatePassword(newPassword);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -140,11 +132,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Logout
   Future<void> signOut() async {
     _setLoading(true);
     try {
-      await _authService.signOut();
+      await _authRepository.signOut();
     } catch (e) {
       _errorMessage = e.toString();
     }
