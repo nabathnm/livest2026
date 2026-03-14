@@ -40,13 +40,25 @@ class ProfileHeaderCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Avatar
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: LivestColors.neutralNormal,
-            backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-            child: avatarUrl == null
-                ? const Icon(Icons.person, size: 30, color: LivestColors.neutralDark)
-                : null,
+          ClipOval(
+            child: Container(
+              width: 60,
+              height: 60,
+              color: LivestColors.neutralNormal,
+              child: avatarUrl != null && avatarUrl!.isNotEmpty
+                  ? Image.network(
+                      avatarUrl!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.person, size: 30, color: LivestColors.neutralDark);
+                      },
+                    )
+                  : const Icon(Icons.person, size: 30, color: LivestColors.neutralDark),
+            ),
           ),
           const SizedBox(width: 14),
 

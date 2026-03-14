@@ -159,17 +159,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 const SizedBox(height: 20),
                 GestureDetector(
                   onTap: _pickImage,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: const Color(0xFFE0E0E0),
-                    backgroundImage: _imageFile != null
-                        ? FileImage(_imageFile!)
-                        : (context.read<ProfileProvider>().avatarUrl != null
-                            ? NetworkImage(context.read<ProfileProvider>().avatarUrl!) as ImageProvider
-                            : null),
-                    child: _imageFile == null && context.read<ProfileProvider>().avatarUrl == null
-                        ? const Icon(Icons.person, size: 60, color: Colors.grey)
-                        : null,
+                  child: ClipOval(
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      color: const Color(0xFFE0E0E0),
+                      child: _imageFile != null
+                          ? Image.file(_imageFile!, fit: BoxFit.cover)
+                          : (context.read<ProfileProvider>().avatarUrl != null &&
+                                  context.read<ProfileProvider>().avatarUrl!.isNotEmpty
+                              ? Image.network(
+                                  context.read<ProfileProvider>().avatarUrl!,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(child: CircularProgressIndicator());
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(Icons.person, size: 60, color: Colors.grey);
+                                  },
+                                )
+                              : const Icon(Icons.person, size: 60, color: Colors.grey)),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),

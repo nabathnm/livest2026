@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/constants/livest_typography.dart';
 
-/// Error message box dengan background merah muda sesuai design.
 class OnboardingErrorBox extends StatelessWidget {
   final String message;
 
@@ -28,7 +27,7 @@ class OnboardingErrorBox extends StatelessWidget {
   }
 }
 
-/// Header standar untuk setiap step (judul + subtitle)
+/// Header standar untuk setiap step 
 class OnboardingStepHeader extends StatelessWidget {
   final String title;
   final String subtitle;

@@ -174,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: LivestSizes.lg),
                         CustomButton(
                           text: "Masuk",
-                          isLoading: authProvider.isLoading,
+                          isLoading: authProvider.isEmailLoading,
                           onPressed: () => _handleLogin(authProvider),
                         ),
                         const SizedBox(height: LivestSizes.lg),
@@ -184,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                           text: "Masuk dengan Google",
                           variant: ButtonVariant.google,
                           imagePath: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png',
-                          isLoading: authProvider.isLoading,
+                          isLoading: authProvider.isGoogleLoading,
                           onPressed: () => _handleGoogleLogin(authProvider),
                         ),
                       ],

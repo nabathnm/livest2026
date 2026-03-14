@@ -58,7 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final avatarUrl = profileProvider.avatarUrl;
     final fullName = profile?['full_name'] ?? '-';
-    final email = profile?['email'] ?? '-';
+    final email = profile?['email'] ?? profileProvider.email ?? '-';
     final phoneNumber = profile?['phone_number'] ?? '-';
     final preferences = profile?['preferences'] ?? '-';
 

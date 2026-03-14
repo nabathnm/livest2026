@@ -86,6 +86,13 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  Future<void> _handleGoogleSignUp(AuthProvider authProvider) async {
+    final success = await authProvider.signUpWithGoogle();
+    if (success && mounted) {
+      Navigator.pushReplacementNamed(context, RouteGenerator.rolePage);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
@@ -203,18 +210,18 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         CustomButton(
                           text: "Daftar",
-                          isLoading: authProvider.isLoading,
+                          isLoading: authProvider.isEmailLoading,
                           onPressed: () => _handleRegister(authProvider),
                         ),
                         const SizedBox(height: LivestSizes.lg),
                         const DividerWithText(),
                         const SizedBox(height: LivestSizes.lg),
                         CustomButton(
-                          text: "Login dengan Google",
+                          text: "Daftar dengan Google",
                           variant: ButtonVariant.google,
                           imagePath: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png',
-                          isLoading: authProvider.isLoading,
-                          onPressed: () => authProvider.signInWithGoogle(),
+                          isLoading: authProvider.isGoogleLoading,
+                          onPressed: () => _handleGoogleSignUp(authProvider),
                         ),
                       ],
                     ),

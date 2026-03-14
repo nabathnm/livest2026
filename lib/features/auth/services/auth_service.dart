@@ -41,6 +41,32 @@ class AuthService {
     );
   }
 
+  Future<AuthResponse> signUpWithGoogle() async {
+    const webClientId =
+        '644958779222-1sm913p9bdno71a4bhma7n8mt9p1jkor.apps.googleusercontent.com';
+
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      serverClientId: webClientId,
+    );
+    final googleUser = await googleSignIn.signIn();
+
+    if (googleUser == null) throw 'Autentikasi Google dibatalkan.';
+
+    final googleAuth = await googleUser.authentication;
+    final accessToken = googleAuth.accessToken;
+    final idToken = googleAuth.idToken;
+
+    if (accessToken == null || idToken == null) {
+      throw 'Gagal mendapatkan token kredensial dari Google.';
+    }
+
+    return await _supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: accessToken,
+    );
+  }
+
   Future<AuthResponse> verifyOTP(String email, String otpCode) async {
     return await _supabase.auth.verifyOTP(
       email: email,

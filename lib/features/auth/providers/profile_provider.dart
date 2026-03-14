@@ -117,6 +117,7 @@ class ProfileProvider extends ChangeNotifier {
         farmLocation: farmLocation,
         description: description,
         preferences: preferences,
+        email: email,
       );
 
       // Refresh profile dari server

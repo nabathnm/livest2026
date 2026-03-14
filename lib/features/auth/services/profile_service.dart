@@ -57,6 +57,7 @@ class ProfileService extends BaseSupabaseService<ProfileModel> {
     String? farmLocation,
     String? description,
     String? preferences,
+    String? email,
   }) async {
     final Map<String, dynamic> data = {
       'id': userId,
@@ -69,6 +70,7 @@ class ProfileService extends BaseSupabaseService<ProfileModel> {
     if (farmLocation != null) data['farm_location'] = farmLocation;
     if (description != null) data['description'] = description;
     if (preferences != null) data['preferences'] = preferences;
+    if (email != null) data['email'] = email;
 
     await upsert(data);
   }
@@ -88,12 +90,12 @@ class ProfileService extends BaseSupabaseService<ProfileModel> {
   ) async {
     final filePath = '$userId/avatar.$extension';
     await client.storage
-        .from('avatars')
+        .from('avatar')
         .uploadBinary(
           filePath,
           fileBytes as dynamic,
           fileOptions: const FileOptions(upsert: true),
         );  
-    return client.storage.from('avatars').getPublicUrl(filePath);
+    return client.storage.from('avatar').getPublicUrl(filePath);
   }
 }

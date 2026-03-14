@@ -59,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
         }
 
         final name = profileProvider.fullName ?? 'User';
-        final email = profileProvider.profileData?['email'] ?? 'Memuat...';
+        final email = profileProvider.profileData?['email'] ?? profileProvider.email ?? 'Memuat...';
         final phone = profileProvider.phoneNumber ?? '-';
         final farmName = profileProvider.farmName ?? '-';
         final farmLocation = profileProvider.farmLocation ?? '-';

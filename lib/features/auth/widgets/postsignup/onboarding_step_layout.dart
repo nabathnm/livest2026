@@ -3,9 +3,6 @@ import 'package:livest/core/utils/constants/livest_colors.dart';
 import 'package:livest/core/utils/widgets/custom_button.dart';
 
 /// Wrapper layout untuk setiap step onboarding:
-/// - Top bar (back arrow + progress bar)
-/// - Scrollable content
-/// - Pinned "Lanjut" button at bottom
 class OnboardingStepLayout extends StatelessWidget {
   final int totalSegments;
   final int activeSegment;
@@ -30,7 +27,6 @@ class OnboardingStepLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Top bar
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
           child: Row(
@@ -54,16 +50,12 @@ class OnboardingStepLayout extends StatelessWidget {
             ],
           ),
         ),
-
-        // Scrollable content
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
             child: child,
           ),
         ),
-
-        // Pinned button
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           child: CustomButton(
@@ -76,8 +68,6 @@ class OnboardingStepLayout extends StatelessWidget {
     );
   }
 }
-
-/// Segmented progress bar untuk onboarding steps
 class SegmentedProgressBar extends StatelessWidget {
   final int totalSegments;
   final int activeSegment; // 1-based, 0 if nothing active

@@ -227,19 +227,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     return Stack(
                       alignment: Alignment.center,
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: const Color(0xFFE0E0E0),
-                          backgroundImage: avatarUrl != null
-                              ? NetworkImage(avatarUrl)
-                              : null,
-                          child: avatarUrl == null
-                              ? const Icon(
-                                  Icons.person,
-                                  size: 60,
-                                  color: Colors.grey,
-                                )
-                              : null,
+                        ClipOval(
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            color: const Color(0xFFE0E0E0),
+                            child: avatarUrl != null && avatarUrl.isNotEmpty
+                                ? Image.network(
+                                    avatarUrl,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return const Center(child: CircularProgressIndicator());
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(Icons.person, size: 60, color: Colors.grey);
+                                    },
+                                  )
+                                : const Icon(Icons.person, size: 60, color: Colors.grey),
+                          ),
                         ),
                         if (provider.isLoading)
                           const Positioned(child: CircularProgressIndicator()),

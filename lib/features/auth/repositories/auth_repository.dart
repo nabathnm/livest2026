@@ -35,6 +35,16 @@ class AuthRepository {
     }
   }
 
+  Future<void> signUpWithGoogle() async {
+    try {
+      await _authService.signUpWithGoogle();
+    } on AuthException catch (e) {
+      throw e.message;
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<void> verifyOTP(String email, String otpCode) async {
     try {
       await _authService.verifyOTP(email, otpCode);

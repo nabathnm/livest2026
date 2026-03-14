@@ -60,19 +60,29 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 32,
-                      backgroundColor: LivestColors.primaryLightHover,
-                      backgroundImage: seller?.avatarUrl != null
-                          ? NetworkImage(seller!.avatarUrl!)
-                          : null,
-                      child: seller?.avatarUrl == null
-                          ? const Icon(
-                              Icons.person,
-                              size: 32,
-                              color: LivestColors.primaryNormal,
-                            )
-                          : null,
+                    ClipOval(
+                      child: Container(
+                        width: 64,
+                        height: 64,
+                        color: LivestColors.primaryLightHover,
+                        child: seller?.avatarUrl != null && seller!.avatarUrl!.isNotEmpty
+                            ? Image.network(
+                                seller.avatarUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.person,
+                                    size: 32,
+                                    color: LivestColors.primaryNormal,
+                                  );
+                                },
+                              )
+                            : const Icon(
+                                Icons.person,
+                                size: 32,
+                                color: LivestColors.primaryNormal,
+                              ),
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
